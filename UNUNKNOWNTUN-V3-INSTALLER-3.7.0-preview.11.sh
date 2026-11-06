@@ -482,6 +482,7 @@ valid_fragment_size() { [[ "$1" =~ ^([1-9][0-9]{0,3})-([1-9][0-9]{0,3})$ ]] && (
 valid_fragment_interval() { [[ "$1" =~ ^([0-9]{1,3})-([0-9]{1,3})ms$ ]] && (( 10#${BASH_REMATCH[1]} <= 10#${BASH_REMATCH[2]} && 10#${BASH_REMATCH[2]} <= 20 )); }
 valid_main_choice() { [[ "$1" =~ ^(10|[0-9])$ ]]; }
 valid_five_choices() { [[ "$1" =~ ^[1-5]$ ]]; }
+valid_six_choices() { [[ "$1" =~ ^[1-6]$ ]]; }
 valid_manage_choice() { [[ "$1" =~ ^([1-9]|1[0-9]|2[0-4])$ ]]; }
 valid_quota_gb() {
     python3 - "$1" <<'PY'
@@ -15911,12 +15912,356 @@ quick_iran_setup() {
     for map in "${maps[@]}"; do quick_offer_ufw "${map%%=*}" tcp; done
 }
 
+# ---------------------------------------------------------------- Quick spoof tunnel
+# One forwarded port over an IP-source-spoof GRE link. Foreign creates a link,
+# Iran pastes it. Reuses the validated spoof-pair logic; no manual file copying.
+QSPOOF_ROOT="/etc/ununknowntun-gre"
+QSPOOF_PREFIX="ununknowntun-gre-"
+
+valid_ipv4_plain() { [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && ! [[ "$1" =~ (^|\.)(25[6-9]|2[6-9][0-9]|[3-9][0-9][0-9]) ]]; }
+valid_unpriv_port() { [[ "$1" =~ ^[0-9]{4,5}$ ]] && (( 10#$1 >= 1024 && 10#$1 <= 65535 )); }
+
+qspoof_stage() {
+    QSPOOF_STAGE="$(mktemp -d /tmp/ununknowntun-qspoof.XXXXXXXX)"
+    chmod 0700 "$QSPOOF_STAGE"
+    gdt_spoof_stage="$QSPOOF_STAGE"
+    write_spoof_pair_helper
+    cat > "$QSPOOF_STAGE/quick-spoof.py" <<'UUT_QSPOOF_PY_EOF'
+#!/usr/bin/env python3
+"""UnUnknownTun quick spoof tunnel helper (writes private endpoint files only).
+
+foreign: creates the egress endpoint, certificate and token, and prints a short link.
+iran:    reads that link and creates the matching origin endpoint.
+Reuses the validated GRE pair logic from spoof-pair.py. Never starts services.
+"""
+import argparse, base64, importlib.util, json, os, re, secrets, shutil, sys
+from pathlib import Path
+
+INNER = {"origin": "10.77.0.1", "egress": "10.77.0.2"}
+
+
+def load_pair_module(path):
+    spec = importlib.util.spec_from_file_location("spoof_pair", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def build_spec(M, a, role_info):
+    pair = a.pair
+    spec = {
+        "authorized": True, "pair_id": pair, "binary_path": a.binary,
+        "install_dir": "/etc/ununknowntun-gre/" + pair,
+        "carrier_port": 18443, "mtu": 1280, "mux": "on",
+        "client_listen": role_info["client_listen"], "target": "127.0.0.1:%d" % role_info["target_port"],
+        "origin": {"interface": role_info["origin_iface"], "real_ip": role_info["origin_ip"], "inner_ip": INNER["origin"]},
+        "egress": {"interface": role_info["egress_iface"], "real_ip": role_info["egress_ip"], "inner_ip": INNER["egress"]},
+    }
+    forger = role_info["forger"]
+    spoof = role_info["spoof_ip"]
+    spec["origin" if forger == "iran" else "egress"]["source_ip"] = spoof
+    return M.validate_spec(spec)
+
+
+def write_endpoint(M, spec, role, token, pin, cert=None, key=None):
+    root = Path(spec["install_dir"])
+    if root.exists():
+        sys.exit("The folder %s already exists; choose another tunnel name." % root)
+    os.umask(0o077)
+    os.makedirs(root / role, mode=0o700)
+    os.chmod(root, 0o700)
+    os.chmod(root / role, 0o700)
+    files = {
+        "gre.json": M.json_bytes(M.gre_config(spec, role)),
+        "token": (token + "\n").encode(),
+        "pin.sha256": (pin + "\n").encode(),
+        "run.sh": M.launcher(spec, role, pin),
+        "check.sh": M.launcher(spec, role, pin, True),
+        "ununknowntun-gre-%s.service" % spec["pair_id"]: M.service(spec, role),
+    }
+    if cert:
+        files["server.crt"] = cert
+    if key:
+        files["server.key"] = key
+    for name, data in files.items():
+        fd = os.open(root / role / name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+
+
+def encode_link(payload):
+    raw = json.dumps(payload, separators=(",", ":")).encode()
+    return "uutspoof://" + base64.urlsafe_b64encode(raw).decode().rstrip("=")
+
+
+def decode_link(link):
+    link = "".join(link.split())
+    if not link.startswith("uutspoof://"):
+        sys.exit("Invalid link: it must start with uutspoof://")
+    body = link[len("uutspoof://"):]
+    try:
+        payload = json.loads(base64.urlsafe_b64decode(body + "=" * (-len(body) % 4)))
+        for key, kind in (("v", int), ("n", str), ("f", str), ("i", str), ("fg", str), ("sp", str), ("tp", int), ("t", str), ("p", str)):
+            if not isinstance(payload[key], kind):
+                raise ValueError(key)
+        if payload["v"] != 1 or payload["fg"] not in ("iran", "foreign"):
+            raise ValueError("version")
+        if not re.fullmatch(r"[0-9a-f]{64}", payload["t"]) or not re.fullmatch(r"[0-9a-f]{64}", payload["p"]):
+            raise ValueError("secret")
+    except Exception:
+        sys.exit("Invalid link: copy the whole line exactly from the foreign server.")
+    return payload
+
+
+def cmd_foreign(M, a):
+    info = {"origin_iface": "eth0", "origin_ip": a.iran_ip, "egress_iface": a.iface, "egress_ip": a.foreign_ip,
+            "client_listen": "0.0.0.0:12055", "target_port": a.target_port, "forger": a.forger, "spoof_ip": a.spoof_ip}
+    spec = build_spec(M, a, info)
+    exe = M.openssl_binary()
+    key, cert, pin = M.make_certificate(spec, exe)
+    token = secrets.token_hex(32)
+    write_endpoint(M, spec, "egress", token, pin, cert=cert, key=key)
+    print(encode_link({"v": 1, "n": a.pair, "f": a.foreign_ip, "i": a.iran_ip, "fg": a.forger, "sp": a.spoof_ip,
+                       "tp": a.target_port, "t": token, "p": pin}))
+
+
+def cmd_iran(M, a):
+    p = decode_link(a.link)
+    a.pair = p["n"]
+    info = {"origin_iface": a.iface, "origin_ip": p["i"], "egress_iface": "eth0", "egress_ip": p["f"],
+            "client_listen": "0.0.0.0:%d" % a.listen_port, "target_port": p["tp"], "forger": p["fg"], "spoof_ip": p["sp"]}
+    spec = build_spec(M, a, info)
+    write_endpoint(M, spec, "origin", p["t"], p["p"])
+    print("PAIR=%s IRAN_IP=%s FOREIGN_IP=%s FORGER=%s SPOOF=%s TARGET=%d" % (p["n"], p["i"], p["f"], p["fg"], p["sp"], p["tp"]))
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--spair", required=True, help="path to spoof-pair.py")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    f = sub.add_parser("foreign")
+    f.add_argument("--pair", required=True)
+    f.add_argument("--binary", required=True)
+    f.add_argument("--foreign-ip", required=True)
+    f.add_argument("--iface", required=True)
+    f.add_argument("--iran-ip", required=True)
+    f.add_argument("--forger", choices=("iran", "foreign"), default="iran")
+    f.add_argument("--spoof-ip", required=True)
+    f.add_argument("--target-port", type=int, required=True)
+    i = sub.add_parser("iran")
+    i.add_argument("--link", required=True)
+    i.add_argument("--binary", required=True)
+    i.add_argument("--iface", required=True)
+    i.add_argument("--listen-port", type=int, required=True)
+    n = sub.add_parser("info")
+    n.add_argument("--link", required=True)
+    a = ap.parse_args()
+    if a.cmd == "info":
+        p = decode_link(a.link)
+        print("%s %s %s %s %s %d" % (p["n"], p["f"], p["i"], p["fg"], p["sp"], p["tp"]))
+        return 0
+    M = load_pair_module(a.spair)
+    try:
+        (cmd_foreign if a.cmd == "foreign" else cmd_iran)(M, a)
+    except M.PairError as exc:
+        sys.exit("Error: %s" % exc)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+UUT_QSPOOF_PY_EOF
+}
+
+qspoof_unstage() {
+    [[ -n "${QSPOOF_STAGE:-}" && -d "$QSPOOF_STAGE" ]] || return 0
+    rm -f -- "$QSPOOF_STAGE/spoof-pair.py" "$QSPOOF_STAGE/quick-spoof.py"
+    rmdir -- "$QSPOOF_STAGE" 2>/dev/null || true
+    QSPOOF_STAGE=""
+}
+
+qspoof_prepare() {
+    quick_prepare
+    command -v ip >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq iproute2; } || die "iproute2 (ip) is required."
+    command -v python3 >/dev/null 2>&1 || { apt-get install -y -qq python3; } || die "python3 is required."
+    modprobe ip_gre 2>/dev/null || true
+    modprobe tun 2>/dev/null || true
+    [[ -c /dev/net/tun ]] || die "/dev/net/tun is missing. This VPS/container does not allow TUN devices, so a spoof tunnel cannot run here."
+    install -d -o root -g root -m 0755 "$QSPOOF_ROOT"
+}
+
+qspoof_route_dev() { ip -4 route get "$1" 2>/dev/null | sed -nE 's/.* dev ([^ ]+).*/\1/p' | head -n1; }
+qspoof_route_src() { ip -4 route get "$1" 2>/dev/null | sed -nE 's/.* src ([0-9.]+).*/\1/p' | head -n1; }
+
+qspoof_check_ip_on_iface() {
+    local iface="$1" addr="$2"
+    ip -4 -o addr show dev "$iface" 2>/dev/null | grep -qE "inet ${addr//./\\.}/" \
+        || die "IP $addr is not assigned on interface $iface (NAT/floating IPs cannot be used for GRE)."
+}
+
+qspoof_rp_filter() {
+    local iface="$1" all_v if_v eff
+    all_v="$(sysctl -n net.ipv4.conf.all.rp_filter 2>/dev/null || echo 0)"
+    if_v="$(sysctl -n "net.ipv4.conf.${iface}.rp_filter" 2>/dev/null || echo 0)"
+    eff=$(( all_v > if_v ? all_v : if_v ))
+    if (( eff == 1 )); then
+        warn "Strict rp_filter is on. The kernel would drop forged-source packets that arrive here."
+        if yes_no "Set rp_filter to loose (2) on all and $iface now?" "y"; then
+            sysctl -qw net.ipv4.conf.all.rp_filter=2 "net.ipv4.conf.${iface}.rp_filter=2" || warn "Could not change rp_filter."
+            printf 'net.ipv4.conf.all.rp_filter=2\nnet.ipv4.conf.%s.rp_filter=2\n' "$iface" > /etc/sysctl.d/99-ununknowntun-gre.conf
+            info "rp_filter set to loose (saved in /etc/sysctl.d/99-ununknowntun-gre.conf)."
+        fi
+    fi
+}
+
+qspoof_install_unit() {
+    local name="$1" role="$2" unit_file="${QSPOOF_PREFIX}${1}.service"
+    install -m 0644 "$QSPOOF_ROOT/$name/$role/$unit_file" "/etc/systemd/system/$unit_file"
+    systemctl daemon-reload
+    systemctl enable --now "$unit_file" >/dev/null 2>&1 || true
+    sleep 3
+    if systemctl is-active --quiet "$unit_file"; then
+        info "Service $unit_file is running."
+    else
+        warn "Service $unit_file did not start. Last log lines:"
+        journalctl -u "$unit_file" -n 15 --no-pager >&2 || true
+        return 1
+    fi
+}
+
+qspoof_foreign_setup() {
+    qspoof_prepare
+    printf '\n%s=== Quick SPOOF tunnel: FOREIGN server (creates a link, forwards one port) ===%s\n' "$CYAN" "$RESET"
+    printf 'Run the Test > Spoof test first. This tunnel needs one side that can forge its source IP.\n\n'
+    local count name iran_ip real_ip iface forger spoof_ip target detected link dir
+    count="$(find "$QUICK_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)"
+    name="spoof$((count + 1))"
+    while true; do
+        ask_valid name "Tunnel name" "$name" valid_quick_name "Use 1-24 lowercase letters, digits or '-'."
+        [[ ! -e "$QSPOOF_ROOT/$name" && ! -e "$QUICK_DIR/$name" ]] && break
+        warn "A tunnel named $name already exists."
+    done
+    ask_valid iran_ip "Iran server public IPv4" "" valid_public_ipv4 "Enter the Iran server's public IPv4."
+    real_ip="$(qspoof_route_src "$iran_ip")"
+    iface="$(qspoof_route_dev "$iran_ip")"
+    ask_valid real_ip "This foreign server's real IPv4 (assigned on the interface)" "$real_ip" valid_ipv4_plain "Enter an IPv4 address."
+    ask_valid iface "Network interface" "${iface:-eth0}" valid_name "Enter an interface name."
+    qspoof_check_ip_on_iface "$iface" "$real_ip"
+    printf '\nWhich server forges its source IP?\n'
+    printf '  1) IRAN forges   (recommended if the Spoof test passed from Iran to Foreign)\n'
+    printf '  2) FOREIGN forges (only if the Spoof test passed from Foreign to Iran)\n'
+    ask_valid forger "Select" "1" valid_two_choices "Select 1 or 2."
+    [[ "$forger" == 1 ]] && forger=iran || forger=foreign
+    while true; do
+        ask_valid spoof_ip "Forged source IP (an IP inside a range that PASSED the Spoof test)" "" valid_ipv4_plain "Enter an IPv4 address."
+        [[ "$spoof_ip" != "$real_ip" && "$spoof_ip" != "$iran_ip" ]] && break
+        warn "The forged IP must differ from both real server IPs."
+    done
+    detected="$(discover_xray_loopback_ports 2>/dev/null | head -n1 || true)"
+    ask_valid target "Port of the service on THIS server to forward to (e.g. your Xray inbound)" "${detected:-8443}" valid_port "Invalid port."
+    quick_install_binary
+    qspoof_stage
+    link="$(python3 -I "$QSPOOF_STAGE/quick-spoof.py" --spair "$QSPOOF_STAGE/spoof-pair.py" foreign \
+        --pair "$name" --binary "$QUICK_BIN" --foreign-ip "$real_ip" --iface "$iface" --iran-ip "$iran_ip" \
+        --forger "$forger" --spoof-ip "$spoof_ip" --target-port "$target")" || { qspoof_unstage; die "Could not create the tunnel files."; }
+    qspoof_unstage
+    qspoof_rp_filter "$iface"
+    dir="$QUICK_DIR/$name"
+    install -d -o root -g root -m 0700 "$dir"
+    printf '%s\n' "$link" > "$dir/link.txt"; chmod 0600 "$dir/link.txt"
+    printf 'ROLE=foreign\nTYPE=spoof\nNAME=%s\nPORT=spoof -> 127.0.0.1:%s\nPREFIX=%s\nUNITS=%s\nEXTRA_DIR=%s/%s\n' \
+        "$name" "$target" "$QSPOOF_PREFIX" "$name" "$QSPOOF_ROOT" "$name" > "$dir/info.env"
+    chmod 0600 "$dir/info.env"
+    if ! sh "$QSPOOF_ROOT/$name/egress/check.sh" >/dev/null 2>&1; then
+        warn "Offline config check failed; the service may not start."
+    fi
+    qspoof_install_unit "$name" egress || warn "The foreign service is not running yet; fix the error above, then Manage > Quick tunnels > Restart. Link is still valid."
+    quick_box "Link for the IRAN server" \
+        "On Iran: Setup Iran > Quick SPOOF tunnel > paste:" "" \
+        "$GREEN$link$RESET" "" \
+        "Forged source: $spoof_ip is used by $forger. Keep the link private." \
+        "If a firewall is active, allow IP protocol 47 (GRE) from the other server."
+}
+
+qspoof_iran_setup() {
+    qspoof_prepare
+    printf '\n%s=== Quick SPOOF tunnel: IRAN server (choose the port users connect to) ===%s\n' "$CYAN" "$RESET"
+    local link name foreign_ip iran_ip forger spoof_ip target iface listen_port dir fields
+    while true; do
+        ask link "Paste the link from the foreign server (uutspoof://...)" ""
+        if fields="$(python3 -I - "$link" 2>/dev/null <<'UUT_QSPOOF_DECODE'
+import base64, json, sys
+link = "".join(sys.argv[1].split())
+assert link.startswith("uutspoof://")
+body = link[len("uutspoof://"):]
+p = json.loads(base64.urlsafe_b64decode(body + "=" * (-len(body) % 4)))
+print(p["n"], p["f"], p["i"], p["fg"], p["sp"], p["tp"])
+UUT_QSPOOF_DECODE
+)"; then
+            read -r name foreign_ip iran_ip forger spoof_ip target <<< "$fields"
+            valid_quick_name "$name" && valid_ipv4_plain "$foreign_ip" && valid_ipv4_plain "$iran_ip" && break
+        fi
+        warn "Invalid link. Copy the whole line exactly from the foreign server."
+    done
+    info "Foreign: $foreign_ip   This Iran server: $iran_ip   Forged source: $spoof_ip (by $forger)   Forward to foreign port: $target"
+    while [[ -e "$QSPOOF_ROOT/$name" || -e "$QUICK_DIR/$name" ]]; do
+        die "A tunnel named $name already exists here. Remove it first (Manage > Quick tunnels)."
+    done
+    iface="$(qspoof_route_dev "$foreign_ip")"
+    ask_valid iface "Network interface" "${iface:-eth0}" valid_name "Enter an interface name."
+    qspoof_check_ip_on_iface "$iface" "$iran_ip"
+    while true; do
+        ask_valid listen_port "Port users connect to on THIS Iran server (1024-65535)" "8443" valid_unpriv_port "Use a port from 1024 to 65535."
+        quick_port_free "$listen_port" && break
+        warn "Port $listen_port is already in use here."
+    done
+    quick_install_binary
+    qspoof_stage
+    python3 -I "$QSPOOF_STAGE/quick-spoof.py" --spair "$QSPOOF_STAGE/spoof-pair.py" iran \
+        --link "$link" --binary "$QUICK_BIN" --iface "$iface" --listen-port "$listen_port" >/dev/null \
+        || { qspoof_unstage; die "Could not create the tunnel files."; }
+    qspoof_unstage
+    qspoof_rp_filter "$iface"
+    info "Testing the spoofed GRE link to the foreign server (up to 20 s) ..."
+    if timeout 30 sh "$QSPOOF_ROOT/$name/origin/check.sh" >/tmp/ununknowntun-qspoof-check.log 2>&1; then
+        info "Spoofed GRE + TLS authentication works."
+    else
+        warn "The live check failed:"
+        tail -n 4 /tmp/ununknowntun-qspoof-check.log >&2 || true
+        warn "Check on foreign: service running, IP protocol 47 open, rp_filter loose. Foreign must start first."
+        if ! yes_no "Install and start anyway (it keeps retrying)?" "n"; then
+            rm -f -- /tmp/ununknowntun-qspoof-check.log
+            die "Cancelled. Files remain in $QSPOOF_ROOT/$name; remove them with: rm -r $QSPOOF_ROOT/$name"
+        fi
+    fi
+    rm -f -- /tmp/ununknowntun-qspoof-check.log
+    dir="$QUICK_DIR/$name"
+    install -d -o root -g root -m 0700 "$dir"
+    printf 'ROLE=iran\nTYPE=spoof\nNAME=%s\nMAP=%s=%s\nPREFIX=%s\nUNITS=%s\nEXTRA_DIR=%s/%s\n' \
+        "$name" "$listen_port" "$target" "$QSPOOF_PREFIX" "$name" "$QSPOOF_ROOT" "$name" > "$dir/info.env"
+    chmod 0600 "$dir/info.env"
+    local started=1
+    qspoof_install_unit "$name" origin || started=0
+    if (( started == 0 )); then
+        quick_box "Tunnel $name was created but is NOT running" \
+            "Read the log lines above, fix the cause, then: Manage > Quick tunnels > Restart." \
+            "Typical causes: foreign side not running, GRE (IP protocol 47) blocked, rp_filter strict." "" \
+            "Planned: $iran_ip:$listen_port  ->  foreign 127.0.0.1:$target"
+        return 0
+    fi
+    quick_box "Quick spoof tunnel $name is ready" \
+        "$GREEN$iran_ip:$listen_port$RESET  ->  foreign 127.0.0.1:$target" "" \
+        "Point your clients to the Iran address and port above." \
+        "Manage: main menu 3 > Quick tunnels (status, logs, restart, remove)."
+    quick_offer_ufw "$listen_port" tcp
+}
+
 quick_units_of() { sed -n 's/^UNITS=//p' "$QUICK_DIR/$1/info.env" 2>/dev/null; }
 
 quick_manage() {
     require_root
     local -a names=()
-    local d n role state unit choice action i
+    local d n role state unit choice action i pfx extra
     while true; do
         names=()
         printf '\n%sQuick tunnels%s\n' "$BOLD$CYAN" "$RESET"
@@ -15933,9 +16278,11 @@ quick_manage() {
         for i in "${!names[@]}"; do
             n="${names[$i]}"
             role="$(sed -n 's/^ROLE=//p' "$QUICK_DIR/$n/info.env")"
+            pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
+            pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
             state="$GREEN●running$RESET"
             for unit in $(quick_units_of "$n"); do
-                systemctl is-active --quiet "${QUICK_UNIT_PREFIX}${unit}.service" || state="$RED○stopped$RESET"
+                systemctl is-active --quiet "${pfx}${unit}.service" || state="$RED○stopped$RESET"
             done
             printf '  %s%2d)%s %-14s %-8s %s  %s\n' "$RED" "$((i + 1))" "$RESET" "$n" "$role" "$state" \
                 "$(sed -n 's/^MAP=//p;s/^PORT=/port /p' "$QUICK_DIR/$n/info.env" | head -n1 | sed 's/=/→/g')"
@@ -15945,22 +16292,28 @@ quick_manage() {
         [[ "$choice" == 0 || -z "$choice" ]] && return 0
         [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#names[@]} )) || { warn "Invalid choice."; continue; }
         n="${names[$((choice - 1))]}"
+        pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
+        pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
         printf '\n  1) Status   2) Show link   3) Restart   4) Stop   5) Start   6) Logs   7) Remove   0) Back\n'
         read -r -p "Action: " action || return 0
         case "$action" in
-            1) for unit in $(quick_units_of "$n"); do systemctl --no-pager status "${QUICK_UNIT_PREFIX}${unit}.service" | head -n 12; done ;;
+            1) for unit in $(quick_units_of "$n"); do systemctl --no-pager status "${pfx}${unit}.service" | head -n 12; done ;;
             2) if [[ -f "$QUICK_DIR/$n/link.txt" ]]; then quick_box "Link for the IRAN server" "$GREEN$(cat "$QUICK_DIR/$n/link.txt")$RESET"; else warn "The link exists only on the foreign server."; fi ;;
-            3) for unit in $(quick_units_of "$n"); do systemctl restart "${QUICK_UNIT_PREFIX}${unit}.service"; done; info "Restarted." ;;
-            4) for unit in $(quick_units_of "$n"); do systemctl stop "${QUICK_UNIT_PREFIX}${unit}.service"; done; info "Stopped." ;;
-            5) for unit in $(quick_units_of "$n"); do systemctl start "${QUICK_UNIT_PREFIX}${unit}.service"; done; info "Started." ;;
-            6) for unit in $(quick_units_of "$n"); do journalctl -u "${QUICK_UNIT_PREFIX}${unit}.service" -n 40 --no-pager; done ;;
+            3) for unit in $(quick_units_of "$n"); do systemctl restart "${pfx}${unit}.service"; done; info "Restarted." ;;
+            4) for unit in $(quick_units_of "$n"); do systemctl stop "${pfx}${unit}.service"; done; info "Stopped." ;;
+            5) for unit in $(quick_units_of "$n"); do systemctl start "${pfx}${unit}.service"; done; info "Started." ;;
+            6) for unit in $(quick_units_of "$n"); do journalctl -u "${pfx}${unit}.service" -n 40 --no-pager; done ;;
             7)
                 if yes_no "Remove quick tunnel $n and its services?" "n"; then
                     for unit in $(quick_units_of "$n"); do
-                        systemctl disable --now "${QUICK_UNIT_PREFIX}${unit}.service" >/dev/null 2>&1 || true
-                        rm -f -- "/etc/systemd/system/${QUICK_UNIT_PREFIX}${unit}.service"
+                        systemctl disable --now "${pfx}${unit}.service" >/dev/null 2>&1 || true
+                        rm -f -- "/etc/systemd/system/${pfx}${unit}.service"
                     done
                     systemctl daemon-reload
+                    extra="$(sed -n 's/^EXTRA_DIR=//p' "$QUICK_DIR/$n/info.env")"
+                    if [[ "$extra" == "$QSPOOF_ROOT"/* && "$extra" != *..* ]]; then rm -rf -- "$extra"; fi
+                    extra="$(sed -n 's/^EXTRA_DIR=//p' "$QUICK_DIR/$n/info.env")"
+                    if [[ "$extra" == "$QSPOOF_ROOT"/* && "$extra" != *..* ]]; then rm -rf -- "$extra"; fi
                     rm -rf -- "${QUICK_DIR:?}/${n:?}"
                     info "Removed $n."
                 fi
@@ -16048,37 +16401,41 @@ LAUNCHER
 
 setup_iran_menu() {
     printf '\n%sIRAN server: what do you want?%s\n' "$BOLD$CYAN" "$RESET"
-    printf '  %s1)%s %sQuick tunnel%s      direct TLS, no domain. Paste the link from the foreign server. (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s2)%s %sCDN tunnel%s        WSS/XHTTP through Cloudflare/Arvan/Nginx. Needs a domain. Paste the pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s3)%s %sICMP L3 tunnel%s    ping-based private IPv4 link. Paste the pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s4)%s %sIP spoof / GRE%s    creates matched config files (to deploy manually). Run the Spoof test first.\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s5)%s %sOther types%s       native ICMP carrier, ICMP inside WSS (old menu)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s1)%s %sQuick tunnel%s        direct TLS, no domain. Paste the link from the foreign server. (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sQuick SPOOF tunnel%s  one forwarded port over forged-source GRE. Paste the link. (run Test > Spoof test first)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s3)%s %sCDN tunnel%s          WSS/XHTTP through Cloudflare/Arvan/Nginx. Needs a domain. Paste the pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s4)%s %sICMP L3 tunnel%s      ping-based private IPv4 link. Paste the pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s5)%s %sSpoof / GRE files%s   advanced: generate matched config files to deploy manually\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s6)%s %sOther types%s         native ICMP carrier, ICMP inside WSS (old menu)\n' "$RED" "$RESET" "$BOLD" "$RESET"
     local choice
-    ask_valid choice "Select" "1" valid_five_choices "Select 1, 2, 3, 4 or 5."
+    ask_valid choice "Select" "1" valid_six_choices "Select 1-6."
     case "$choice" in
         1) quick_iran_setup ;;
-        2) install_origin ;;
-        3) run_direct_icmp_setup origin ;;
-        4) generate_spoof_pair ;;
-        5) create_tunnel origin ;;
+        2) qspoof_iran_setup ;;
+        3) install_origin ;;
+        4) run_direct_icmp_setup origin ;;
+        5) generate_spoof_pair ;;
+        6) create_tunnel origin ;;
     esac
 }
 
 setup_foreign_menu() {
     printf '\n%sFOREIGN server: what do you want?%s\n' "$BOLD$CYAN" "$RESET"
-    printf '  %s1)%s %sQuick tunnel%s      direct TLS, no domain. Only creates a link for Iran. (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s2)%s %sCDN tunnel%s        WSS/XHTTP through Cloudflare/Arvan/Nginx. Needs a domain. Creates a pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s3)%s %sICMP L3 tunnel%s    ping-based private IPv4 link. Creates a pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s4)%s %sIP spoof / GRE%s    creates matched config files (to deploy manually). Run the Spoof test first.\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s5)%s %sOther types%s       native ICMP carrier, ICMP inside WSS (old menu)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s1)%s %sQuick tunnel%s        direct TLS, no domain. Only creates a link for Iran. (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sQuick SPOOF tunnel%s  one forwarded port over forged-source GRE. Creates a link. (run Test > Spoof test first)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s3)%s %sCDN tunnel%s          WSS/XHTTP through Cloudflare/Arvan/Nginx. Needs a domain. Creates a pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s4)%s %sICMP L3 tunnel%s      ping-based private IPv4 link. Creates a pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s5)%s %sSpoof / GRE files%s   advanced: generate matched config files to deploy manually\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s6)%s %sOther types%s         native ICMP carrier, ICMP inside WSS (old menu)\n' "$RED" "$RESET" "$BOLD" "$RESET"
     local choice
-    ask_valid choice "Select" "1" valid_five_choices "Select 1, 2, 3, 4 or 5."
+    ask_valid choice "Select" "1" valid_six_choices "Select 1-6."
     case "$choice" in
         1) quick_foreign_setup ;;
-        2) install_foreign ;;
-        3) run_direct_icmp_setup egress ;;
-        4) generate_spoof_pair ;;
-        5) create_tunnel egress ;;
+        2) qspoof_foreign_setup ;;
+        3) install_foreign ;;
+        4) run_direct_icmp_setup egress ;;
+        5) generate_spoof_pair ;;
+        6) create_tunnel egress ;;
     esac
 }
 
@@ -16157,12 +16514,15 @@ case "${1:-}" in
     connection-test|test) shift; run_connection_test "$@" ;;
     spoof-test) shift; run_spoof_test "$@" ;;
     quick-foreign) quick_foreign_setup ;;
+    quick-spoof-foreign) qspoof_foreign_setup ;;
+    quick-spoof-iran) qspoof_iran_setup ;;
     quick-iran) quick_iran_setup ;;
     quick-manage) quick_manage ;;
     "") main_menu ;;
     help|--help|-h)
         printf 'Usage: %s [foreign|iran|manage|upgrade|scanner|ui]\n' "$0"
         printf '  quick-foreign | quick-iran | quick-manage   Link-based quick tunnel\n'
+        printf '  quick-spoof-foreign | quick-spoof-iran       Link-based spoof (GRE) tunnel, one forwarded port\n'
         printf '  spoof-test                     Check whether forged source IPs pass between two servers\n'
         printf '  connection-test                Test TCP/UDP/ICMP/TLS/WebSocket between two servers\n'
         printf '  ui [UI_OPTIONS]                Open the embedded Control Room without upgrading\n'
