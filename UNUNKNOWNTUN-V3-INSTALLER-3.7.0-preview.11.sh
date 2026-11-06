@@ -16094,6 +16094,19 @@ qspoof_unstage() {
     QSPOOF_STAGE=""
 }
 
+qspoof_clean_orphan() {
+    # Leftovers of an earlier failed attempt: files exist but no registered tunnel.
+    local name="$1"
+    valid_quick_name "$name" || return 0
+    if [[ -d "$QSPOOF_ROOT/$name" && ! -f "$QUICK_DIR/$name/info.env" ]]; then
+        warn "Removing leftover files of an unfinished tunnel named $name."
+        systemctl disable --now "${QSPOOF_PREFIX}${name}.service" >/dev/null 2>&1 || true
+        rm -f -- "/etc/systemd/system/${QSPOOF_PREFIX}${name}.service"
+        rm -rf -- "${QSPOOF_ROOT:?}/${name:?}"
+        systemctl daemon-reload >/dev/null 2>&1 || true
+    fi
+}
+
 qspoof_prepare() {
     quick_prepare
     command -v ip >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq iproute2; } || die "iproute2 (ip) is required."
@@ -16153,6 +16166,7 @@ qspoof_foreign_setup() {
     name="spoof$((count + 1))"
     while true; do
         ask_valid name "Tunnel name" "$name" valid_quick_name "Use 1-24 lowercase letters, digits or '-'."
+        qspoof_clean_orphan "$name"
         [[ ! -e "$QSPOOF_ROOT/$name" && ! -e "$QUICK_DIR/$name" ]] && break
         warn "A tunnel named $name already exists."
     done
@@ -16219,9 +16233,10 @@ UUT_QSPOOF_DECODE
         warn "Invalid link. Copy the whole line exactly from the foreign server."
     done
     info "Foreign: $foreign_ip   This Iran server: $iran_ip   Forged source: $spoof_ip (by $forger)   Forward to foreign port: $target"
-    while [[ -e "$QSPOOF_ROOT/$name" || -e "$QUICK_DIR/$name" ]]; do
+    qspoof_clean_orphan "$name"
+    if [[ -e "$QSPOOF_ROOT/$name" || -e "$QUICK_DIR/$name" ]]; then
         die "A tunnel named $name already exists here. Remove it first (Manage > Quick tunnels)."
-    done
+    fi
     iface="$(qspoof_route_dev "$foreign_ip")"
     ask_valid iface "Network interface" "${iface:-eth0}" valid_name "Enter an interface name."
     qspoof_check_ip_on_iface "$iface" "$iran_ip"
@@ -16295,6 +16310,8 @@ quick_manage() {
             role="$(sed -n 's/^ROLE=//p' "$QUICK_DIR/$n/info.env")"
             pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
             pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
+            pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
+            pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
             state="$GREEN●running$RESET"
             for unit in $(quick_units_of "$n"); do
                 systemctl is-active --quiet "${pfx}${unit}.service" || state="$RED○stopped$RESET"
@@ -16307,6 +16324,8 @@ quick_manage() {
         [[ "$choice" == 0 || -z "$choice" ]] && return 0
         [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#names[@]} )) || { warn "Invalid choice."; continue; }
         n="${names[$((choice - 1))]}"
+        pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
+        pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
         pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
         pfx="$(sed -n 's/^PREFIX=//p' "$QUICK_DIR/$n/info.env")"; pfx="${pfx:-$QUICK_UNIT_PREFIX}"
         printf '\n  1) Status   2) Show link   3) Restart   4) Stop   5) Start   6) Logs   7) Remove   0) Back\n'
@@ -16325,6 +16344,10 @@ quick_manage() {
                         rm -f -- "/etc/systemd/system/${pfx}${unit}.service"
                     done
                     systemctl daemon-reload
+                    extra="$(sed -n 's/^EXTRA_DIR=//p' "$QUICK_DIR/$n/info.env")"
+                    if [[ "$extra" == "$QSPOOF_ROOT"/* && "$extra" != *..* ]]; then rm -rf -- "$extra"; fi
+                    extra="$(sed -n 's/^EXTRA_DIR=//p' "$QUICK_DIR/$n/info.env")"
+                    if [[ "$extra" == "$QSPOOF_ROOT"/* && "$extra" != *..* ]]; then rm -rf -- "$extra"; fi
                     extra="$(sed -n 's/^EXTRA_DIR=//p' "$QUICK_DIR/$n/info.env")"
                     if [[ "$extra" == "$QSPOOF_ROOT"/* && "$extra" != *..* ]]; then rm -rf -- "$extra"; fi
                     extra="$(sed -n 's/^EXTRA_DIR=//p' "$QUICK_DIR/$n/info.env")"
