@@ -26,6 +26,7 @@ curl -fsSLO https://raw.githubusercontent.com/NPNTEI/SpoofTun/main/UNUNKNOWNTUN-
 ## وب پنل (Web Panel)
 
 - نصب: منو `10) Web Panel` یا دستور `ununknowntun panel`. پورت و حالت دسترسی را می‌پرسد (همه با HTTPS و رمز، یا فقط لوکال با SSH tunnel که امن‌تر است) و در پایان آدرس و رمز را **یک بار** نشان می‌دهد.
+- ظاهر مثل پنل‌های حرفه‌ای: تب Overview (CPU، RAM، دیسک، swap، سرعت دانلود/آپلود زنده، مجموع ترافیک)، تب Tunnels (کارت هر تونل با وضعیت Online/Offline، ping و نمودار آن، uptime، ترافیک، Restart all و Add tunnel)، Connection test و Manage. حالت روشن/تاریک با دکمه Appearance، و تغییر رمز از داخل پنل.
 - امکانات: لیست تونل‌ها با وضعیت، Start/Stop/Restart/Logs/Show link/Remove، ساخت Quick TLS و Quick SPOOF (خارج: لینک می‌سازد، ایران: لینک را paste می‌کند)، و تب Tests برای تست اتصال/سرعت و تست Spoof (listener روی سرور اول، tester روی سرور دوم).
 - امنیت: پنل با root اجرا می‌شود؛ رمز تصادفی (ذخیره به‌صورت hash)، HTTPS با گواهی self-signed، قفل ۵ دقیقه‌ای بعد از ۵ رمز اشتباه، توکن CSRF، اعتبارسنجی سخت‌گیرانه ورودی‌ها و بدون اجرای shell. حتماً فایروال را روی پورت پنل محدود کنید.
 - رمز گم شد: `ununknowntun panel-password`. حذف پنل (تونل‌ها دست نمی‌خورند): `ununknowntun panel-remove`.
