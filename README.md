@@ -27,7 +27,7 @@ curl -fsSLO https://raw.githubusercontent.com/NPNTEI/SpoofTun/main/UNUNKNOWNTUN-
 
 - بعد از اولین اجرا، منو با یک دستور باز می‌شود: `ununknowntun` (کوتاه: `uut`). دستورهای مستقیم: `ununknowntun quick-manage`، `ununknowntun spoof-test`، `ununknowntun connection-test`.
 - منوی `Setup Iran` و `Setup Foreign` حالا مستقیم می‌پرسد چه تونلی می‌خواهید: Quick tunnel، CDN (WSS/XHTTP)، ICMP L3، IP spoof/GRE یا سایر.
-- منوی `0) Test` دو بخش دارد: Connection test و **Spoof test** (فقط بررسی می‌کند بسته با IP مبدأ جعلی بین دو سرور عبور می‌کند یا نه؛ UDP و ICMP). گیرنده لینک `uuts://...` می‌دهد، فرستنده لینک و IP جعلی را وارد می‌کند. نیاز به root دارد.
+- منوی `0) Test` دو بخش دارد: Connection test و **Spoof test** (فقط بررسی می‌کند بسته با IP مبدأ جعلی بین دو سرور عبور می‌کند یا نه؛ UDP و ICMP. حالت **Range scan** نشان می‌دهد کدام بازه‌های IP مبدأ اجازه عبور دارند: /24، /20، /16، /12، /8 از IP خود سرور، /24 گیرنده و بازه‌های دلخواه شما). گیرنده لینک `uuts://...` می‌دهد، فرستنده لینک و IP جعلی را وارد می‌کند. نیاز به root دارد.
 - پیش‌فرض پوشه فایل‌های spoof/ICMP خودکار `/root/ununknowntun-...` است.
 
 ## سایر نکات
