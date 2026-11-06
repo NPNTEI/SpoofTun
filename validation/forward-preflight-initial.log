@@ -1,0 +1,1 @@
+FAIL: Binary must be regular, <=128 MiB, non-set-ID and not group/world writable

@@ -1,0 +1,13 @@
+test_cancelled_confirmation_never_touches_scheduler_or_service (__main__.CDNDeleteTests.test_cancelled_confirmation_never_touches_scheduler_or_service) ... ok
+test_closed_confirmation_never_touches_scheduler_or_service (__main__.CDNDeleteTests.test_closed_confirmation_never_touches_scheduler_or_service) ... ok
+test_delete_disables_only_selected_timer_before_removing_config (__main__.CDNDeleteTests.test_delete_disables_only_selected_timer_before_removing_config) ... ok
+test_failed_core_stop_restores_previously_disabled_timer (__main__.CDNDeleteTests.test_failed_core_stop_restores_previously_disabled_timer) ... ok
+test_partial_unschedule_failure_restores_timer_before_core_stop (__main__.CDNDeleteTests.test_partial_unschedule_failure_restores_timer_before_core_stop) ... ok
+test_rollback_restores_every_enabled_active_combination (__main__.CDNDeleteTests.test_rollback_restores_every_enabled_active_combination) ... ok
+test_rollback_retains_runtime_enablement (__main__.CDNDeleteTests.test_rollback_retains_runtime_enablement) ... ok
+test_unowned_scheduler_refused_without_modifications (__main__.CDNDeleteTests.test_unowned_scheduler_refused_without_modifications) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.112s
+
+OK

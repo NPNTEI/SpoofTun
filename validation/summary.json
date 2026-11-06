@@ -1,0 +1,239 @@
+{
+  "version": "3.7.0-preview.11",
+  "time_utc": "2026-11-02T09:23:18.259219+00:00",
+  "platform": "linux",
+  "results": [
+    {
+      "name": "go-test",
+      "exit_code": 0,
+      "status": "PASS",
+      "log": "go-test-final.log"
+    },
+    {
+      "name": "go-race",
+      "exit_code": 0,
+      "status": "PASS",
+      "log": "go-race-final.log"
+    },
+    {
+      "name": "go-vet",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "go-resilience",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "installer-syntax",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-access-manager",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-advanced-editor",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-advanced-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-cdn-control",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-cdn-delete",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-cdn-endpoints",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-direct-icmp-console",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-direct-icmp-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-direct-icmp-pair",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-direct-icmp-setup",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-editor-integration",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-editor-safety",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-editor-tls",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-entry-migrations",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-full-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-icmp-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-icmp-pair",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-manager",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-package-preview",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-resilience-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-scanner-console",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-scanner-engine",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-scanner-integration",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-scanner-rounds",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-spoof-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-spoof-pair",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-transport-profiles",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-tunnel-doctor",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-tunnel-editor",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-ui-installer",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-upgrade",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "terminal-ui",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-gre-wire",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-gre-systemd",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-icmp-wire",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-icmp-wss",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-direct-icmp-systemd",
+      "exit_code": 0,
+      "status": "PASS",
+      "log": "test-direct-icmp-systemd-final.log"
+    },
+    {
+      "name": "test-direct-icmp-systemd-pools",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "test-direct-icmp-forward-lab",
+      "exit_code": 0,
+      "status": "PASS",
+      "log": "test-direct-icmp-forward-lab-final.log"
+    },
+    {
+      "name": "test-direct-icmp-console-lab",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "scope": "Local core tests (including loopback TLS), fake-service Python tests and terminal UI. No CDN/provider/server modifications or real Internet path certification.",
+  "completed_utc": "2026-11-02T09:36:19.370753+00:00",
+  "rerun_note": "Only new UDP test corrected after measured kernel receive-queue overflow; original logs preserved. Runtime binary unchanged. Updated forwarding harness self-test included."
+}

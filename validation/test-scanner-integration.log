@@ -1,0 +1,27 @@
+test_helper_symlink_is_rejected (__main__.LaunchTrustTests.test_helper_symlink_is_rejected) ... ok
+test_interpreter_symlink_to_untrusted_target_is_rejected (__main__.LaunchTrustTests.test_interpreter_symlink_to_untrusted_target_is_rejected) ... ok
+test_system_runtime_is_isolated_and_cleans_environment (__main__.LaunchTrustTests.test_system_runtime_is_isolated_and_cleans_environment) ... ok
+test_trusted_fixtures_work_with_group_writable_host_umask (__main__.LaunchTrustTests.test_trusted_fixtures_work_with_group_writable_host_umask) ... ok
+test_trusted_private_venv_is_automatically_selected (__main__.LaunchTrustTests.test_trusted_private_venv_is_automatically_selected) ... ok
+test_untrusted_helper_owner_is_rejected (__main__.LaunchTrustTests.test_untrusted_helper_owner_is_rejected) ... ok
+test_virtualenv_directory_symlink_is_rejected (__main__.LaunchTrustTests.test_virtualenv_directory_symlink_is_rejected) ... ok
+test_writable_dependency_is_rejected_before_interpreter_starts (__main__.LaunchTrustTests.test_writable_dependency_is_rejected_before_interpreter_starts) ... ok
+test_command_forwards_arguments_without_tunnel_selection_or_mutations (__main__.ScannerIntegrationTests.test_command_forwards_arguments_without_tunnel_selection_or_mutations) ... ok
+test_english_guide_has_parseable_command_examples (__main__.ScannerIntegrationTests.test_english_guide_has_parseable_command_examples) ... ok
+test_failed_upgrade_restores_previous_scanner_helpers (__main__.ScannerIntegrationTests.test_failed_upgrade_restores_previous_scanner_helpers) ... ok
+test_guided_dispatch_selects_tunnel_without_holding_global_edit_lock (__main__.ScannerIntegrationTests.test_guided_dispatch_selects_tunnel_without_holding_global_edit_lock) ... ok
+test_guides_explain_security_evidence_and_private_runtime (__main__.ScannerIntegrationTests.test_guides_explain_security_evidence_and_private_runtime) ... ok
+test_installed_helpers_match_source_modes_and_replace_links_safely (__main__.ScannerIntegrationTests.test_installed_helpers_match_source_modes_and_replace_links_safely) ... ok
+test_installer_and_manager_use_identical_validated_launchers (__main__.ScannerIntegrationTests.test_installer_and_manager_use_identical_validated_launchers) ... ok
+test_menu_entries_are_additive_and_bounded (__main__.ScannerIntegrationTests.test_menu_entries_are_additive_and_bounded) ... ok
+test_no_arguments_opens_scanner_not_doctor_or_cdn (__main__.ScannerIntegrationTests.test_no_arguments_opens_scanner_not_doctor_or_cdn) ... ok
+test_release_pipeline_includes_all_scanner_tests (__main__.ScannerIntegrationTests.test_release_pipeline_includes_all_scanner_tests) ... ok
+test_renderer_embeds_every_exact_helper_and_shell_compiles (__main__.ScannerIntegrationTests.test_renderer_embeds_every_exact_helper_and_shell_compiles) ... ok
+test_ui_opens_scanner_without_a_selected_tunnel (__main__.ScannerIntegrationTests.test_ui_opens_scanner_without_a_selected_tunnel) ... ok
+test_ui_validates_capability_and_helpers_then_inherits_terminal (__main__.ScannerIntegrationTests.test_ui_validates_capability_and_helpers_then_inherits_terminal) ... ok
+test_upgrade_refreshes_helpers_and_preserves_customer_ledger (__main__.ScannerIntegrationTests.test_upgrade_refreshes_helpers_and_preserves_customer_ledger) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.306s
+
+OK

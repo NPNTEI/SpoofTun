@@ -1,0 +1,43 @@
+{
+  "binary_sha256": "911ed249cce0a1481ab7968001802b527f715c3f0c1513574b281653f7c688c7",
+  "checks": {
+    "confirmed_restart_stop_start_and_peer_preservation": true,
+    "console_list_private_mapping_and_no_mutation": true,
+    "console_start_status_info_real_systemd": true,
+    "egress": {
+      "effective_capabilities": "NET_ADMIN NET_RAW",
+      "namespace_verified": true,
+      "no_new_privileges": true,
+      "pid": 5771
+    },
+    "exact_identity_console_uninstall": true,
+    "generated_install_without_start": true,
+    "host_firewall_preserved": true,
+    "origin": {
+      "effective_capabilities": "NET_ADMIN NET_RAW",
+      "namespace_verified": true,
+      "no_new_privileges": true,
+      "pid": 5833
+    },
+    "standalone_direct_icmp_manage_list": true
+  },
+  "cleanup": {
+    "egress_endpoint": true,
+    "gcue311b54c75e": true,
+    "gcuo311b54c75e": true,
+    "origin_endpoint": true,
+    "owned_binary_removed": true,
+    "private_fixture_removed": true
+  },
+  "console_sha256": "4edaa93299c716c141102cba4e73ff8e573809d0b06caebabaa6d6c62558e2aa",
+  "elapsed_seconds": 3.677,
+  "installer_sha256": "de3466721e3039f53bd88a9a7b16c0608ce171c0d43ce9054a1363c1b00e44f5",
+  "kind": "local-direct-icmp-console-lifecycle",
+  "limitations": [
+    "Disposable local VM and isolated namespaces only; no WAN or provider claim.",
+    "Only this runtime architecture was executed."
+  ],
+  "runtime_architecture": "arm64",
+  "status": "PASS",
+  "vm": "apple"
+}

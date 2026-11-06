@@ -1,0 +1,23 @@
+test_action_uses_fixed_installed_manager_and_clean_environment (__main__.ConsoleTests.test_action_uses_fixed_installed_manager_and_clean_environment) ... ok
+test_bad_version_and_hash_inventory_rejected (__main__.ConsoleTests.test_bad_version_and_hash_inventory_rejected) ... ok
+test_changed_endpoint_and_unknown_action_refused (__main__.ConsoleTests.test_changed_endpoint_and_unknown_action_refused) ... ok
+test_discovery_is_read_only_and_accepts_old_version (__main__.ConsoleTests.test_discovery_is_read_only_and_accepts_old_version) ... ok
+test_discovery_missing_registry_and_bounded_input (__main__.ConsoleTests.test_discovery_missing_registry_and_bounded_input) ... ok
+test_duplicate_json_and_unexpected_files_rejected (__main__.ConsoleTests.test_duplicate_json_and_unexpected_files_rejected) ... ok
+test_help_failure_and_timeout_do_not_mutate (__main__.ConsoleTests.test_help_failure_and_timeout_do_not_mutate) ... ok
+test_invalid_display_fields_do_not_emit_controls (__main__.ConsoleTests.test_invalid_display_fields_do_not_emit_controls) ... ok
+test_list_requires_linux_root_and_does_not_call_manager (__main__.ConsoleTests.test_list_requires_linux_root_and_does_not_call_manager) ... ok
+test_manifest_arbitrary_command_and_paths_refused (__main__.ConsoleTests.test_manifest_arbitrary_command_and_paths_refused) ... ok
+test_multilink_and_oversized_files_refused (__main__.ConsoleTests.test_multilink_and_oversized_files_refused) ... ok
+test_old_manager_missing_restart_does_not_emulate_it (__main__.ConsoleTests.test_old_manager_missing_restart_does_not_emulate_it) ... ok
+test_open_quit_and_cancel_restart_never_launch_manager (__main__.ConsoleTests.test_open_quit_and_cancel_restart_never_launch_manager) ... ok
+test_summary_includes_forwarding_without_secrets (__main__.ConsoleTests.test_summary_includes_forwarding_without_secrets) ... ok
+test_symlink_helper_or_endpoint_rejected (__main__.ConsoleTests.test_symlink_helper_or_endpoint_rejected) ... ok
+test_tampered_manager_rejected_before_execution (__main__.ConsoleTests.test_tampered_manager_rejected_before_execution) ... ok
+test_trust_rejects_unowned_group_writable_and_symlink (__main__.ConsoleTests.test_trust_rejects_unowned_group_writable_and_symlink) ... ok
+test_uninstall_requires_exact_pair_and_role (__main__.ConsoleTests.test_uninstall_requires_exact_pair_and_role) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.015s
+
+OK

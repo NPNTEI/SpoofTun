@@ -1,0 +1,54 @@
+Direct ICMP forwarding test diagnosis, local disposable Linux VM
+
+Source: /home/gdtlab/gdt3711-forward.STjfKSVH/source
+Command: go test -run TestDirectICMPForwardUDPMultipleClientsIdleAndCancel -count=8 .
+Configuration at time of reproduction: eight concurrent clients; each sends a
+60000-byte datagram after its earlier smaller payloads, with no retry.
+
+Kernel socket defaults and limits:
+net.core.rmem_default = 212992
+net.core.rmem_max = 212992
+net.core.wmem_default = 212992
+net.core.wmem_max = 212992
+
+Before (/proc/net/snmp):
+Udp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors
+Udp: 417 42 3 473 3 0 0 0 0
+
+Captured reproduction output:
+--- FAIL: TestDirectICMPForwardUDPMultipleClientsIdleAndCancel (2.54s)
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:37166->127.0.0.1:33537: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:47276->127.0.0.1:33537: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:37787->127.0.0.1:33537: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:44694->127.0.0.1:33537: i/o timeout
+--- FAIL: TestDirectICMPForwardUDPMultipleClientsIdleAndCancel (2.55s)
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:33135->127.0.0.1:59132: i/o timeout
+--- FAIL: TestDirectICMPForwardUDPMultipleClientsIdleAndCancel (2.75s)
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:36039->127.0.0.1:53187: i/o timeout
+--- FAIL: TestDirectICMPForwardUDPMultipleClientsIdleAndCancel (2.55s)
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:37971->127.0.0.1:47760: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:37556->127.0.0.1:47760: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:53895->127.0.0.1:47760: i/o timeout
+FAIL
+FAIL ununknowntun 13.353s
+FAIL
+
+After (/proc/net/snmp):
+Udp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors
+Udp: 1599 42 12 1664 12 0 0 0 0
+
+Observed delta: 9 client timeouts, 9 additional receive-buffer drops,
+0 additional send-buffer/checksum/memory errors. The before value of 3 is
+cumulative; the diagnosis relies on this reproduction's measured delta of 9.
+
+Test correction: retain concurrent eight-client isolation/payload testing up to
+8192 bytes; verify 60000-byte exact payload preservation separately with one
+outstanding datagram and no retries. This removes a kernel queue-capacity
+assumption, not a forwarding integrity check. Runtime code was not changed.
+UDP remains lossy under congestion; no reliability or WAN performance claim.
+
+After correction:
+Command: go test -run "TestDirectICMPForwardUDP(Multiple|Large)" -count=8 .
+Output: ok ununknowntun 5.925s
+Udp: 2596 42 12 2661 12 0 0 0 0
+Both tests passed all eight runs; receive-buffer errors remained 12 (delta 0).

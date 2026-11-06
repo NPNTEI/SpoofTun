@@ -1,0 +1,62 @@
+2026/11/02 09:23:01 [warn] 2683#2683: the "user" directive makes sense only if the master process runs with super-user privileges, ignored in /tmp/ununknowntun-installer-test-jkc7j41h/nginx.conf:1
+nginx: the configuration file /tmp/ununknowntun-installer-test-jkc7j41h/nginx.conf syntax is ok
+nginx: configuration file /tmp/ununknowntun-installer-test-jkc7j41h/nginx.conf test is successful
+test_acme_firewall_order_and_certificate_prevalidation (__main__.InstallerTests.test_acme_firewall_order_and_certificate_prevalidation) ... ok
+test_acme_keeps_existing_tls_site (__main__.InstallerTests.test_acme_keeps_existing_tls_site) ... ok
+test_atomic_binary_replacement_validates_before_rename (__main__.InstallerTests.test_atomic_binary_replacement_validates_before_rename) ... ok
+test_backend_selection_avoids_public_and_target_ports (__main__.InstallerTests.test_backend_selection_avoids_public_and_target_ports) ... ok
+test_cancel_after_retry_rolls_back_transaction (__main__.InstallerTests.test_cancel_after_retry_rolls_back_transaction) ... ok
+test_certificate_and_key_match_accepted (__main__.InstallerTests.test_certificate_and_key_match_accepted) ... ok
+test_certificate_hostname_mismatch_rejected (__main__.InstallerTests.test_certificate_hostname_mismatch_rejected) ... ok
+test_certificate_key_mismatch_rejected (__main__.InstallerTests.test_certificate_key_mismatch_rejected) ... ok
+test_certificate_retry_retains_prior_settings (__main__.InstallerTests.test_certificate_retry_retains_prior_settings) ... ok
+test_closed_input_cancels_without_retry_loop (__main__.InstallerTests.test_closed_input_cancels_without_retry_loop) ... ok
+test_commit_keeps_changes (__main__.InstallerTests.test_commit_keeps_changes) ... ok
+test_dependency_install_does_not_repair_or_upgrade_existing_nginx (__main__.InstallerTests.test_dependency_install_does_not_repair_or_upgrade_existing_nginx) ... ok
+test_dns_mode_can_be_corrected_without_reentering_domain (__main__.InstallerTests.test_dns_mode_can_be_corrected_without_reentering_domain) ... ok
+test_dns_recheck_preserves_values (__main__.InstallerTests.test_dns_recheck_preserves_values) ... ok
+test_every_arvan_route_uses_compatible_verified_transport (__main__.InstallerTests.test_every_arvan_route_uses_compatible_verified_transport) ... ok
+test_existing_tunnel_domain_cannot_be_overwritten (__main__.InstallerTests.test_existing_tunnel_domain_cannot_be_overwritten) ... ok
+test_failed_transaction_restores_files_and_service (__main__.InstallerTests.test_failed_transaction_restores_files_and_service) ... ok
+test_fatal_early_invocation_log_is_not_missed (__main__.InstallerTests.test_fatal_early_invocation_log_is_not_missed) ... ok
+test_four_proxy_combinations_and_safe_defaults_exist (__main__.InstallerTests.test_four_proxy_combinations_and_safe_defaults_exist) ... ok
+test_generated_site_parses_with_real_nginx (__main__.InstallerTests.test_generated_site_parses_with_real_nginx) ... ok
+test_incomplete_file_restore_never_restarts_tunnel_or_reloads_nginx (__main__.InstallerTests.test_incomplete_file_restore_never_restarts_tunnel_or_reloads_nginx) ... ok
+test_install_lock_refuses_concurrent_writer (__main__.InstallerTests.test_install_lock_refuses_concurrent_writer) ... ok
+test_installed_manager_has_multi_tunnel_lifecycle_commands (__main__.InstallerTests.test_installed_manager_has_multi_tunnel_lifecycle_commands) ... ok
+test_instance_service_unit_uses_tunnel_directory (__main__.InstallerTests.test_instance_service_unit_uses_tunnel_directory) ... ok
+test_invalid_field_retries_without_losing_other_answers (__main__.InstallerTests.test_invalid_field_retries_without_losing_other_answers) ... ok
+test_invalid_yes_no_retries (__main__.InstallerTests.test_invalid_yes_no_retries) ... ok
+test_manager_accepts_public_ip_and_rejects_private_ip (__main__.InstallerTests.test_manager_accepts_public_ip_and_rejects_private_ip) ... ok
+test_new_certbot_timer_is_disabled_again_on_failure (__main__.InstallerTests.test_new_certbot_timer_is_disabled_again_on_failure) ... ok
+test_no_global_tcp_or_time_service_mutations (__main__.InstallerTests.test_no_global_tcp_or_time_service_mutations) ... ok
+test_offline_ca_is_selected_and_used_in_launch (__main__.InstallerTests.test_offline_ca_is_selected_and_used_in_launch) ... ok
+test_origin_launch_changes_for_direct_and_proxied_iran (__main__.InstallerTests.test_origin_launch_changes_for_direct_and_proxied_iran) ... ok
+test_origin_proxy_site_uses_shared_https_listener_and_private_backend (__main__.InstallerTests.test_origin_proxy_site_uses_shared_https_listener_and_private_backend) ... ok
+test_pair_lookup_survives_different_local_tunnel_ids (__main__.InstallerTests.test_pair_lookup_survives_different_local_tunnel_ids) ... ok
+test_peer_code_preserves_pair_identity_and_proxy_modes (__main__.InstallerTests.test_peer_code_preserves_pair_identity_and_proxy_modes) ... ok
+test_port_normalization_and_overflow (__main__.InstallerTests.test_port_normalization_and_overflow) ... ok
+test_ports_retry_reserved_owned_and_occupied_ports (__main__.InstallerTests.test_ports_retry_reserved_owned_and_occupied_ports) ... ok
+test_proxy_ports_reject_unavailable_https_ports (__main__.InstallerTests.test_proxy_ports_reject_unavailable_https_ports) ... ok
+test_proxy_selection_retries_invalid_option (__main__.InstallerTests.test_proxy_selection_retries_invalid_option) ... ok
+test_real_websocket_probe_rejects_cached_success_page (__main__.InstallerTests.test_real_websocket_probe_rejects_cached_success_page) ... ok
+test_real_websocket_probe_rejects_wrong_hostname (__main__.InstallerTests.test_real_websocket_probe_rejects_wrong_hostname) ... ok
+test_real_websocket_probe_supports_tls12_and_authenticates (__main__.InstallerTests.test_real_websocket_probe_supports_tls12_and_authenticates) ... ok
+test_rebuilt_registry_keeps_internal_foreign_ports (__main__.InstallerTests.test_rebuilt_registry_keeps_internal_foreign_ports) ... ok
+test_rollback_restores_nginx_file_and_symlink (__main__.InstallerTests.test_rollback_restores_nginx_file_and_symlink) ... ok
+test_service_restart_rejects_stale_health (__main__.InstallerTests.test_service_restart_rejects_stale_health) ... ok
+test_signal_rolls_back_with_signal_exit_status (__main__.InstallerTests.test_signal_rolls_back_with_signal_exit_status) ... ok
+test_syntax (__main__.InstallerTests.test_syntax) ... ok
+test_target_checks_actual_ipv4_loopback (__main__.InstallerTests.test_target_checks_actual_ipv4_loopback) ... ok
+test_target_port_retry_does_not_ask_other_fields (__main__.InstallerTests.test_target_port_retry_does_not_ask_other_fields) ... ok
+test_ufw_creates_tunnel_directory_before_recording_rule (__main__.InstallerTests.test_ufw_creates_tunnel_directory_before_recording_rule) ... ok
+test_ufw_rollback_removes_new_rule_only (__main__.InstallerTests.test_ufw_rollback_removes_new_rule_only) ... ok
+test_uncommitted_zero_exit_is_failure (__main__.InstallerTests.test_uncommitted_zero_exit_is_failure) ... ok
+test_websocket_failure_allows_correcting_only_path (__main__.InstallerTests.test_websocket_failure_allows_correcting_only_path) ... ok
+test_websocket_failure_allows_correcting_only_token (__main__.InstallerTests.test_websocket_failure_allows_correcting_only_token) ... ok
+test_wss_health_is_accepted_without_claiming_h2 (__main__.InstallerTests.test_wss_health_is_accepted_without_claiming_h2) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 1.892s
+
+OK

@@ -1,0 +1,29 @@
+ICMP L3 setup - outside server
+[1/4] Identify the two servers
+Detected this server: 192.0.2.20 on ens3
+[2/4] Private address pools
+New connections rotate through the private addresses; each connection keeps its address until it ends.
+These private ranges do not change either public server IP.
+Port forwarding: disabled (private L3 tunnel only).
+[3/4] Check host routing, firewall and Fail2ban
+[4/4] Install and start this endpoint
+ACTIVE: ununknowntun-direct-icmp-quick-egress.service
+Local private range: 10.79.2.0/28; peer private range: 10.79.1.0/28
+Status: python3 -I /etc/ununknowntun-direct-icmp/quick/egress/manage.py status
+Timeout checks: python3 -I /etc/ununknowntun-direct-icmp/quick/egress/manage.py doctor
+Service activation is not proof that the provider delivers ICMP. Validate the paired path after both endpoints start.
+Port forwarding: disabled (private L3 tunnel only).
+[3/4] Check host routing, firewall and Fail2ban
+[4/4] Install and start this endpoint
+ACTIVE: ununknowntun-direct-icmp-quick-origin.service
+Local private range: 10.79.1.0/28; peer private range: 10.79.2.0/28
+Status: python3 -I /etc/ununknowntun-direct-icmp/quick/origin/manage.py status
+Timeout checks: python3 -I /etc/ununknowntun-direct-icmp/quick/origin/manage.py doctor
+Service activation is not proof that the provider delivers ICMP. Validate the paired path after both endpoints start.
+..............The newly created endpoint was rolled back; existing tunnels were not changed.
+........The newly created endpoint was rolled back; existing tunnels were not changed.
+..............
+----------------------------------------------------------------------
+Ran 36 tests in 0.047s
+
+OK

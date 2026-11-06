@@ -1,0 +1,8 @@
+all modules verified
+Retained Go runtime notices and licenses from 10 linked modules.
+Standalone installer: /home/gdtlab/gdt3711-forward.STjfKSVH/build/UNUNKNOWNTUN-V3-INSTALLER-3.7.0-preview.11.sh
+Embedded amd64/arm64 ELF architectures, Go metadata, source version, checksums and shell syntax: PASS
+de3466721e3039f53bd88a9a7b16c0608ce171c0d43ce9054a1363c1b00e44f5 UNUNKNOWNTUN-V3-INSTALLER-3.7.0-preview.11.sh
+b5de22713b78597fb1d02f345eccfdb72bc2dc4951fda555730b0e6b443cc3cc direct-icmp-binaries.json
+a77203e06a39bd3ba015d4b1a67f7d86202d3a2ef7655581589282dcbf8ac3b1 bin/ununknowntun-linux-amd64
+911ed249cce0a1481ab7968001802b527f715c3f0c1513574b281653f7c688c7 bin/ununknowntun-linux-arm64
