@@ -184,6 +184,7 @@ def run_server(args):
 
 # ---------------------------------------------------------------- client
 RESULTS = []
+SPEEDS = []
 
 
 def report(name, ok, detail):
@@ -246,10 +247,55 @@ def stream_checks(label, host, port, token, ctx, timeout):
             sent += CHUNK
         recv_line(conn)
         up = size * 8 / (time.monotonic() - began) / 1e6
+        SPEEDS.append((f"{label} single stream", down, up))
         report(f"{label} throughput", True, f"download {down:.1f} Mbit/s, upload {up:.1f} Mbit/s (8 MiB)")
         conn.close()
     except Exception as exc:
         report(f"{label} connect + echo", False, f"{type(exc).__name__}: {exc}")
+
+
+def test_parallel(host, port, token, ctx, timeout, streams=4, size=4 << 20):
+    label = "TLS" if ctx else "TCP"
+    results = []
+
+    def worker(direction):
+        try:
+            conn = connect(host, port, timeout, ctx)
+            conn.settimeout(timeout)
+            conn.sendall(f"TOKEN {token}\n".encode())
+            if recv_line(conn) != "OK":
+                return
+            if direction == "down":
+                conn.sendall(f"BLAST {size}\n".encode())
+                recv_exact(conn, size)
+            else:
+                conn.sendall(f"SINK {size}\n".encode())
+                block = b"\0" * CHUNK
+                sent = 0
+                while sent < size:
+                    conn.sendall(block[:min(CHUNK, size - sent)])
+                    sent += CHUNK
+                recv_line(conn)
+            results.append(size)
+            conn.close()
+        except Exception:
+            pass
+
+    rates = []
+    for direction in ("down", "up"):
+        results.clear()
+        threads = [threading.Thread(target=worker, args=(direction,)) for _ in range(streams)]
+        began = time.monotonic()
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        elapsed = time.monotonic() - began
+        rates.append(sum(results) * 8 / elapsed / 1e6 if results else 0.0)
+    ok = rates[0] > 0 and rates[1] > 0
+    if ok:
+        SPEEDS.append((f"{label} {streams} parallel streams", rates[0], rates[1]))
+    report(f"{label} {streams} parallel streams", ok, f"download {rates[0]:.1f} Mbit/s, upload {rates[1]:.1f} Mbit/s" if ok else "failed")
 
 
 def test_websocket(host, port, ctx, timeout):
@@ -333,9 +379,15 @@ def run_client(args):
     test_icmp(host)
     stream_checks("TCP", host, p, t, None, args.timeout)
     stream_checks("TLS", host, p + 1, t, ctx, args.timeout)
+    test_parallel(host, p, t, None, args.timeout)
+    test_parallel(host, p + 1, t, ctx, args.timeout)
     test_websocket(host, p + 1, ctx, args.timeout)
     test_http(host, p + 2, args.timeout)
     test_udp(host, p, t, args.timeout)
+    if SPEEDS:
+        print("\nSpeed summary (this server <- -> remote):")
+        for name, down, up in SPEEDS:
+            print(f"  {name:<30} down {down:8.1f} Mbit/s   up {up:8.1f} Mbit/s")
     passed = sum(1 for _, ok in RESULTS if ok)
     print(f"\nSummary: {passed}/{len(RESULTS)} checks passed.")
     print("A blocked protocol here shows what the path between these two servers allows; it does not test a live tunnel.")

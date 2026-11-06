@@ -17,7 +17,7 @@ curl -fsSLO https://raw.githubusercontent.com/NPNTEI/SpoofTun/main/UNUNKNOWNTUN-
 - مسیرها: `/opt/ununknowntun`، `/etc/ununknowntun`، `/usr/local/bin/ununknowntun`، `/usr/local/bin/ununknowntunctl`، سرویس `ununknowntun@.service`.
 - هر دو باینری amd64 و arm64 داخل نصاب هستند؛ یکپارچگی با `SHA256SUMS` بررسی می‌شود.
 - منوی اصلی: `0) Connection Test` (تست TCP / UDP / ICMP / TLS / WebSocket / HTTP بین دو سرور)، `1) Setup Iran`، `2) Setup Foreign` و بقیه گزینه‌ها.
-- تست اتصال: روی سرور اول `0` → نقش Listener (توکن نمایش داده می‌شود)، روی سرور دوم `0` → نقش Tester با IP و توکن. دستور مستقیم: `sudo bash UNUNKNOWNTUN-V3-INSTALLER-3.7.0-preview.11.sh connection-test`. پورت‌های `P` تا `P+2` (TCP/UDP) باید باز باشند. این تست به تونل‌ها دست نمی‌زند.
+- تست اتصال: روی سرور **ایران** `0` → گزینه 1 (IP را تأیید می‌کنید و یک لینک `uut://IP:PORT/TOKEN` می‌گیرید)، روی سرور **خارج** `0` → گزینه 2 و لینک را paste کنید؛ تست همه پروتکل‌ها و سرعت‌ها شروع می‌شود. دستور مستقیم: `sudo bash UNUNKNOWNTUN-V3-INSTALLER-3.7.0-preview.11.sh connection-test`. پورت‌های `P` تا `P+2` (TCP/UDP) روی ایران باید باز باشند. به تونل‌ها دست نمی‌زند.
 - نسخه preview است؛ قبل از استفاده روی سرور واقعی بکاپ بگیرید.
 
 ---
