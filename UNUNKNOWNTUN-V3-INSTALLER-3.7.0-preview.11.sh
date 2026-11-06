@@ -15543,8 +15543,7 @@ def run_spoof_scan(args):
         print(f"Raw socket unavailable ({exc}). Run as root.")
         return 1
     mine = args.my_ip or local_ip_for(args.host)
-    ranges = []
-    mine_net = ipaddress.ip_interface(f"{mine}/24")
+    ranges = [(f"{mine} (real IP)", f"{mine}/32", "baseline: NOT forged")]
     for bits in (24, 20, 16, 12, 8):
         ranges.append((f"{mine}/{bits}", str(ipaddress.ip_network(f"{mine}/{bits}", strict=False)), "this server's own range"))
     target_net = str(ipaddress.ip_network(f"{args.host}/24", strict=False))
@@ -15602,10 +15601,14 @@ def run_spoof_scan(args):
             passing.append((label, cidr))
         print(f"  {c(CYAN, '│')} {c(col, status)}  {c(BOLD, f'{label:<20}')} {ok}/{total} passed  {c(DIM, note)}")
     print(f"  {c(CYAN, '│')}")
-    if not passing:
-        print(f"  {c(CYAN, '│')} {c(RED, 'No forged source passed: this path filters ALL spoofed sources, even from your own range.')}")
+    baseline_ok = arrived.get(plan[0][3][0][0]) == plan[0][3][0][1]
+    if not baseline_ok:
+        print(f"  {c(CYAN, '│')} {c(YELLOW, 'Baseline FAILED: even a packet with your real IP did not arrive.')}")
+        print(f"  {c(CYAN, '│')} {c(YELLOW, 'Result is inconclusive: check the UDP firewall/port on the receiver and that this IP is the real outgoing IP.')}")
+    elif not passing[1:]:
+        print(f"  {c(CYAN, '│')} {c(RED, 'Baseline passed but every forged source failed: this path really filters spoofed sources.')}")
     else:
-        names = ", ".join(str(ipaddress.ip_network(cidr)) for _, cidr in passing)
+        names = ", ".join(str(ipaddress.ip_network(cidr)) for _, cidr in passing[1:] or passing)
         print(f"  {c(CYAN, '│')} {c(GREEN, 'Forged sources are accepted from: ' + names)}")
         print(f"  {c(CYAN, '│')} {c(DIM, 'Use a source IP inside a passing range for spoof/GRE tunnels. FAIL ranges are filtered.')}")
     print(f"  {c(CYAN, '└' + '─' * 61)}\n")
