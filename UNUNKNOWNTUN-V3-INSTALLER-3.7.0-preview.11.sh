@@ -14896,20 +14896,30 @@ UI_MENU_LAUNCH
 
 run_connection_test() {
     command -v python3 >/dev/null 2>&1 || die "python3 is required for the connection test."
-    local role port token host
-    printf '\nConnection test between two servers (no tunnel is touched):\n'
-    printf '  1) Listener - run this on the FIRST server\n  2) Tester   - run this on the SECOND server\n'
-    ask_valid role "Select role" "1" valid_two_choices "Select 1 or 2."
-    ask_valid port "Base port (uses port, port+1 TCP/UDP/TLS/HTTP)" "4500" valid_port "Invalid port."
+    local role port token host link ip
+    printf '\nConnection test between the Iran and Foreign servers (no tunnel is touched):\n'
+    printf '  1) This is the IRAN server    - starts the listener and prints a link\n'
+    printf '  2) This is the FOREIGN server - paste the link and run all tests\n'
+    ask_valid role "Select this server" "1" valid_two_choices "Select 1 or 2."
     if [[ "$role" == 1 ]]; then
+        ip="$(curl --noproxy '*' -4fsS --connect-timeout 5 --max-time 8 https://api.ipify.org 2>/dev/null || true)"
+        ask_valid host "This Iran server's public IP" "$ip" valid_name "Enter the server IP."
+        ask_valid port "Base port (uses port to port+2)" "4500" valid_port "Invalid port."
         token="$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')"
-        info "Pairing token for the tester: $token"
-        info "On the other server choose 0, role 2, this server's IP, port $port and the token."
-        info "Allow TCP/UDP $port-$((port + 2)) in the firewall if blocked."
+        printf '\n'
+        info "Run option 0 on the FOREIGN server, choose 2 and paste this link:"
+        printf '\n    %suut://%s:%s/%s%s\n\n' "$GREEN" "$host" "$port" "$token" "$RESET"
+        info "Allow TCP+UDP ports $port-$((port + 2)) in the firewall if blocked."
         run_connection_test_py server --port "$port" --token "$token"
     else
-        ask_valid host "Listener server IP or hostname" "" valid_name "Enter a host."
-        ask token "Pairing token shown on the listener" ""
+        while true; do
+            ask link "Paste the link from the Iran server (uut://IP:PORT/TOKEN)" ""
+            if [[ "$link" =~ ^uut://([^:/[:space:]]+):([0-9]{4,5})/([0-9a-f]{24})$ ]]; then
+                host="${BASH_REMATCH[1]}"; port="${BASH_REMATCH[2]}"; token="${BASH_REMATCH[3]}"
+                valid_port "$port" && break
+            fi
+            warn "Invalid link. Copy it exactly from the Iran server."
+        done
         run_connection_test_py client --host "$host" --port "$port" --token "$token"
     fi
 }
@@ -15102,6 +15112,7 @@ def run_server(args):
 
 # ---------------------------------------------------------------- client
 RESULTS = []
+SPEEDS = []
 
 
 def report(name, ok, detail):
@@ -15164,10 +15175,55 @@ def stream_checks(label, host, port, token, ctx, timeout):
             sent += CHUNK
         recv_line(conn)
         up = size * 8 / (time.monotonic() - began) / 1e6
+        SPEEDS.append((f"{label} single stream", down, up))
         report(f"{label} throughput", True, f"download {down:.1f} Mbit/s, upload {up:.1f} Mbit/s (8 MiB)")
         conn.close()
     except Exception as exc:
         report(f"{label} connect + echo", False, f"{type(exc).__name__}: {exc}")
+
+
+def test_parallel(host, port, token, ctx, timeout, streams=4, size=4 << 20):
+    label = "TLS" if ctx else "TCP"
+    results = []
+
+    def worker(direction):
+        try:
+            conn = connect(host, port, timeout, ctx)
+            conn.settimeout(timeout)
+            conn.sendall(f"TOKEN {token}\n".encode())
+            if recv_line(conn) != "OK":
+                return
+            if direction == "down":
+                conn.sendall(f"BLAST {size}\n".encode())
+                recv_exact(conn, size)
+            else:
+                conn.sendall(f"SINK {size}\n".encode())
+                block = b"\0" * CHUNK
+                sent = 0
+                while sent < size:
+                    conn.sendall(block[:min(CHUNK, size - sent)])
+                    sent += CHUNK
+                recv_line(conn)
+            results.append(size)
+            conn.close()
+        except Exception:
+            pass
+
+    rates = []
+    for direction in ("down", "up"):
+        results.clear()
+        threads = [threading.Thread(target=worker, args=(direction,)) for _ in range(streams)]
+        began = time.monotonic()
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        elapsed = time.monotonic() - began
+        rates.append(sum(results) * 8 / elapsed / 1e6 if results else 0.0)
+    ok = rates[0] > 0 and rates[1] > 0
+    if ok:
+        SPEEDS.append((f"{label} {streams} parallel streams", rates[0], rates[1]))
+    report(f"{label} {streams} parallel streams", ok, f"download {rates[0]:.1f} Mbit/s, upload {rates[1]:.1f} Mbit/s" if ok else "failed")
 
 
 def test_websocket(host, port, ctx, timeout):
@@ -15251,9 +15307,15 @@ def run_client(args):
     test_icmp(host)
     stream_checks("TCP", host, p, t, None, args.timeout)
     stream_checks("TLS", host, p + 1, t, ctx, args.timeout)
+    test_parallel(host, p, t, None, args.timeout)
+    test_parallel(host, p + 1, t, ctx, args.timeout)
     test_websocket(host, p + 1, ctx, args.timeout)
     test_http(host, p + 2, args.timeout)
     test_udp(host, p, t, args.timeout)
+    if SPEEDS:
+        print("\nSpeed summary (this server <- -> remote):")
+        for name, down, up in SPEEDS:
+            print(f"  {name:<30} down {down:8.1f} Mbit/s   up {up:8.1f} Mbit/s")
     passed = sum(1 for _, ok in RESULTS if ok)
     print(f"\nSummary: {passed}/{len(RESULTS)} checks passed.")
     print("A blocked protocol here shows what the path between these two servers allows; it does not test a live tunnel.")
@@ -15301,7 +15363,7 @@ main_menu() {
     while IFS='|' read -r n title desc; do
         printf '  %s%2s)%s %s%-16s%s %s%s%s\n' "$R" "$n" "$RESET" "$B" "$title" "$RESET" "$D" "$desc" "$RESET"
     done <<'MENU'
- 0|Connection Test|which protocols work between two servers
+ 0|Connection Test|Iran/Foreign: test all protocols and speed
  1|Setup Iran|the server users connect to
  2|Setup Foreign|the server abroad, with the service
  3|Manage|tunnels, customers, health, remove
