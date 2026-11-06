@@ -183,14 +183,29 @@ def run_server(args):
 
 
 # ---------------------------------------------------------------- client
-RESULTS = []
+COLOR = sys.stdout.isatty() or os.environ.get("UUT_COLOR") == "1"
+def c(code, text):
+    return f"\033[{code}m{text}\033[0m" if COLOR else text
+GREEN, RED, YELLOW, CYAN, DIM, BOLD = "32", "31", "33", "36", "2", "1"
+
+RESULTS = {}
 SPEEDS = []
 
 
-def report(name, ok, detail):
-    RESULTS.append((name, ok))
-    mark = "\033[32mPASS\033[0m" if ok else "\033[31mFAIL\033[0m"
-    print(f"  [{mark}] {name:<28} {detail}")
+def section(title):
+    line = "─" * (58 - len(title))
+    print(f"\n  {c(CYAN, '┌─ ' + title + ' ' + line)}")
+
+
+def report(key, name, ok, detail, warn=False):
+    RESULTS[key] = ok
+    icon = c(GREEN, "✔ PASS") if ok and not warn else (c(YELLOW, "▲ WEAK") if ok else c(RED, "✘ FAIL"))
+    print(f"  {c(CYAN, '│')} {icon}  {c(BOLD, f'{name:<24}')} {c(DIM, detail)}")
+
+
+def bar(value, top, width=16):
+    filled = 0 if top <= 0 else max(1 if value > 0 else 0, round(width * value / top))
+    return c(GREEN, "█" * filled) + c(DIM, "░" * (width - filled))
 
 
 def connect(host, port, timeout, ctx=None):
@@ -198,47 +213,20 @@ def connect(host, port, timeout, ctx=None):
     return ctx.wrap_socket(raw, server_hostname=None) if ctx else raw
 
 
-def test_icmp(host, count=5):
-    if not shutil.which("ping"):
-        report("ICMP echo", False, "ping command not installed")
-        return
-    out = subprocess.run(["ping", "-c", str(count), "-W", "2", host], capture_output=True, text=True).stdout
-    loss = None
-    avg = None
-    for line in out.splitlines():
-        if "packet loss" in line:
-            for tok in line.split(","):
-                if "loss" in tok:
-                    loss = tok.strip().split("%")[0]
-        if line.startswith(("rtt", "round-trip")):
-            avg = line.split("=")[1].split("/")[1]
-    ok = loss is not None and float(loss) < 100
-    report("ICMP echo (ping)", ok, f"loss {loss}%  avg {avg} ms" if ok else "no reply (ICMP blocked or host down)")
+def open_session(host, port, token, ctx, timeout):
+    conn = connect(host, port, timeout, ctx)
+    conn.settimeout(timeout)
+    conn.sendall(f"TOKEN {token}\n".encode())
+    if recv_line(conn) != "OK":
+        raise PermissionError("listener rejected the token (link mismatch)")
+    return conn
 
 
-def stream_checks(label, host, port, token, ctx, timeout):
-    try:
-        began = time.monotonic()
-        conn = connect(host, port, timeout, ctx)
-        setup_ms = (time.monotonic() - began) * 1000
-        conn.settimeout(timeout)
-        conn.sendall(f"TOKEN {token}\n".encode())
-        if recv_line(conn) != "OK":
-            report(f"{label} connect", False, "server rejected token")
-            return
-        extra = f" ({conn.version()})" if ctx else ""
-        sample = os.urandom(512)
-        began = time.monotonic()
-        conn.sendall(b"ECHO 512\n" + sample)
-        good = recv_exact(conn, 512) == sample
-        rtt = (time.monotonic() - began) * 1000
-        report(f"{label} connect + echo", good, f"setup {setup_ms:.0f} ms, echo {rtt:.0f} ms{extra}")
-        size = 8 << 20
-        began = time.monotonic()
+def transfer(conn, direction, size):
+    if direction == "down":
         conn.sendall(f"BLAST {size}\n".encode())
         recv_exact(conn, size)
-        down = size * 8 / (time.monotonic() - began) / 1e6
-        began = time.monotonic()
+    else:
         conn.sendall(f"SINK {size}\n".encode())
         block = b"\0" * CHUNK
         sent = 0
@@ -246,56 +234,71 @@ def stream_checks(label, host, port, token, ctx, timeout):
             conn.sendall(block[:min(CHUNK, size - sent)])
             sent += CHUNK
         recv_line(conn)
-        up = size * 8 / (time.monotonic() - began) / 1e6
-        SPEEDS.append((f"{label} single stream", down, up))
-        report(f"{label} throughput", True, f"download {down:.1f} Mbit/s, upload {up:.1f} Mbit/s (8 MiB)")
+
+
+def test_icmp(host, count=6):
+    if not shutil.which("ping"):
+        report("icmp", "ICMP ping", False, "ping is not installed (apt install iputils-ping)")
+        return
+    out = subprocess.run(["ping", "-c", str(count), "-i", "0.3", "-W", "2", host], capture_output=True, text=True).stdout
+    loss, avg = None, None
+    for line in out.splitlines():
+        if "packet loss" in line:
+            loss = float([t for t in line.split(",") if "loss" in t][0].strip().split("%")[0])
+        if line.startswith(("rtt", "round-trip")):
+            avg = float(line.split("=")[1].split("/")[1])
+    if loss is None or loss >= 100:
+        report("icmp", "ICMP ping", False, "no reply: ICMP is blocked on this path")
+    else:
+        report("icmp", "ICMP ping", True, f"{avg:.0f} ms, loss {loss:.0f}%", warn=loss > 10)
+
+
+def test_stream(key, label, host, port, token, ctx, timeout):
+    try:
+        began = time.monotonic()
+        conn = open_session(host, port, token, ctx, timeout)
+        setup = (time.monotonic() - began) * 1000
+        sample = os.urandom(1024)
+        began = time.monotonic()
+        conn.sendall(b"ECHO 1024\n" + sample)
+        good = recv_exact(conn, 1024) == sample
+        rtt = (time.monotonic() - began) * 1000
+        version = f", {conn.version()}" if ctx else ""
+        report(key, label, good, f"handshake {setup:.0f} ms, rtt {rtt:.0f} ms{version}")
+        rates = []
+        for direction in ("down", "up"):
+            began = time.monotonic()
+            transfer(conn, direction, 8 << 20)
+            rates.append((8 << 20) * 8 / (time.monotonic() - began) / 1e6)
+        SPEEDS.append((f"{label} x1", *rates))
         conn.close()
     except Exception as exc:
-        report(f"{label} connect + echo", False, f"{type(exc).__name__}: {exc}")
+        report(key, label, False, f"{type(exc).__name__}: {exc}")
 
 
-def test_parallel(host, port, token, ctx, timeout, streams=4, size=4 << 20):
-    label = "TLS" if ctx else "TCP"
-    results = []
-
-    def worker(direction):
-        try:
-            conn = connect(host, port, timeout, ctx)
-            conn.settimeout(timeout)
-            conn.sendall(f"TOKEN {token}\n".encode())
-            if recv_line(conn) != "OK":
-                return
-            if direction == "down":
-                conn.sendall(f"BLAST {size}\n".encode())
-                recv_exact(conn, size)
-            else:
-                conn.sendall(f"SINK {size}\n".encode())
-                block = b"\0" * CHUNK
-                sent = 0
-                while sent < size:
-                    conn.sendall(block[:min(CHUNK, size - sent)])
-                    sent += CHUNK
-                recv_line(conn)
-            results.append(size)
-            conn.close()
-        except Exception:
-            pass
-
+def test_parallel(label, host, port, token, ctx, timeout, streams=4, size=4 << 20):
     rates = []
     for direction in ("down", "up"):
-        results.clear()
-        threads = [threading.Thread(target=worker, args=(direction,)) for _ in range(streams)]
+        done = []
+
+        def worker():
+            try:
+                conn = open_session(host, port, token, ctx, timeout)
+                transfer(conn, direction, size)
+                done.append(size)
+                conn.close()
+            except Exception:
+                pass
+
+        threads = [threading.Thread(target=worker) for _ in range(streams)]
         began = time.monotonic()
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-        elapsed = time.monotonic() - began
-        rates.append(sum(results) * 8 / elapsed / 1e6 if results else 0.0)
-    ok = rates[0] > 0 and rates[1] > 0
-    if ok:
-        SPEEDS.append((f"{label} {streams} parallel streams", rates[0], rates[1]))
-    report(f"{label} {streams} parallel streams", ok, f"download {rates[0]:.1f} Mbit/s, upload {rates[1]:.1f} Mbit/s" if ok else "failed")
+        rates.append(sum(done) * 8 / (time.monotonic() - began) / 1e6)
+    if rates[0] or rates[1]:
+        SPEEDS.append((f"{label} x{streams}", *rates))
 
 
 def test_websocket(host, port, ctx, timeout):
@@ -303,22 +306,22 @@ def test_websocket(host, port, ctx, timeout):
         conn = connect(host, port, timeout, ctx)
         conn.settimeout(timeout)
         key = base64.b64encode(os.urandom(16)).decode()
-        conn.sendall((f"GET /uut HTTP/1.1\r\nHost: {host}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
+        conn.sendall((f"GET /ws HTTP/1.1\r\nHost: {host}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
                       f"Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n").encode())
         status = recv_line(conn)
         while recv_line(conn):
             pass
         if "101" not in status:
-            report("WSS WebSocket upgrade", False, status or "no response")
+            report("wss", "WebSocket over TLS", False, status or "no response")
             return
+        payload = os.urandom(512)
         began = time.monotonic()
-        payload = os.urandom(300)
         ws_write(conn, payload, mask=True)
         _, echoed = ws_read(conn)
-        report("WSS WebSocket upgrade", echoed == payload, f"frame echo {(time.monotonic() - began) * 1000:.0f} ms")
+        report("wss", "WebSocket over TLS", echoed == payload, f"upgrade ok, frame rtt {(time.monotonic() - began) * 1000:.0f} ms")
         conn.close()
     except Exception as exc:
-        report("WSS WebSocket upgrade", False, f"{type(exc).__name__}: {exc}")
+        report("wss", "WebSocket over TLS", False, f"{type(exc).__name__}: {exc}")
 
 
 def test_http(host, port, timeout):
@@ -333,41 +336,81 @@ def test_http(host, port, timeout):
             if not piece:
                 break
             body += piece
-        report("HTTP plain", body.endswith(b"ok"), f"{(time.monotonic() - began) * 1000:.0f} ms")
+        report("http", "Plain HTTP", body.endswith(b"ok"), f"response in {(time.monotonic() - began) * 1000:.0f} ms")
     except Exception as exc:
-        report("HTTP plain", False, f"{type(exc).__name__}: {exc}")
+        report("http", "Plain HTTP", False, f"{type(exc).__name__}: {exc}")
 
 
-def test_udp(host, port, token, timeout, total=40):
+def test_udp(host, port, token, timeout):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(timeout / 3)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4 << 20)
+    sock.settimeout(2)
     got, rtts = 0, []
+    total = 30
     for i in range(total):
-        packet = f"TOKEN {token} {i} ".encode() + os.urandom(200)
+        packet = f"TOKEN {token} e{i} ".encode() + os.urandom(200)
         began = time.monotonic()
         sock.sendto(packet, (host, port))
         try:
-            data, _ = sock.recvfrom(2048)
-            if data == packet:
-                got += 1
-                rtts.append((time.monotonic() - began) * 1000)
+            while True:
+                data, _ = sock.recvfrom(2048)
+                if data == packet:
+                    got += 1
+                    rtts.append((time.monotonic() - began) * 1000)
+                    break
         except socket.timeout:
             pass
     loss = (total - got) * 100 / total
-    detail = f"loss {loss:.0f}%" + (f", avg {sum(rtts) / len(rtts):.0f} ms" if rtts else "")
-    report("UDP echo", got > 0 and loss <= 50, detail if got else "no reply (UDP blocked or server not listening)")
-    burst = 200
-    for i in range(burst):
-        sock.sendto(f"TOKEN {token} b{i} ".encode() + b"x" * 1000, (host, port))
-    sock.settimeout(1.5)
-    back = 0
-    try:
-        while back < burst:
-            sock.recvfrom(2048)
-            back += 1
-    except socket.timeout:
-        pass
-    report("UDP burst (200 x 1 KB)", back > 0, f"{back}/{burst} returned")
+    if not got:
+        report("udp", "UDP echo", False, "no reply: UDP is blocked on this path")
+        return
+    report("udp", "UDP echo", True, f"{sum(rtts) / len(rtts):.0f} ms, loss {loss:.0f}%", warn=loss > 10)
+    # Paced stream: 1000 x 1 KB at ~4 Mbit/s, received concurrently.
+    received = [0]
+    stop = threading.Event()
+
+    def reader():
+        sock.settimeout(0.5)
+        while not stop.is_set():
+            try:
+                sock.recvfrom(2048)
+                received[0] += 1
+            except socket.timeout:
+                continue
+            except OSError:
+                return
+
+    thread = threading.Thread(target=reader, daemon=True)
+    thread.start()
+    count = 1000
+    began = time.monotonic()
+    for i in range(count):
+        sock.sendto(f"TOKEN {token} s{i} ".encode() + b"x" * 1000, (host, port))
+        time.sleep(0.002)
+    elapsed = time.monotonic() - began
+    time.sleep(2)
+    stop.set()
+    thread.join()
+    ratio = received[0] * 100 / count
+    rate = received[0] * 1000 * 8 / elapsed / 1e6
+    report("udpstream", "UDP stream (1000 x 1 KB)", ratio >= 50, f"{ratio:.0f}% delivered, ~{rate:.1f} Mbit/s paced", warn=ratio < 90)
+
+
+def recommendations():
+    r = RESULTS
+    tips = []
+    if r.get("tls"):
+        tips.append(("Quick tunnel (TLS 1.3 direct)", "works: menu 2 on Foreign → link → menu 1 on Iran", True))
+    elif r.get("tcp"):
+        tips.append(("Quick tunnel (TLS 1.3 direct)", "TCP works but TLS is filtered: try other port or CDN (WSS)", False))
+    else:
+        tips.append(("Quick tunnel (TLS 1.3 direct)", "TCP is blocked on this port: pick another port", False))
+    tips.append(("WSS / XHTTP via CDN", "WebSocket passes directly" if r.get("wss") else "direct WebSocket blocked: use CDN profile", bool(r.get("wss"))))
+    tips.append(("ICMP L3 (menu 8)", "ICMP passes, usable as a fallback" if r.get("icmp") else "ICMP is blocked", bool(r.get("icmp"))))
+    tips.append(("UDP traffic (calls, games)", "UDP passes" if r.get("udpstream") else "UDP is blocked or lossy", bool(r.get("udpstream"))))
+    for name, text, ok in tips:
+        icon = c(GREEN, "●") if ok else c(RED, "○")
+        print(f"  {c(CYAN, '│')} {icon} {c(BOLD, f'{name:<30}')} {c(DIM, text)}")
 
 
 def run_client(args):
@@ -375,22 +418,28 @@ def run_client(args):
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    print(f"Testing {host} (ports {p}, {p + 1}, {p + 2}) ...\n")
+    print(c(BOLD, f"\n  UnUnknownTun connection test  →  {host}  (ports {p}-{p + 2})"))
+    section("Reachability")
     test_icmp(host)
-    stream_checks("TCP", host, p, t, None, args.timeout)
-    stream_checks("TLS", host, p + 1, t, ctx, args.timeout)
-    test_parallel(host, p, t, None, args.timeout)
-    test_parallel(host, p + 1, t, ctx, args.timeout)
+    test_stream("tcp", "TCP", host, p, t, None, args.timeout)
+    test_stream("tls", "TLS 1.3", host, p + 1, t, ctx, args.timeout)
     test_websocket(host, p + 1, ctx, args.timeout)
     test_http(host, p + 2, args.timeout)
     test_udp(host, p, t, args.timeout)
+    if RESULTS.get("tcp"):
+        test_parallel("TCP", host, p, t, None, args.timeout)
+    if RESULTS.get("tls"):
+        test_parallel("TLS 1.3", host, p + 1, t, ctx, args.timeout)
     if SPEEDS:
-        print("\nSpeed summary (this server <- -> remote):")
+        section("Speed  (Mbit/s, download ↓ / upload ↑)")
+        top = max(max(d, u) for _, d, u in SPEEDS)
         for name, down, up in SPEEDS:
-            print(f"  {name:<30} down {down:8.1f} Mbit/s   up {up:8.1f} Mbit/s")
-    passed = sum(1 for _, ok in RESULTS if ok)
-    print(f"\nSummary: {passed}/{len(RESULTS)} checks passed.")
-    print("A blocked protocol here shows what the path between these two servers allows; it does not test a live tunnel.")
+            print(f"  {c(CYAN, '│')} {c(BOLD, f'{name:<12}')} ↓ {down:7.1f} {bar(down, top)}  ↑ {up:7.1f} {bar(up, top)}")
+    section("Which tunnel to use")
+    recommendations()
+    passed = sum(1 for ok in RESULTS.values() if ok)
+    print(f"  {c(CYAN, '└' + '─' * 61)}")
+    print(f"  {c(BOLD, f'{passed}/{len(RESULTS)} checks passed')}  {c(DIM, '(path test only; no tunnel was changed)')}\n")
     return 0 if passed else 1
 
 
@@ -400,11 +449,11 @@ def main():
     s = sub.add_parser("server")
     s.add_argument("--port", type=int, default=4500)
     s.add_argument("--token", required=True)
-    c = sub.add_parser("client")
-    c.add_argument("--host", required=True)
-    c.add_argument("--port", type=int, default=4500)
-    c.add_argument("--token", required=True)
-    c.add_argument("--timeout", type=float, default=8.0)
+    cl = sub.add_parser("client")
+    cl.add_argument("--host", required=True)
+    cl.add_argument("--port", type=int, default=4500)
+    cl.add_argument("--token", required=True)
+    cl.add_argument("--timeout", type=float, default=8.0)
     args = ap.parse_args()
     if not 1024 <= args.port <= 65533:
         sys.exit("Port must be 1024..65533.")

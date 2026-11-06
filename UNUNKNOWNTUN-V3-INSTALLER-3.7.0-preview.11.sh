@@ -12346,14 +12346,15 @@ HELP
 management_selector() {
     require_root
     local choice
-    printf '\n1) WSS / XHTTP and managed TLS tunnels\n2) Direct ICMP tunnels and port forwards\n0) Back\n'
+    printf '\n1) Quick tunnels (link based)\n2) WSS / XHTTP and managed TLS tunnels\n3) Direct ICMP tunnels and port forwards\n0) Back\n'
     while true; do
-        read -r -p 'Tunnel type [2]: ' choice || return 0
-        case "${choice:-2}" in
-            1) management_menu; return ;;
-            2) run_terminal_ui --icmp-manage; return ;;
+        read -r -p 'Tunnel type [1]: ' choice || return 0
+        case "${choice:-1}" in
+            1) quick_manage; return ;;
+            2) management_menu; return ;;
+            3) run_terminal_ui --icmp-manage; return ;;
             0) return 0 ;;
-            *) printf 'Choose 0, 1 or 2.\n' ;;
+            *) printf 'Choose 0, 1, 2 or 3.\n' ;;
         esac
     done
 }
@@ -15111,14 +15112,29 @@ def run_server(args):
 
 
 # ---------------------------------------------------------------- client
-RESULTS = []
+COLOR = sys.stdout.isatty() or os.environ.get("UUT_COLOR") == "1"
+def c(code, text):
+    return f"\033[{code}m{text}\033[0m" if COLOR else text
+GREEN, RED, YELLOW, CYAN, DIM, BOLD = "32", "31", "33", "36", "2", "1"
+
+RESULTS = {}
 SPEEDS = []
 
 
-def report(name, ok, detail):
-    RESULTS.append((name, ok))
-    mark = "\033[32mPASS\033[0m" if ok else "\033[31mFAIL\033[0m"
-    print(f"  [{mark}] {name:<28} {detail}")
+def section(title):
+    line = "─" * (58 - len(title))
+    print(f"\n  {c(CYAN, '┌─ ' + title + ' ' + line)}")
+
+
+def report(key, name, ok, detail, warn=False):
+    RESULTS[key] = ok
+    icon = c(GREEN, "✔ PASS") if ok and not warn else (c(YELLOW, "▲ WEAK") if ok else c(RED, "✘ FAIL"))
+    print(f"  {c(CYAN, '│')} {icon}  {c(BOLD, f'{name:<24}')} {c(DIM, detail)}")
+
+
+def bar(value, top, width=16):
+    filled = 0 if top <= 0 else max(1 if value > 0 else 0, round(width * value / top))
+    return c(GREEN, "█" * filled) + c(DIM, "░" * (width - filled))
 
 
 def connect(host, port, timeout, ctx=None):
@@ -15126,47 +15142,20 @@ def connect(host, port, timeout, ctx=None):
     return ctx.wrap_socket(raw, server_hostname=None) if ctx else raw
 
 
-def test_icmp(host, count=5):
-    if not shutil.which("ping"):
-        report("ICMP echo", False, "ping command not installed")
-        return
-    out = subprocess.run(["ping", "-c", str(count), "-W", "2", host], capture_output=True, text=True).stdout
-    loss = None
-    avg = None
-    for line in out.splitlines():
-        if "packet loss" in line:
-            for tok in line.split(","):
-                if "loss" in tok:
-                    loss = tok.strip().split("%")[0]
-        if line.startswith(("rtt", "round-trip")):
-            avg = line.split("=")[1].split("/")[1]
-    ok = loss is not None and float(loss) < 100
-    report("ICMP echo (ping)", ok, f"loss {loss}%  avg {avg} ms" if ok else "no reply (ICMP blocked or host down)")
+def open_session(host, port, token, ctx, timeout):
+    conn = connect(host, port, timeout, ctx)
+    conn.settimeout(timeout)
+    conn.sendall(f"TOKEN {token}\n".encode())
+    if recv_line(conn) != "OK":
+        raise PermissionError("listener rejected the token (link mismatch)")
+    return conn
 
 
-def stream_checks(label, host, port, token, ctx, timeout):
-    try:
-        began = time.monotonic()
-        conn = connect(host, port, timeout, ctx)
-        setup_ms = (time.monotonic() - began) * 1000
-        conn.settimeout(timeout)
-        conn.sendall(f"TOKEN {token}\n".encode())
-        if recv_line(conn) != "OK":
-            report(f"{label} connect", False, "server rejected token")
-            return
-        extra = f" ({conn.version()})" if ctx else ""
-        sample = os.urandom(512)
-        began = time.monotonic()
-        conn.sendall(b"ECHO 512\n" + sample)
-        good = recv_exact(conn, 512) == sample
-        rtt = (time.monotonic() - began) * 1000
-        report(f"{label} connect + echo", good, f"setup {setup_ms:.0f} ms, echo {rtt:.0f} ms{extra}")
-        size = 8 << 20
-        began = time.monotonic()
+def transfer(conn, direction, size):
+    if direction == "down":
         conn.sendall(f"BLAST {size}\n".encode())
         recv_exact(conn, size)
-        down = size * 8 / (time.monotonic() - began) / 1e6
-        began = time.monotonic()
+    else:
         conn.sendall(f"SINK {size}\n".encode())
         block = b"\0" * CHUNK
         sent = 0
@@ -15174,56 +15163,71 @@ def stream_checks(label, host, port, token, ctx, timeout):
             conn.sendall(block[:min(CHUNK, size - sent)])
             sent += CHUNK
         recv_line(conn)
-        up = size * 8 / (time.monotonic() - began) / 1e6
-        SPEEDS.append((f"{label} single stream", down, up))
-        report(f"{label} throughput", True, f"download {down:.1f} Mbit/s, upload {up:.1f} Mbit/s (8 MiB)")
+
+
+def test_icmp(host, count=6):
+    if not shutil.which("ping"):
+        report("icmp", "ICMP ping", False, "ping is not installed (apt install iputils-ping)")
+        return
+    out = subprocess.run(["ping", "-c", str(count), "-i", "0.3", "-W", "2", host], capture_output=True, text=True).stdout
+    loss, avg = None, None
+    for line in out.splitlines():
+        if "packet loss" in line:
+            loss = float([t for t in line.split(",") if "loss" in t][0].strip().split("%")[0])
+        if line.startswith(("rtt", "round-trip")):
+            avg = float(line.split("=")[1].split("/")[1])
+    if loss is None or loss >= 100:
+        report("icmp", "ICMP ping", False, "no reply: ICMP is blocked on this path")
+    else:
+        report("icmp", "ICMP ping", True, f"{avg:.0f} ms, loss {loss:.0f}%", warn=loss > 10)
+
+
+def test_stream(key, label, host, port, token, ctx, timeout):
+    try:
+        began = time.monotonic()
+        conn = open_session(host, port, token, ctx, timeout)
+        setup = (time.monotonic() - began) * 1000
+        sample = os.urandom(1024)
+        began = time.monotonic()
+        conn.sendall(b"ECHO 1024\n" + sample)
+        good = recv_exact(conn, 1024) == sample
+        rtt = (time.monotonic() - began) * 1000
+        version = f", {conn.version()}" if ctx else ""
+        report(key, label, good, f"handshake {setup:.0f} ms, rtt {rtt:.0f} ms{version}")
+        rates = []
+        for direction in ("down", "up"):
+            began = time.monotonic()
+            transfer(conn, direction, 8 << 20)
+            rates.append((8 << 20) * 8 / (time.monotonic() - began) / 1e6)
+        SPEEDS.append((f"{label} x1", *rates))
         conn.close()
     except Exception as exc:
-        report(f"{label} connect + echo", False, f"{type(exc).__name__}: {exc}")
+        report(key, label, False, f"{type(exc).__name__}: {exc}")
 
 
-def test_parallel(host, port, token, ctx, timeout, streams=4, size=4 << 20):
-    label = "TLS" if ctx else "TCP"
-    results = []
-
-    def worker(direction):
-        try:
-            conn = connect(host, port, timeout, ctx)
-            conn.settimeout(timeout)
-            conn.sendall(f"TOKEN {token}\n".encode())
-            if recv_line(conn) != "OK":
-                return
-            if direction == "down":
-                conn.sendall(f"BLAST {size}\n".encode())
-                recv_exact(conn, size)
-            else:
-                conn.sendall(f"SINK {size}\n".encode())
-                block = b"\0" * CHUNK
-                sent = 0
-                while sent < size:
-                    conn.sendall(block[:min(CHUNK, size - sent)])
-                    sent += CHUNK
-                recv_line(conn)
-            results.append(size)
-            conn.close()
-        except Exception:
-            pass
-
+def test_parallel(label, host, port, token, ctx, timeout, streams=4, size=4 << 20):
     rates = []
     for direction in ("down", "up"):
-        results.clear()
-        threads = [threading.Thread(target=worker, args=(direction,)) for _ in range(streams)]
+        done = []
+
+        def worker():
+            try:
+                conn = open_session(host, port, token, ctx, timeout)
+                transfer(conn, direction, size)
+                done.append(size)
+                conn.close()
+            except Exception:
+                pass
+
+        threads = [threading.Thread(target=worker) for _ in range(streams)]
         began = time.monotonic()
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-        elapsed = time.monotonic() - began
-        rates.append(sum(results) * 8 / elapsed / 1e6 if results else 0.0)
-    ok = rates[0] > 0 and rates[1] > 0
-    if ok:
-        SPEEDS.append((f"{label} {streams} parallel streams", rates[0], rates[1]))
-    report(f"{label} {streams} parallel streams", ok, f"download {rates[0]:.1f} Mbit/s, upload {rates[1]:.1f} Mbit/s" if ok else "failed")
+        rates.append(sum(done) * 8 / (time.monotonic() - began) / 1e6)
+    if rates[0] or rates[1]:
+        SPEEDS.append((f"{label} x{streams}", *rates))
 
 
 def test_websocket(host, port, ctx, timeout):
@@ -15231,22 +15235,22 @@ def test_websocket(host, port, ctx, timeout):
         conn = connect(host, port, timeout, ctx)
         conn.settimeout(timeout)
         key = base64.b64encode(os.urandom(16)).decode()
-        conn.sendall((f"GET /uut HTTP/1.1\r\nHost: {host}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
+        conn.sendall((f"GET /ws HTTP/1.1\r\nHost: {host}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
                       f"Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n").encode())
         status = recv_line(conn)
         while recv_line(conn):
             pass
         if "101" not in status:
-            report("WSS WebSocket upgrade", False, status or "no response")
+            report("wss", "WebSocket over TLS", False, status or "no response")
             return
+        payload = os.urandom(512)
         began = time.monotonic()
-        payload = os.urandom(300)
         ws_write(conn, payload, mask=True)
         _, echoed = ws_read(conn)
-        report("WSS WebSocket upgrade", echoed == payload, f"frame echo {(time.monotonic() - began) * 1000:.0f} ms")
+        report("wss", "WebSocket over TLS", echoed == payload, f"upgrade ok, frame rtt {(time.monotonic() - began) * 1000:.0f} ms")
         conn.close()
     except Exception as exc:
-        report("WSS WebSocket upgrade", False, f"{type(exc).__name__}: {exc}")
+        report("wss", "WebSocket over TLS", False, f"{type(exc).__name__}: {exc}")
 
 
 def test_http(host, port, timeout):
@@ -15261,41 +15265,81 @@ def test_http(host, port, timeout):
             if not piece:
                 break
             body += piece
-        report("HTTP plain", body.endswith(b"ok"), f"{(time.monotonic() - began) * 1000:.0f} ms")
+        report("http", "Plain HTTP", body.endswith(b"ok"), f"response in {(time.monotonic() - began) * 1000:.0f} ms")
     except Exception as exc:
-        report("HTTP plain", False, f"{type(exc).__name__}: {exc}")
+        report("http", "Plain HTTP", False, f"{type(exc).__name__}: {exc}")
 
 
-def test_udp(host, port, token, timeout, total=40):
+def test_udp(host, port, token, timeout):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(timeout / 3)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4 << 20)
+    sock.settimeout(2)
     got, rtts = 0, []
+    total = 30
     for i in range(total):
-        packet = f"TOKEN {token} {i} ".encode() + os.urandom(200)
+        packet = f"TOKEN {token} e{i} ".encode() + os.urandom(200)
         began = time.monotonic()
         sock.sendto(packet, (host, port))
         try:
-            data, _ = sock.recvfrom(2048)
-            if data == packet:
-                got += 1
-                rtts.append((time.monotonic() - began) * 1000)
+            while True:
+                data, _ = sock.recvfrom(2048)
+                if data == packet:
+                    got += 1
+                    rtts.append((time.monotonic() - began) * 1000)
+                    break
         except socket.timeout:
             pass
     loss = (total - got) * 100 / total
-    detail = f"loss {loss:.0f}%" + (f", avg {sum(rtts) / len(rtts):.0f} ms" if rtts else "")
-    report("UDP echo", got > 0 and loss <= 50, detail if got else "no reply (UDP blocked or server not listening)")
-    burst = 200
-    for i in range(burst):
-        sock.sendto(f"TOKEN {token} b{i} ".encode() + b"x" * 1000, (host, port))
-    sock.settimeout(1.5)
-    back = 0
-    try:
-        while back < burst:
-            sock.recvfrom(2048)
-            back += 1
-    except socket.timeout:
-        pass
-    report("UDP burst (200 x 1 KB)", back > 0, f"{back}/{burst} returned")
+    if not got:
+        report("udp", "UDP echo", False, "no reply: UDP is blocked on this path")
+        return
+    report("udp", "UDP echo", True, f"{sum(rtts) / len(rtts):.0f} ms, loss {loss:.0f}%", warn=loss > 10)
+    # Paced stream: 1000 x 1 KB at ~4 Mbit/s, received concurrently.
+    received = [0]
+    stop = threading.Event()
+
+    def reader():
+        sock.settimeout(0.5)
+        while not stop.is_set():
+            try:
+                sock.recvfrom(2048)
+                received[0] += 1
+            except socket.timeout:
+                continue
+            except OSError:
+                return
+
+    thread = threading.Thread(target=reader, daemon=True)
+    thread.start()
+    count = 1000
+    began = time.monotonic()
+    for i in range(count):
+        sock.sendto(f"TOKEN {token} s{i} ".encode() + b"x" * 1000, (host, port))
+        time.sleep(0.002)
+    elapsed = time.monotonic() - began
+    time.sleep(2)
+    stop.set()
+    thread.join()
+    ratio = received[0] * 100 / count
+    rate = received[0] * 1000 * 8 / elapsed / 1e6
+    report("udpstream", "UDP stream (1000 x 1 KB)", ratio >= 50, f"{ratio:.0f}% delivered, ~{rate:.1f} Mbit/s paced", warn=ratio < 90)
+
+
+def recommendations():
+    r = RESULTS
+    tips = []
+    if r.get("tls"):
+        tips.append(("Quick tunnel (TLS 1.3 direct)", "works: menu 2 on Foreign → link → menu 1 on Iran", True))
+    elif r.get("tcp"):
+        tips.append(("Quick tunnel (TLS 1.3 direct)", "TCP works but TLS is filtered: try other port or CDN (WSS)", False))
+    else:
+        tips.append(("Quick tunnel (TLS 1.3 direct)", "TCP is blocked on this port: pick another port", False))
+    tips.append(("WSS / XHTTP via CDN", "WebSocket passes directly" if r.get("wss") else "direct WebSocket blocked: use CDN profile", bool(r.get("wss"))))
+    tips.append(("ICMP L3 (menu 8)", "ICMP passes, usable as a fallback" if r.get("icmp") else "ICMP is blocked", bool(r.get("icmp"))))
+    tips.append(("UDP traffic (calls, games)", "UDP passes" if r.get("udpstream") else "UDP is blocked or lossy", bool(r.get("udpstream"))))
+    for name, text, ok in tips:
+        icon = c(GREEN, "●") if ok else c(RED, "○")
+        print(f"  {c(CYAN, '│')} {icon} {c(BOLD, f'{name:<30}')} {c(DIM, text)}")
 
 
 def run_client(args):
@@ -15303,22 +15347,28 @@ def run_client(args):
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    print(f"Testing {host} (ports {p}, {p + 1}, {p + 2}) ...\n")
+    print(c(BOLD, f"\n  UnUnknownTun connection test  →  {host}  (ports {p}-{p + 2})"))
+    section("Reachability")
     test_icmp(host)
-    stream_checks("TCP", host, p, t, None, args.timeout)
-    stream_checks("TLS", host, p + 1, t, ctx, args.timeout)
-    test_parallel(host, p, t, None, args.timeout)
-    test_parallel(host, p + 1, t, ctx, args.timeout)
+    test_stream("tcp", "TCP", host, p, t, None, args.timeout)
+    test_stream("tls", "TLS 1.3", host, p + 1, t, ctx, args.timeout)
     test_websocket(host, p + 1, ctx, args.timeout)
     test_http(host, p + 2, args.timeout)
     test_udp(host, p, t, args.timeout)
+    if RESULTS.get("tcp"):
+        test_parallel("TCP", host, p, t, None, args.timeout)
+    if RESULTS.get("tls"):
+        test_parallel("TLS 1.3", host, p + 1, t, ctx, args.timeout)
     if SPEEDS:
-        print("\nSpeed summary (this server <- -> remote):")
+        section("Speed  (Mbit/s, download ↓ / upload ↑)")
+        top = max(max(d, u) for _, d, u in SPEEDS)
         for name, down, up in SPEEDS:
-            print(f"  {name:<30} down {down:8.1f} Mbit/s   up {up:8.1f} Mbit/s")
-    passed = sum(1 for _, ok in RESULTS if ok)
-    print(f"\nSummary: {passed}/{len(RESULTS)} checks passed.")
-    print("A blocked protocol here shows what the path between these two servers allows; it does not test a live tunnel.")
+            print(f"  {c(CYAN, '│')} {c(BOLD, f'{name:<12}')} ↓ {down:7.1f} {bar(down, top)}  ↑ {up:7.1f} {bar(up, top)}")
+    section("Which tunnel to use")
+    recommendations()
+    passed = sum(1 for ok in RESULTS.values() if ok)
+    print(f"  {c(CYAN, '└' + '─' * 61)}")
+    print(f"  {c(BOLD, f'{passed}/{len(RESULTS)} checks passed')}  {c(DIM, '(path test only; no tunnel was changed)')}\n")
     return 0 if passed else 1
 
 
@@ -15328,11 +15378,11 @@ def main():
     s = sub.add_parser("server")
     s.add_argument("--port", type=int, default=4500)
     s.add_argument("--token", required=True)
-    c = sub.add_parser("client")
-    c.add_argument("--host", required=True)
-    c.add_argument("--port", type=int, default=4500)
-    c.add_argument("--token", required=True)
-    c.add_argument("--timeout", type=float, default=8.0)
+    cl = sub.add_parser("client")
+    cl.add_argument("--host", required=True)
+    cl.add_argument("--port", type=int, default=4500)
+    cl.add_argument("--token", required=True)
+    cl.add_argument("--timeout", type=float, default=8.0)
     args = ap.parse_args()
     if not 1024 <= args.port <= 65533:
         sys.exit("Port must be 1024..65533.")
@@ -15347,6 +15397,332 @@ if __name__ == "__main__":
 UUT_CONNTEST_PY_EOF
 }
 
+# ---------------------------------------------------------------- Quick tunnel
+# Foreign only creates a link. Iran pastes the link and chooses every setting.
+# Direct TLS 1.3 with a pinned self-signed certificate; no domain, CDN or Nginx.
+BOLD="${BOLD:-$'\033[1m'}"
+QUICK_DIR="$BASE_CONFIG_DIR/quick"
+QUICK_BIN="$INSTALL_DIR/quick/ununknowntun"
+QUICK_UNIT_PREFIX="ununknowntun-quick-"
+
+valid_quick_name() { [[ "$1" =~ ^[a-z0-9][a-z0-9-]{0,23}$ ]]; }
+valid_quick_sni() { [[ "$1" =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,62}\.)+[A-Za-z]{2,63}$ ]]; }
+quick_port_free() { ! ss -Hltnu "sport = :$1" 2>/dev/null | grep -q .; }
+
+quick_box() {
+    local title="$1"; shift
+    printf '\n  %s┌─ %s %s%s\n' "$CYAN" "$title" "$(printf '─%.0s' $(seq 1 $((56 - ${#title}))))" "$RESET"
+    local line
+    for line in "$@"; do printf '  %s│%s %s\n' "$CYAN" "$RESET" "$line"; done
+    printf '  %s└%s%s\n' "$CYAN" "$(printf '─%.0s' $(seq 1 60))" "$RESET"
+}
+
+quick_prepare() {
+    require_root
+    detect_os
+    command -v openssl >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq openssl; } || die "openssl is required."
+    command -v ss >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq iproute2; } || die "ss (iproute2) is required."
+    install -d -o root -g root -m 0755 "$BASE_CONFIG_DIR" "$INSTALL_DIR" "$INSTALL_DIR/quick"
+    install -d -o root -g root -m 0700 "$QUICK_DIR"
+}
+
+quick_install_binary() {
+    local machine arch temp
+    machine="$(uname -m)"
+    case "$machine" in
+        x86_64|amd64) arch=amd64 ;;
+        aarch64|arm64) arch=arm64 ;;
+        *) die "Unsupported architecture: $machine (amd64 or arm64 is required)." ;;
+    esac
+    temp="$(mktemp "$INSTALL_DIR/quick/.ununknowntun-new.XXXXXXXX")"
+    extract_embedded_binary "$arch" "$temp" || { rm -f -- "$temp"; die "Embedded binary verification failed. Download the installer again."; }
+    chown root:root "$temp"
+    chmod 0755 "$temp"
+    mv -f -- "$temp" "$QUICK_BIN"
+}
+
+quick_write_unit() {
+    local unit="$1" role="$2" dir="$3" command="$4"
+    cat > "/etc/systemd/system/${QUICK_UNIT_PREFIX}${unit}.service" <<EOF
+[Unit]
+Description=UnUnknownTun quick tunnel ${unit} (${role})
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=${command}
+Restart=always
+RestartSec=3
+LimitNOFILE=1048576
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=${dir}
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    chmod 0644 "/etc/systemd/system/${QUICK_UNIT_PREFIX}${unit}.service"
+}
+
+quick_start_units() {
+    local unit failed=0
+    systemctl daemon-reload
+    for unit in "$@"; do
+        systemctl enable --now "${QUICK_UNIT_PREFIX}${unit}.service" >/dev/null 2>&1 || true
+    done
+    sleep 2
+    for unit in "$@"; do
+        if systemctl is-active --quiet "${QUICK_UNIT_PREFIX}${unit}.service"; then
+            info "Service ${QUICK_UNIT_PREFIX}${unit} is running."
+        else
+            failed=1
+            warn "Service ${QUICK_UNIT_PREFIX}${unit} did not start. Last log lines:"
+            journalctl -u "${QUICK_UNIT_PREFIX}${unit}.service" -n 15 --no-pager >&2 || true
+        fi
+    done
+    return "$failed"
+}
+
+quick_offer_ufw() {
+    local port="$1" proto="$2"
+    if command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -q '^Status: active'; then
+        if yes_no "UFW is active. Allow ${port}/${proto} now?" "y"; then
+            ufw allow "${port}/${proto}" >/dev/null && info "UFW: ${port}/${proto} allowed."
+        fi
+    fi
+}
+
+quick_foreign_setup() {
+    quick_prepare
+    printf '\n%s=== Quick tunnel: FOREIGN server (only creates a link) ===%s\n' "$CYAN" "$RESET"
+    printf 'Iran chooses ports and options later. Here you only confirm the IP and tunnel port.\n\n'
+    local count name ip port sni dir token fp link candidate default_port=""
+    count="$(find "$QUICK_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)"
+    name="tun$((count + 1))"
+    while true; do
+        ask_valid name "Tunnel name" "$name" valid_quick_name "Use 1-24 lowercase letters, digits or '-'."
+        [[ ! -e "$QUICK_DIR/$name" ]] && break
+        warn "A quick tunnel named $name already exists."
+    done
+    ip="$(detect_public_ipv4 || true)"
+    ask_valid ip "This foreign server's public IPv4" "$ip" valid_public_ipv4 "Enter a public IPv4 address."
+    for candidate in 443 8443 2053 2083 2087 9443; do
+        if quick_port_free "$candidate"; then default_port="$candidate"; break; fi
+    done
+    while true; do
+        ask_valid port "Tunnel port (Iran connects to this port)" "${default_port:-8443}" valid_port "Invalid port."
+        quick_port_free "$port" && break
+        warn "Port $port is already in use on this server. Choose another one."
+    done
+    sni="www.speedtest.net"
+    if yes_no "Change the TLS name (SNI) shown to the network? Default: $sni" "n"; then
+        ask_valid sni "TLS name (SNI)" "$sni" valid_quick_sni "Use a domain-like name, e.g. www.example.com."
+    fi
+
+    dir="$QUICK_DIR/$name"
+    install -d -o root -g root -m 0700 "$dir"
+    token="$(random_hex 32)"
+    printf '%s\n' "$token" > "$dir/token"
+    chmod 0600 "$dir/token"
+    openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -days 3650 \
+        -subj "/CN=$sni" -addext "subjectAltName=DNS:$sni" \
+        -keyout "$dir/key.pem" -out "$dir/cert.pem" >/dev/null 2>&1 || die "Certificate generation failed."
+    chmod 0600 "$dir/key.pem"
+    chmod 0644 "$dir/cert.pem"
+    fp="$(openssl x509 -in "$dir/cert.pem" -outform DER | sha256sum | awk '{print $1}')"
+    quick_install_binary
+    quick_write_unit "$name" foreign "$dir" \
+        "$QUICK_BIN -mode egress -transport tls -listen 0.0.0.0:$port -token-file $dir/token -cert $dir/cert.pem -key $dir/key.pem -cn $sni -allow 127.0.0.1:*"
+    link="uutun://${token}@${ip}:${port}?fp=${fp}&sni=${sni}#${name}"
+    printf '%s\n' "$link" > "$dir/link.txt"
+    chmod 0600 "$dir/link.txt"
+    printf 'ROLE=foreign\nNAME=%s\nIP=%s\nPORT=%s\nSNI=%s\nUNITS=%s\n' "$name" "$ip" "$port" "$sni" "$name" > "$dir/info.env"
+    chmod 0600 "$dir/info.env"
+    quick_start_units "$name" || warn "Fix the error above, then use Manage → Quick tunnels → Restart."
+    quick_offer_ufw "$port" tcp
+    quick_box "Link for the IRAN server" \
+        "On Iran: run the installer → 1) Setup Iran → 1) Quick tunnel → paste:" "" \
+        "$GREEN$link$RESET" "" \
+        "Keep this link private: it contains the tunnel key." \
+        "Show it again later: Manage → Quick tunnels → Show link."
+}
+
+quick_iran_setup() {
+    quick_prepare
+    printf '\n%s=== Quick tunnel: IRAN server (all settings are chosen here) ===%s\n' "$CYAN" "$RESET"
+    local link token ip port fp sni name dir item iport fport prof=chrome frag=off sessions=8 choice
+    local -a maps=()
+    local -A listens=()
+    while true; do
+        ask link "Paste the link from the foreign server (uutun://...)" ""
+        link="${link//[[:space:]]/}"
+        if [[ "$link" =~ ^uutun://([0-9a-f]{64})@([0-9.]+):([0-9]{1,5})\?fp=([0-9a-f]{64})\&sni=([A-Za-z0-9.-]+)#([a-z0-9-]{1,24})$ ]]; then
+            token="${BASH_REMATCH[1]}"; ip="${BASH_REMATCH[2]}"; port="${BASH_REMATCH[3]}"
+            fp="${BASH_REMATCH[4]}"; sni="${BASH_REMATCH[5]}"; name="${BASH_REMATCH[6]}"
+            valid_public_ipv4 "$ip" && valid_port "$port" && break
+        fi
+        warn "Invalid link. Copy the whole line exactly from the foreign server."
+    done
+    info "Foreign server: $ip:$port   SNI: $sni"
+    while [[ -e "$QUICK_DIR/$name" ]]; do
+        warn "A quick tunnel named $name already exists on this server."
+        ask_valid name "New name for this tunnel" "${name}-2" valid_quick_name "Use 1-24 lowercase letters, digits or '-'."
+    done
+
+    printf '\nPorts that users connect to on THIS Iran server.\n'
+    printf '  443           → Iran 443 goes to port 443 on the foreign server\n'
+    printf '  8080=2083     → Iran 8080 goes to port 2083 on the foreign server\n'
+    printf '  Several: 443,8443,8080=2083\n'
+    while true; do
+        ask item "Ports to forward" "443"
+        maps=(); listens=(); local ok=1 entry; local -a entries=()
+        IFS=',' read -r -a entries <<< "${item//[[:space:]]/}"
+        for entry in "${entries[@]}"; do
+            if [[ "$entry" =~ ^([0-9]{1,5})(=([0-9]{1,5}))?$ ]]; then
+                iport="${BASH_REMATCH[1]}"; fport="${BASH_REMATCH[3]:-$iport}"
+                if ! valid_port "$iport" || ! valid_port "$fport"; then ok=0; warn "Invalid port in: $entry"; continue; fi
+                if ! quick_port_free "$iport"; then ok=0; warn "Port $iport is already in use on this Iran server."; continue; fi
+                maps+=("$iport=$fport")
+                listens[$fport]="${listens[$fport]:+${listens[$fport]},}0.0.0.0:$iport"
+            else
+                ok=0; warn "Cannot read: $entry"
+            fi
+        done
+        (( ok == 1 && ${#maps[@]} > 0 )) && break
+    done
+
+    if yes_no "Change advanced options (browser fingerprint, TLS fragment, sessions)?" "n"; then
+        printf '\nBrowser fingerprint:\n  1) Chrome (recommended)\n  2) Firefox\n  3) iOS\n'
+        ask_valid choice "Fingerprint" "1" valid_three_choices "Select 1, 2 or 3."
+        case "$choice" in 1) prof=chrome ;; 2) prof=firefox ;; 3) prof=ios ;; esac
+        yes_no "Enable TLS ClientHello fragmentation (helps against some DPI)?" "n" && frag=hello
+        ask_valid sessions "Parallel tunnel sessions (2-32)" "8" valid_sessions "Use a number from 2 to 32."
+    fi
+
+    dir="$QUICK_DIR/$name"
+    install -d -o root -g root -m 0700 "$dir"
+    printf '%s\n' "$token" > "$dir/token"
+    chmod 0600 "$dir/token"
+    quick_install_binary
+
+    info "Checking the connection to the foreign server ..."
+    fport="${maps[0]#*=}"
+    if "$QUICK_BIN" -mode origin -transport tls -connect "$ip:$port" -target "127.0.0.1:$fport" \
+        -token-file "$dir/token" -fingerprint "$fp" -sni "$sni" -utls-profile "$prof" -tls-fragment "$frag" \
+        -check-tunnel -probe-timeout 15s >/dev/null 2>"$dir/check.log"; then
+        info "Foreign server reached and authenticated."
+    else
+        warn "Could not reach/authenticate the foreign server:"
+        tail -n 3 "$dir/check.log" >&2 || true
+        warn "Check that the foreign service is running and port $port/tcp is open there."
+        if ! yes_no "Install anyway (it will keep retrying)?" "n"; then
+            rm -f -- "$dir/token" "$dir/check.log"
+            rmdir -- "$dir" 2>/dev/null || true
+            die "Cancelled. Nothing was installed."
+        fi
+    fi
+
+    local units=() unit
+    for fport in "${!listens[@]}"; do
+        unit="$name-$fport"
+        units+=("$unit")
+        quick_write_unit "$unit" iran "$dir" \
+            "$QUICK_BIN -mode origin -transport tls -listen ${listens[$fport]} -connect $ip:$port -target 127.0.0.1:$fport -token-file $dir/token -fingerprint $fp -sni $sni -utls-profile $prof -tls-fragment $frag -sessions $sessions"
+    done
+    printf 'ROLE=iran\nNAME=%s\nFOREIGN=%s:%s\nSNI=%s\nMAP=%s\nUNITS=%s\n' "$name" "$ip" "$port" "$sni" "${maps[*]}" "${units[*]}" > "$dir/info.env"
+    chmod 0600 "$dir/info.env"
+    quick_start_units "${units[@]}" || warn "Fix the error above, then use Manage → Quick tunnels → Restart."
+    local lines=() map iran_ip
+    iran_ip="$(detect_public_ipv4 || printf 'IRAN_IP')"
+    for map in "${maps[@]}"; do
+        lines+=("$(printf '%s%s:%-6s%s →  foreign 127.0.0.1:%s' "$GREEN" "$iran_ip" "${map%%=*}" "$RESET" "${map#*=}")")
+    done
+    quick_box "Quick tunnel $name is ready" "${lines[@]}" "" \
+        "Point your clients to the Iran address/ports above." \
+        "The foreign port must have a running service (e.g. Xray inbound)." \
+        "Manage it later: main menu 3 → Quick tunnels."
+    for map in "${maps[@]}"; do quick_offer_ufw "${map%%=*}" tcp; done
+}
+
+quick_units_of() { sed -n 's/^UNITS=//p' "$QUICK_DIR/$1/info.env" 2>/dev/null; }
+
+quick_manage() {
+    require_root
+    local -a names=()
+    local d n role state unit choice action i
+    while true; do
+        names=()
+        printf '\n%sQuick tunnels%s\n' "$BOLD$CYAN" "$RESET"
+        if [[ -d "$QUICK_DIR" ]]; then
+            for d in "$QUICK_DIR"/*/; do
+                [[ -f "$d/info.env" ]] || continue
+                names+=("$(basename "$d")")
+            done
+        fi
+        if (( ${#names[@]} == 0 )); then
+            printf '  No quick tunnels yet. Use main menu 2 on the foreign server, then 1 on Iran.\n'
+            return 0
+        fi
+        for i in "${!names[@]}"; do
+            n="${names[$i]}"
+            role="$(sed -n 's/^ROLE=//p' "$QUICK_DIR/$n/info.env")"
+            state="$GREEN●running$RESET"
+            for unit in $(quick_units_of "$n"); do
+                systemctl is-active --quiet "${QUICK_UNIT_PREFIX}${unit}.service" || state="$RED○stopped$RESET"
+            done
+            printf '  %s%2d)%s %-14s %-8s %s  %s\n' "$RED" "$((i + 1))" "$RESET" "$n" "$role" "$state" \
+                "$(sed -n 's/^MAP=//p;s/^PORT=/port /p' "$QUICK_DIR/$n/info.env" | head -n1 | sed 's/=/→/g')"
+        done
+        printf '  %s 0)%s Back\n' "$RED" "$RESET"
+        read -r -p "Select a tunnel: " choice || return 0
+        [[ "$choice" == 0 || -z "$choice" ]] && return 0
+        [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#names[@]} )) || { warn "Invalid choice."; continue; }
+        n="${names[$((choice - 1))]}"
+        printf '\n  1) Status   2) Show link   3) Restart   4) Stop   5) Start   6) Logs   7) Remove   0) Back\n'
+        read -r -p "Action: " action || return 0
+        case "$action" in
+            1) for unit in $(quick_units_of "$n"); do systemctl --no-pager status "${QUICK_UNIT_PREFIX}${unit}.service" | head -n 12; done ;;
+            2) if [[ -f "$QUICK_DIR/$n/link.txt" ]]; then quick_box "Link for the IRAN server" "$GREEN$(cat "$QUICK_DIR/$n/link.txt")$RESET"; else warn "The link exists only on the foreign server."; fi ;;
+            3) for unit in $(quick_units_of "$n"); do systemctl restart "${QUICK_UNIT_PREFIX}${unit}.service"; done; info "Restarted." ;;
+            4) for unit in $(quick_units_of "$n"); do systemctl stop "${QUICK_UNIT_PREFIX}${unit}.service"; done; info "Stopped." ;;
+            5) for unit in $(quick_units_of "$n"); do systemctl start "${QUICK_UNIT_PREFIX}${unit}.service"; done; info "Started." ;;
+            6) for unit in $(quick_units_of "$n"); do journalctl -u "${QUICK_UNIT_PREFIX}${unit}.service" -n 40 --no-pager; done ;;
+            7)
+                if yes_no "Remove quick tunnel $n and its services?" "n"; then
+                    for unit in $(quick_units_of "$n"); do
+                        systemctl disable --now "${QUICK_UNIT_PREFIX}${unit}.service" >/dev/null 2>&1 || true
+                        rm -f -- "/etc/systemd/system/${QUICK_UNIT_PREFIX}${unit}.service"
+                    done
+                    systemctl daemon-reload
+                    rm -rf -- "${QUICK_DIR:?}/${n:?}"
+                    info "Removed $n."
+                fi
+                ;;
+            *) ;;
+        esac
+    done
+}
+
+setup_iran_menu() {
+    printf '\n%sIRAN server setup%s\n' "$BOLD$CYAN" "$RESET"
+    printf '  %s1)%s %sQuick tunnel%s     paste the link from the foreign server (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sAdvanced%s         WSS / XHTTP / CDN, ICMP, GRE (classic pairing code)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    local choice
+    ask_valid choice "Select" "1" valid_two_choices "Select 1 or 2."
+    case "$choice" in 1) quick_iran_setup ;; 2) create_tunnel origin ;; esac
+}
+
+setup_foreign_menu() {
+    printf '\n%sFOREIGN server setup%s\n' "$BOLD$CYAN" "$RESET"
+    printf '  %s1)%s %sQuick tunnel%s     only creates a link for Iran (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sAdvanced%s         WSS / XHTTP / CDN, ICMP, GRE (classic pairing code)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    local choice
+    ask_valid choice "Select" "1" valid_two_choices "Select 1 or 2."
+    case "$choice" in 1) quick_foreign_setup ;; 2) create_tunnel egress ;; esac
+}
+
 main_menu() {
     local B=$'\033[1m' D=$'\033[2m' R=$'\033[31m'
     printf '%s\n' "$RED"
@@ -15357,17 +15733,25 @@ main_menu() {
     printf '%s\n' ' ███  █   █  ███  █   █ █  █  █   █  ███  █   █ █   █   █    ███  █   █'
     printf '%s\n' "$RESET"
     printf '  %sUnUnknownTun%s  %sv%s%s\n' "$B" "$RESET" "$R" "$RELEASE_LABEL" "$RESET"
-    printf '  %sNormal WSS / XHTTP + TLS / Direct ICMP / IP spoof%s\n' "$D" "$RESET"
-    printf '  %s==============================================%s\n\n' "$D" "$RESET"
+    printf '  %sQuick TLS tunnel / WSS / XHTTP / CDN / ICMP / IP spoof%s\n' "$D" "$RESET"
+    printf '  %s=====================================================%s\n' "$D" "$RESET"
     local n title desc
     while IFS='|' read -r n title desc; do
+        if [[ "$n" == "#" ]]; then
+            printf '\n  %s%s%s\n' "$CYAN" "$title" "$RESET"
+            continue
+        fi
         printf '  %s%2s)%s %s%-16s%s %s%s%s\n' "$R" "$n" "$RESET" "$B" "$title" "$RESET" "$D" "$desc" "$RESET"
     done <<'MENU'
+#|── TEST ─────────────────────────────────────────────|
  0|Connection Test|Iran/Foreign: test all protocols and speed
- 1|Setup Iran|the server users connect to
- 2|Setup Foreign|the server abroad, with the service
- 3|Manage|tunnels, customers, health, remove
- 4|Transfer Help|foreign to Iran pairing instructions
+#|── IRAN SERVER  (all settings are chosen here) ──────|
+ 1|Setup Iran|paste the foreign link, choose ports
+#|── FOREIGN SERVER  (only gives a link) ──────────────|
+ 2|Setup Foreign|create the link for Iran
+#|── TOOLS ────────────────────────────────────────────|
+ 3|Manage|quick + advanced tunnels: status, logs, remove
+ 4|Transfer Help|advanced pairing instructions
  5|Upgrade|keep settings and usage
  6|IP Spoof / GRE|generate a matched pair
  7|Scanner|full SIKDPI scanner, no tunnel needed
@@ -15380,8 +15764,8 @@ MENU
     ask_valid choice "Select an option" "1" valid_main_choice "Choose a number from 0 to 10."
     case "$choice" in
         0) run_connection_test ;;
-        1) create_tunnel origin ;;
-        2) create_tunnel egress ;;
+        1) setup_iran_menu ;;
+        2) setup_foreign_menu ;;
         3) management_selector ;;
         4) show_transfer_help ;;
         5) upgrade_existing ;;
@@ -15410,9 +15794,13 @@ case "${1:-}" in
     scanner) shift; run_full_scanner "$@" ;;
     ui) shift; run_terminal_ui "$@" ;;
     connection-test|test) shift; run_connection_test "$@" ;;
+    quick-foreign) quick_foreign_setup ;;
+    quick-iran) quick_iran_setup ;;
+    quick-manage) quick_manage ;;
     "") main_menu ;;
     help|--help|-h)
         printf 'Usage: %s [foreign|iran|manage|upgrade|scanner|ui]\n' "$0"
+        printf '  quick-foreign | quick-iran | quick-manage   Link-based quick tunnel\n'
         printf '  connection-test                Test TCP/UDP/ICMP/TLS/WebSocket between two servers\n'
         printf '  ui [UI_OPTIONS]                Open the embedded Control Room without upgrading\n'
         printf '  direct-icmp-setup [foreign|iran]  Easy ICMP L3 setup; no manual pair-file transfer\n'
