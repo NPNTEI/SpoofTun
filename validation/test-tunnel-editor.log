@@ -1,0 +1,32 @@
+test_bad_certificate_or_domain_collision_makes_no_changes (__main__.TunnelEditorTests.test_bad_certificate_or_domain_collision_makes_no_changes) ... ok
+test_bad_update_code_retries_only_code_prompt (__main__.TunnelEditorTests.test_bad_update_code_retries_only_code_prompt) ... ok
+test_cancel_after_preview_makes_no_files (__main__.TunnelEditorTests.test_cancel_after_preview_makes_no_files) ... ok
+test_certificate_replacement_never_rewrites_private_key_or_exports_it (__main__.TunnelEditorTests.test_certificate_replacement_never_rewrites_private_key_or_exports_it) ... ok
+test_cross_field_constraints_checked_before_commit (__main__.TunnelEditorTests.test_cross_field_constraints_checked_before_commit) ... ok
+test_direct_foreign_domain_keeps_pinned_ip_connect (__main__.TunnelEditorTests.test_direct_foreign_domain_keeps_pinned_ip_connect) ... ok
+test_domain_rename_does_not_enable_disabled_nginx_site (__main__.TunnelEditorTests.test_domain_rename_does_not_enable_disabled_nginx_site) ... ok
+test_domain_rename_preserves_customer_sites_permissions_and_ledger (__main__.TunnelEditorTests.test_domain_rename_preserves_customer_sites_permissions_and_ledger) ... ok
+test_env_parser_preserves_numbered_identifiers_without_execution (__main__.TunnelEditorTests.test_env_parser_preserves_numbered_identifiers_without_execution) ... ok
+test_existing_inline_or_duplicate_flags_are_not_overwritten (__main__.TunnelEditorTests.test_existing_inline_or_duplicate_flags_are_not_overwritten) ... ok
+test_failed_nginx_check_restores_site_name_links_and_metadata (__main__.TunnelEditorTests.test_failed_nginx_check_restores_site_name_links_and_metadata) ... ok
+test_foreign_domain_updates_origin_sni_ws_host_and_proxied_connect (__main__.TunnelEditorTests.test_foreign_domain_updates_origin_sni_ws_host_and_proxied_connect) ... ok
+test_invalid_padding_retries_only_that_prompt (__main__.TunnelEditorTests.test_invalid_padding_retries_only_that_prompt) ... ok
+test_invalid_ranges_and_injection_rejected_at_field (__main__.TunnelEditorTests.test_invalid_ranges_and_injection_rejected_at_field) ... ok
+test_menu_labels_hide_unavailable_direct_iran_fields (__main__.TunnelEditorTests.test_menu_labels_hide_unavailable_direct_iran_fields) ... ok
+test_name_changes_display_only_keeps_pair_id_service_and_usage (__main__.TunnelEditorTests.test_name_changes_display_only_keeps_pair_id_service_and_usage) ... ok
+test_new_sync_code_is_archived_private_not_only_last (__main__.TunnelEditorTests.test_new_sync_code_is_archived_private_not_only_last) ... ok
+test_origin_cannot_pick_unsupported_foreign_arvan_ports (__main__.TunnelEditorTests.test_origin_cannot_pick_unsupported_foreign_arvan_ports) ... ok
+test_padding_and_limit_changes_preserve_other_flags (__main__.TunnelEditorTests.test_padding_and_limit_changes_preserve_other_flags) ... ok
+test_quoted_values_and_final_flag_layout_are_preserved (__main__.TunnelEditorTests.test_quoted_values_and_final_flag_layout_are_preserved) ... ok
+test_running_service_restart_and_failed_restart_rolls_back_only_selected (__main__.TunnelEditorTests.test_running_service_restart_and_failed_restart_rolls_back_only_selected) ... ok
+test_site_file_in_enabled_directory_is_not_replaced (__main__.TunnelEditorTests.test_site_file_in_enabled_directory_is_not_replaced) ... ok
+test_stopped_service_never_starts_after_edit (__main__.TunnelEditorTests.test_stopped_service_never_starts_after_edit) ... ok
+test_target_port_rejects_transport_and_other_tunnel_ports_before_probe (__main__.TunnelEditorTests.test_target_port_rejects_transport_and_other_tunnel_ports_before_probe) ... ok
+test_unchanged_value_returns_without_retry_or_backup (__main__.TunnelEditorTests.test_unchanged_value_returns_without_retry_or_backup) ... ok
+test_unknown_foreign_metadata_requires_first_edit_on_iran (__main__.TunnelEditorTests.test_unknown_foreign_metadata_requires_first_edit_on_iran) ... ok
+test_wait_service_requires_fresh_ack_and_stable_invocation (__main__.TunnelEditorTests.test_wait_service_requires_fresh_ack_and_stable_invocation) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.195s
+
+OK

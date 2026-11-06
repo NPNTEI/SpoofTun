@@ -1,0 +1,44 @@
+{
+  "binary_sha256": "911ed249cce0a1481ab7968001802b527f715c3f0c1513574b281653f7c688c7",
+  "checks": {
+    "egress": {
+      "effective_capabilities": "NET_ADMIN NET_RAW",
+      "inner_ping": true,
+      "namespace_verified": true,
+      "no_new_privileges": true,
+      "pid": 8905
+    },
+    "generated_systemd_sandbox": true,
+    "install_without_start": true,
+    "manager_stop_uninstall": true,
+    "matched_private_pair": true,
+    "origin": {
+      "effective_capabilities": "NET_ADMIN NET_RAW",
+      "inner_ping": true,
+      "namespace_verified": true,
+      "no_new_privileges": true,
+      "pid": 8966
+    },
+    "standalone_embedded_install": true,
+    "standalone_embedded_wizard": true
+  },
+  "cleanup": {
+    "egress_endpoint": true,
+    "gdleca3d8a1245": true,
+    "gdloca3d8a1245": true,
+    "origin_endpoint": true,
+    "owned_versioned_binary": true,
+    "private_fixture_removed": true
+  },
+  "elapsed_seconds": 3.707,
+  "installer_sha256": "de3466721e3039f53bd88a9a7b16c0608ce171c0d43ce9054a1363c1b00e44f5",
+  "kind": "local-standalone-direct-icmp-systemd",
+  "limitations": [
+    "Local isolated namespaces only; no WAN/provider/DPI claim.",
+    "Only this runtime architecture was executed."
+  ],
+  "runtime_architecture": "arm64",
+  "status": "PASS",
+  "version": "3.7.0-preview.11",
+  "vm": "apple"
+}

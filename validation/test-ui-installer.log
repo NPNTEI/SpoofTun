@@ -1,0 +1,20 @@
+test_failed_transaction_restores_previous_ui (__main__.UIInstallerTests.test_failed_transaction_restores_previous_ui) ... ok
+test_icmp_manager_routes_without_ordinary_migration (__main__.UIInstallerTests.test_icmp_manager_routes_without_ordinary_migration) ... ok
+test_install_rejects_symlinked_share_without_touching_target (__main__.UIInstallerTests.test_install_rejects_symlinked_share_without_touching_target) ... ok
+test_install_replaces_link_preserves_target_and_exact_ui (__main__.UIInstallerTests.test_install_replaces_link_preserves_target_and_exact_ui) ... ok
+test_installed_icmp_route_preserves_args_and_stdin (__main__.UIInstallerTests.test_installed_icmp_route_preserves_args_and_stdin) ... ok
+test_main_menu_nine_reaches_ui_without_installing (__main__.UIInstallerTests.test_main_menu_nine_reaches_ui_without_installing) ... ok
+test_manager_keeps_arguments_stdin_and_does_not_select_or_mutate (__main__.UIInstallerTests.test_manager_keeps_arguments_stdin_and_does_not_select_or_mutate) ... ok
+test_normal_install_refreshes_ui_and_advertises_command (__main__.UIInstallerTests.test_normal_install_refreshes_ui_and_advertises_command) ... ok
+test_renderer_embeds_exact_ui_with_one_marker (__main__.UIInstallerTests.test_renderer_embeds_exact_ui_with_one_marker) ... ok
+test_standalone_and_installed_launchers_are_identical (__main__.UIInstallerTests.test_standalone_and_installed_launchers_are_identical) ... ok
+test_directory_instead_of_ui_rejected (__main__.UILaunchTrustTests.test_directory_instead_of_ui_rejected) ... ok
+test_isolated_runtime_cleans_environment_and_preserves_terminal (__main__.UILaunchTrustTests.test_isolated_runtime_cleans_environment_and_preserves_terminal) ... ok
+test_symlink_rejected (__main__.UILaunchTrustTests.test_symlink_rejected) ... ok
+test_untrusted_file_owner_rejected (__main__.UILaunchTrustTests.test_untrusted_file_owner_rejected) ... ok
+test_writable_parent_rejected (__main__.UILaunchTrustTests.test_writable_parent_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.203s
+
+OK

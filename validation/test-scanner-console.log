@@ -1,0 +1,35 @@
+test_all_commands_present (__main__.ConsoleTests.test_all_commands_present) ... ok
+test_bounded_and_protected_input (__main__.ConsoleTests.test_bounded_and_protected_input) ... ok
+test_cancellation_saves_completed_rows (__main__.ConsoleTests.test_cancellation_saves_completed_rows) ... ok
+test_config_rewriting_all_four_protocols (__main__.ConsoleTests.test_config_rewriting_all_four_protocols) ... ok
+test_dependencies_status_never_executes_or_downloads (__main__.ConsoleTests.test_dependencies_status_never_executes_or_downloads) ... ok
+test_discovery_cancellation_keeps_completed_domains (__main__.ConsoleTests.test_discovery_cancellation_keeps_completed_domains) ... ok
+test_discovery_no_silent_limit_and_export (__main__.ConsoleTests.test_discovery_no_silent_limit_and_export) ... ok
+test_dns_checks_every_answer_before_pinning (__main__.ConsoleTests.test_dns_checks_every_answer_before_pinning) ... ok
+test_effective_fingerprint_and_dependency_categories_preserved (__main__.ConsoleTests.test_effective_fingerprint_and_dependency_categories_preserved) ... ok
+test_file_and_parent_symlinks_rejected (__main__.ConsoleTests.test_file_and_parent_symlinks_rejected) ... ok
+test_full_results_and_all_exports (__main__.ConsoleTests.test_full_results_and_all_exports) ... ok
+test_loopback_scan_and_report (__main__.ConsoleTests.test_loopback_scan_and_report) ... ok
+test_metadata_never_allowed (__main__.ConsoleTests.test_metadata_never_allowed) ... ok
+test_mocked_sni_and_reality (__main__.ConsoleTests.test_mocked_sni_and_reality) ... ok
+test_no_authorization_no_network (__main__.ConsoleTests.test_no_authorization_no_network) ... ok
+test_no_cidr_silent_truncation (__main__.ConsoleTests.test_no_cidr_silent_truncation) ... ok
+test_port_filter_keeps_filtered_rows (__main__.ConsoleTests.test_port_filter_keeps_filtered_rows) ... ok
+test_private_io_and_no_overwrite (__main__.ConsoleTests.test_private_io_and_no_overwrite) ... ok
+test_reality_concurrency_option_is_honest (__main__.ConsoleTests.test_reality_concurrency_option_is_honest) ... ok
+test_reality_fingerprint_explicit_override (__main__.ConsoleTests.test_reality_fingerprint_explicit_override) ... ok
+test_reality_timeout_reaches_all_network_phases (__main__.ConsoleTests.test_reality_timeout_reaches_all_network_phases) ... ok
+test_retest_overrides_method_sni_port_fingerprint (__main__.ConsoleTests.test_retest_overrides_method_sni_port_fingerprint) ... ok
+test_retest_preserves_pinned_destination (__main__.ConsoleTests.test_retest_preserves_pinned_destination) ... ok
+test_secret_diagnostics_removed (__main__.ConsoleTests.test_secret_diagnostics_removed) ... ok
+test_sni_authorization_before_dns (__main__.ConsoleTests.test_sni_authorization_before_dns) ... ok
+test_sni_json_is_offline (__main__.ConsoleTests.test_sni_json_is_offline) ... ok
+test_sort_filter_and_individual_details (__main__.ConsoleTests.test_sort_filter_and_individual_details) ... ok
+test_speed_consent_and_merge_metrics (__main__.ConsoleTests.test_speed_consent_and_merge_metrics) ... ok
+test_viewport_is_compact_and_detail_remains_full (__main__.ConsoleTests.test_viewport_is_compact_and_detail_remains_full) ... ok
+test_wizard_eof_exits_without_looping (__main__.ConsoleTests.test_wizard_eof_exits_without_looping) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.229s
+
+OK

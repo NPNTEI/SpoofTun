@@ -1,0 +1,12 @@
+test_command_stdin_transport (__main__.OfflineTests.test_command_stdin_transport) ... ok
+test_no_root_host_mutation_from_self_test (__main__.OfflineTests.test_no_root_host_mutation_from_self_test) ... ok
+test_private_file_exclusive (__main__.OfflineTests.test_private_file_exclusive) ... ok
+test_properties_reject_duplicates (__main__.OfflineTests.test_properties_reject_duplicates) ... ok
+test_properties_reject_malformed (__main__.OfflineTests.test_properties_reject_malformed) ... ok
+test_properties_roundtrip (__main__.OfflineTests.test_properties_roundtrip) ... ok
+test_standalone_wizard_inputs (__main__.OfflineTests.test_standalone_wizard_inputs) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.012s
+
+OK

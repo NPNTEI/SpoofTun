@@ -1,0 +1,21 @@
+test_customer_helper_arguments_and_no_shell_lock (__main__.ManagerTests.test_customer_helper_arguments_and_no_shell_lock) ... ok
+test_delete_failure_restores_site_symlink_usage_and_service_state (__main__.ManagerTests.test_delete_failure_restores_site_symlink_usage_and_service_state) ... ok
+test_delete_preserves_exact_shared_nginx_reference (__main__.ManagerTests.test_delete_preserves_exact_shared_nginx_reference) ... ok
+test_delete_retains_shared_firewall_rules (__main__.ManagerTests.test_delete_retains_shared_firewall_rules) ... ok
+test_delete_rollback_keeps_previously_stopped_service_stopped (__main__.ManagerTests.test_delete_rollback_keeps_previously_stopped_service_stopped) ... ok
+test_delete_success_removes_only_selected_site_and_keeps_backup (__main__.ManagerTests.test_delete_success_removes_only_selected_site_and_keeps_backup) ... ok
+test_diagnostic_plain_tls_uses_launch_ca_and_minimum_not_provider (__main__.ManagerTests.test_diagnostic_plain_tls_uses_launch_ca_and_minimum_not_provider) ... ok
+test_diagnostic_rejects_duplicate_flags_without_probe (__main__.ManagerTests.test_diagnostic_rejects_duplicate_flags_without_probe) ... ok
+test_diagnostic_strict_ech_and_fragment_never_use_plain_tls (__main__.ManagerTests.test_diagnostic_strict_ech_and_fragment_never_use_plain_tls) ... ok
+test_edit_ip_retries_only_invalid_field_and_emits_single_change (__main__.ManagerTests.test_edit_ip_retries_only_invalid_field_and_emits_single_change) ... ok
+test_foreign_ports_sync_refreshes_peer_without_remote_registry (__main__.ManagerTests.test_foreign_ports_sync_refreshes_peer_without_remote_registry) ... ok
+test_metered_edit_ports_uses_helper_not_unmetered_launch_flag (__main__.ManagerTests.test_metered_edit_ports_uses_helper_not_unmetered_launch_flag) ... ok
+test_port_errors_retry_and_proxy_provider_limits (__main__.ManagerTests.test_port_errors_retry_and_proxy_provider_limits) ... ok
+test_registry_is_local_and_retains_every_customer (__main__.ManagerTests.test_registry_is_local_and_retains_every_customer) ... ok
+test_restart_failure_rolls_back_ip_and_launcher (__main__.ManagerTests.test_restart_failure_rolls_back_ip_and_launcher) ... ok
+test_sync_preserves_unrelated_fields_and_rejects_stale_update (__main__.ManagerTests.test_sync_preserves_unrelated_fields_and_rejects_stale_update) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.250s
+
+OK

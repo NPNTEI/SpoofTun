@@ -1,0 +1,590 @@
+=== RUN   TestCarrierHealthHeaderBounds
+=== RUN   TestCarrierHealthHeaderBounds/valid/request
+=== RUN   TestCarrierHealthHeaderBounds/control/request
+=== RUN   TestCarrierHealthHeaderBounds/client-stream/request
+=== RUN   TestCarrierHealthHeaderBounds/fin/request
+=== RUN   TestCarrierHealthHeaderBounds/empty/request
+=== RUN   TestCarrierHealthHeaderBounds/short/request
+=== RUN   TestCarrierHealthHeaderBounds/oversize/request
+=== RUN   TestCarrierHealthHeaderBounds/valid/reply
+=== RUN   TestCarrierHealthHeaderBounds/control/reply
+=== RUN   TestCarrierHealthHeaderBounds/client-stream/reply
+=== RUN   TestCarrierHealthHeaderBounds/fin/reply
+=== RUN   TestCarrierHealthHeaderBounds/empty/reply
+=== RUN   TestCarrierHealthHeaderBounds/short/reply
+=== RUN   TestCarrierHealthHeaderBounds/oversize/reply
+--- PASS: TestCarrierHealthHeaderBounds (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/valid/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/control/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/client-stream/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/fin/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/empty/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/short/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/oversize/request (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/valid/reply (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/control/reply (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/client-stream/reply (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/fin/reply (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/empty/reply (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/short/reply (0.00s)
+    --- PASS: TestCarrierHealthHeaderBounds/oversize/reply (0.00s)
+=== RUN   TestCarrierHealthConsecutiveMissesAndBackoff
+--- PASS: TestCarrierHealthConsecutiveMissesAndBackoff (0.00s)
+=== RUN   TestCarrierHealthMatchingAndTransientRecovery
+--- PASS: TestCarrierHealthMatchingAndTransientRecovery (0.00s)
+=== RUN   TestCarrierHealthCongestedButProgressingPayload
+--- PASS: TestCarrierHealthCongestedButProgressingPayload (0.00s)
+=== RUN   TestCarrierHealthLateProofDoesNotAcknowledgeNewProbeOrReplay
+--- PASS: TestCarrierHealthLateProofDoesNotAcknowledgeNewProbeOrReplay (0.00s)
+=== RUN   TestCarrierHealthLateProofHasBoundedFreshness
+--- PASS: TestCarrierHealthLateProofHasBoundedFreshness (0.00s)
+=== RUN   TestCarrierHealthIdleAndBusySuccess
+--- PASS: TestCarrierHealthIdleAndBusySuccess (0.00s)
+=== RUN   TestCarrierHealthBlackholeDespiteOutgoingWrites
+2026/11/02 09:22:50 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:22:50 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+--- PASS: TestCarrierHealthBlackholeDespiteOutgoingWrites (0.00s)
+=== RUN   TestCarrierHealthRequestReplayAndQueueBounds
+--- PASS: TestCarrierHealthRequestReplayAndQueueBounds (0.00s)
+=== RUN   TestCarrierHealthRequiresAuthenticationAndNegotiation
+2026/11/02 09:22:50 [egress] protocol state violation for cmd 0x0D: carrier health before authentication/negotiation or invalid payload
+2026/11/02 09:22:50 [egress] protocol state violation for cmd 0x0D: carrier health before authentication/negotiation or invalid payload
+--- PASS: TestCarrierHealthRequiresAuthenticationAndNegotiation (0.00s)
+=== RUN   TestCarrierHealthInitialPayloadBeforeSessionPublication
+=== RUN   TestCarrierHealthInitialPayloadBeforeSessionPublication/roundtrip
+2026/11/02 09:22:50 [egress] tunnel established from pipe
+2026/11/02 09:22:50 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:50 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:50 [origin] tunnel session established to test via tls
+2026/11/02 09:22:50 [origin] tunnel session to test closed
+=== RUN   TestCarrierHealthInitialPayloadBeforeSessionPublication/blackhole
+2026/11/02 09:22:50 [egress] tunnel established from pipe
+2026/11/02 09:22:50 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:51 [egress] session read header failed: EOF
+--- PASS: TestCarrierHealthInitialPayloadBeforeSessionPublication (0.16s)
+    --- PASS: TestCarrierHealthInitialPayloadBeforeSessionPublication/roundtrip (0.00s)
+    --- PASS: TestCarrierHealthInitialPayloadBeforeSessionPublication/blackhole (0.15s)
+=== RUN   TestCarrierHealthLegacyCapabilityEcho
+2026/11/02 09:22:51 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+--- PASS: TestCarrierHealthLegacyCapabilityEcho (0.00s)
+=== RUN   TestCarrierHealthOldestPeerUsesBoundedControlFallback
+2026/11/02 09:22:51 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+--- PASS: TestCarrierHealthOldestPeerUsesBoundedControlFallback (0.00s)
+=== RUN   TestCarrierHealthNegotiationRejectsMismatchAndFlood
+=== RUN   TestCarrierHealthNegotiationRejectsMismatchAndFlood/nonce
+=== RUN   TestCarrierHealthNegotiationRejectsMismatchAndFlood/prefix
+=== RUN   TestCarrierHealthNegotiationRejectsMismatchAndFlood/payload
+=== RUN   TestCarrierHealthNegotiationRejectsMismatchAndFlood/control-flood
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:22:51 [origin] [drop-detector] peer receive window is now 2048KB
+--- PASS: TestCarrierHealthNegotiationRejectsMismatchAndFlood (0.00s)
+    --- PASS: TestCarrierHealthNegotiationRejectsMismatchAndFlood/nonce (0.00s)
+    --- PASS: TestCarrierHealthNegotiationRejectsMismatchAndFlood/prefix (0.00s)
+    --- PASS: TestCarrierHealthNegotiationRejectsMismatchAndFlood/payload (0.00s)
+    --- PASS: TestCarrierHealthNegotiationRejectsMismatchAndFlood/control-flood (0.00s)
+=== RUN   TestCarrierHealthRealTransportBlackholePoolRecovery
+=== RUN   TestCarrierHealthRealTransportBlackholePoolRecovery/wss
+2026/11/02 09:22:51 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportBlackholePoolRecoverywss1108823840/001/test.crt
+2026/11/02 09:22:51 [egress] tunnel established from 127.0.0.1:57870
+2026/11/02 09:22:51 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:51 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:51 [origin] tunnel session established to 127.0.0.1:38985 via wss
+2026/11/02 09:22:51 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:22:51 [stream 1] read error: read tcp 127.0.0.1:46725->127.0.0.1:59934: use of closed network connection
+2026/11/02 09:22:51 [egress] session read header failed: EOF
+2026/11/02 09:22:51 [origin] tunnel session to 127.0.0.1:38985 closed
+2026/11/02 09:22:51 [stream 1] read error: read tcp 127.0.0.1:39428->127.0.0.1:44125: use of closed network connection
+2026/11/02 09:22:52 [egress] tunnel established from 127.0.0.1:57872
+2026/11/02 09:22:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:52 [origin] tunnel session established to 127.0.0.1:38985 via wss
+    carrier_health_transport_integration_test.go:381: transport=wss mode=packet-up real_client_echo_before_after=true initial_probe_bytes=1024 lost_real_health_replies=3 automatic_pool_reconnect=true different_signed_route=true health_clock=accelerated_not_75s_soak
+2026/11/02 09:22:52 [egress] session write failed: write tcp 127.0.0.1:38985->127.0.0.1:57872: write: connection reset by peer
+2026/11/02 09:22:52 [origin] tunnel session to 127.0.0.1:38985 closed
+=== RUN   TestCarrierHealthRealTransportBlackholePoolRecovery/xhttp
+2026/11/02 09:22:52 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportBlackholePoolRecoveryxhttp1410486200/001/test.crt
+2026/11/02 09:22:52 [egress] tunnel established from pipe
+2026/11/02 09:22:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:52 [origin] tunnel session established to 127.0.0.1:44091 via xhttp
+2026/11/02 09:22:52 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:22:52 [stream 1] read error: read tcp 127.0.0.1:37763->127.0.0.1:32976: use of closed network connection
+2026/11/02 09:22:52 [origin] tunnel session to 127.0.0.1:44091 closed
+2026/11/02 09:22:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:52 [stream 1] read error: read tcp 127.0.0.1:44178->127.0.0.1:35347: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:44091 via xhttp
+    carrier_health_transport_integration_test.go:381: transport=xhttp mode=packet-up real_client_echo_before_after=true initial_probe_bytes=1024 lost_real_health_replies=3 automatic_pool_reconnect=true different_signed_route=true health_clock=accelerated_not_75s_soak
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:45155->127.0.0.1:43884: use of closed network connection
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:44091 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:44188->127.0.0.1:35347: use of closed network connection
+--- PASS: TestCarrierHealthRealTransportBlackholePoolRecovery (2.10s)
+    --- PASS: TestCarrierHealthRealTransportBlackholePoolRecovery/wss (1.05s)
+    --- PASS: TestCarrierHealthRealTransportBlackholePoolRecovery/xhttp (1.05s)
+=== RUN   TestCarrierHealthRealTransportLegacyCoverage
+=== RUN   TestCarrierHealthRealTransportLegacyCoverage/wss
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportLegacyCoveragewss415447043/001/test.crt
+2026/11/02 09:22:53 [egress] tunnel established from 127.0.0.1:48194
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:36605 via wss
+    carrier_health_transport_integration_test.go:419: transport=wss legacy_reply_emulated=true control_heartbeat_works_during_payload_blackhole=true full_payload_coverage=false
+2026/11/02 09:22:53 [egress] session read header failed: EOF
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:36605 closed
+=== RUN   TestCarrierHealthRealTransportLegacyCoverage/xhttp
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportLegacyCoveragexhttp3025419399/001/test.crt
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:41445 via xhttp
+    carrier_health_transport_integration_test.go:419: transport=xhttp legacy_reply_emulated=true control_heartbeat_works_during_payload_blackhole=true full_payload_coverage=false
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:41445 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:50950->127.0.0.1:38995: use of closed network connection
+--- PASS: TestCarrierHealthRealTransportLegacyCoverage (0.05s)
+    --- PASS: TestCarrierHealthRealTransportLegacyCoverage/wss (0.02s)
+    --- PASS: TestCarrierHealthRealTransportLegacyCoverage/xhttp (0.02s)
+=== RUN   TestCarrierHealthRealtimeTransportRecovery
+    carrier_health_transport_integration_test.go:430: set UNUNKNOWNTUN_REALTIME_HEALTH_TEST=1 for the approximately 80-second production-clock recovery test
+--- SKIP: TestCarrierHealthRealtimeTransportRecovery (0.00s)
+=== RUN   TestRotatingPathOrderVisitsOverlapAndLegacyOnce
+--- PASS: TestRotatingPathOrderVisitsOverlapAndLegacyOnce (0.00s)
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/wss/
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverwss1522565381/001/test.crt
+2026/11/02 09:22:53 [egress] tunnel established from 127.0.0.1:39884
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:45371 via wss
+2026/11/02 09:22:53 [egress] session read header failed: EOF
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:45371 closed
+2026/11/02 09:22:53 [egress] tunnel established from 127.0.0.1:39898
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:45371 via wss
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:45371 closed
+2026/11/02 09:22:53 [egress] session read header failed: EOF
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:36652->127.0.0.1:38375: use of closed network connection
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/auto
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpauto2938531854/001/test.crt
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:37055 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:37055 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:59798->127.0.0.1:41247: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:37055 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:37055 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:59814->127.0.0.1:41247: use of closed network connection
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/packet-up
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttppacket-up1382009650/001/test.crt
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:37005 via xhttp
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:54736->127.0.0.1:39951: use of closed network connection
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:37005 closed
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:37005 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:37005 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/stream-up
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpstream-up2900123505/001/test.crt
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:54748->127.0.0.1:39951: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:45675 via xhttp
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:43063->127.0.0.1:42958: use of closed network connection
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:45675 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:43750->127.0.0.1:44839: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:45675 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:45675 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:43756->127.0.0.1:44839: use of closed network connection
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/stream-one
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpstream-one47495178/001/test.crt
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:33827 via xhttp
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:45797->127.0.0.1:59644: use of closed network connection
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:33827 closed
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:38444->127.0.0.1:35275: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:33827 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:33827 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:38460->127.0.0.1:35275: use of closed network connection
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/auto/upload-blocked-after-download-open
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpautouploa3092728786/001/test.crt
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:34291 via xhttp
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:34291 closed
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:52682->127.0.0.1:33351: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:34291 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:34291 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:52698->127.0.0.1:33351: use of closed network connection
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/packet-up/upload-blocked-after-download-open
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttppacket-up3454096060/001/test.crt
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:35167 via xhttp
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:35167 closed
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:38316->127.0.0.1:34055: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:35167 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:35167 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:38332->127.0.0.1:34055: use of closed network connection
+=== RUN   TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/stream-up/upload-blocked-after-download-open
+2026/11/02 09:22:53 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpstream-up3772423183/001/test.crt
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:39747 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:39747 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:50202->127.0.0.1:42215: use of closed network connection
+2026/11/02 09:22:53 [egress] tunnel established from pipe
+2026/11/02 09:22:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:53 [origin] tunnel session established to 127.0.0.1:39747 via xhttp
+2026/11/02 09:22:53 [origin] tunnel session to 127.0.0.1:39747 closed
+2026/11/02 09:22:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:53 [stream 1] read error: read tcp 127.0.0.1:50218->127.0.0.1:42215: use of closed network connection
+--- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover (0.37s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/wss/ (0.05s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/auto (0.05s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/packet-up (0.05s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/stream-up (0.04s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/stream-one (0.04s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/auto/upload-blocked-after-download-open (0.05s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/packet-up/upload-blocked-after-download-open (0.05s)
+    --- PASS: TestRotatingPathTLSAuthenticatedPayloadFailover/xhttp/stream-up/upload-blocked-after-download-open (0.04s)
+=== RUN   TestRotatingXHTTPExpiredLeaseDeliversPayload
+--- PASS: TestRotatingXHTTPExpiredLeaseDeliversPayload (0.00s)
+=== RUN   TestRotatingDialCancellationReleasesConnections
+--- PASS: TestRotatingDialCancellationReleasesConnections (0.52s)
+=== RUN   TestRotatingAuthenticationCancellationAfterUpgrade
+2026/11/02 09:22:54 [tls] generating new certificate at /tmp/TestRotatingAuthenticationCancellationAfterUpgrade3126665971/001/local.crt
+--- PASS: TestRotatingAuthenticationCancellationAfterUpgrade (0.02s)
+=== RUN   TestRotatingPathsSharedScheduleAndOverlap
+--- PASS: TestRotatingPathsSharedScheduleAndOverlap (0.00s)
+=== RUN   TestRotatingPathsOptInAndValidation
+--- PASS: TestRotatingPathsOptInAndValidation (0.00s)
+=== RUN   TestRotatingXHTTPLeaseCannotOpenOldOrCrossPath
+--- PASS: TestRotatingXHTTPLeaseCannotOpenOldOrCrossPath (0.00s)
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/bc3eb142120ea5bbb70062f20275ef4cro
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/cc353f57ab6d6b82fc4e9e107e367477ro
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/e6ee9ffd4bc64eaf088c226b50a537fbro
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/bc3eb142120ea5bbb70062f20275ef4cin
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate//unknownro
+=== RUN   TestRotatingWebSocketAuthenticatesEveryCandidate//private-seedro
+--- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate (0.00s)
+    --- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/bc3eb142120ea5bbb70062f20275ef4cro (0.00s)
+    --- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/cc353f57ab6d6b82fc4e9e107e367477ro (0.00s)
+    --- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/e6ee9ffd4bc64eaf088c226b50a537fbro (0.00s)
+    --- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate//gdt-r/bc3eb142120ea5bbb70062f20275ef4cin (0.00s)
+    --- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate//unknownro (0.00s)
+    --- PASS: TestRotatingWebSocketAuthenticatesEveryCandidate//private-seedro (0.00s)
+=== RUN   TestRotatingPathRoundsResumeAfterDeadline
+--- PASS: TestRotatingPathRoundsResumeAfterDeadline (0.00s)
+=== RUN   TestRecoveryPathSignatureAndSharedContext
+--- PASS: TestRecoveryPathSignatureAndSharedContext (0.00s)
+=== RUN   TestRecoveryPathOverlapAndXHTTPLease
+--- PASS: TestRecoveryPathOverlapAndXHTTPLease (0.00s)
+=== RUN   TestRecoveryAfterEntireFixedSetFails
+--- PASS: TestRecoveryAfterEntireFixedSetFails (0.00s)
+=== RUN   TestRecoveryHealthFailureChangesPathAndPreservesNewerChoice
+2026/11/02 09:22:54 [origin] [carrier-health] fixture payload blackhole; closing failed carrier for reconnect
+--- PASS: TestRecoveryHealthFailureChangesPathAndPreservesNewerChoice (0.00s)
+=== RUN   TestRecoveryGenerationCooldownQuarantineAndBounds
+--- PASS: TestRecoveryGenerationCooldownQuarantineAndBounds (0.00s)
+=== RUN   TestRecoveryRejectedByOldPeerDoesNotStarveFixedRoutes
+--- PASS: TestRecoveryRejectedByOldPeerDoesNotStarveFixedRoutes (0.00s)
+=== RUN   TestRecoveryCurrentEpochPrecedesPreferredOverlap
+--- PASS: TestRecoveryCurrentEpochPrecedesPreferredOverlap (0.00s)
+=== RUN   TestRecoveryConcurrentFailuresAndDials
+--- PASS: TestRecoveryConcurrentFailuresAndDials (0.02s)
+=== RUN   TestRecoveryCallerCancellationDoesNotRejectRoute
+--- PASS: TestRecoveryCallerCancellationDoesNotRejectRoute (0.00s)
+=== RUN   TestRecoveryConcurrentRejectionSkipsCapturedCandidate
+--- PASS: TestRecoveryConcurrentRejectionSkipsCapturedCandidate (0.00s)
+=== RUN   TestRecoveryOldFailureCannotQuarantineNewerSamePathSuccess
+--- PASS: TestRecoveryOldFailureCannotQuarantineNewerSamePathSuccess (0.00s)
+=== RUN   TestRecoveryConcurrentAuthenticatedPublicationAndHealthFailure
+--- PASS: TestRecoveryConcurrentAuthenticatedPublicationAndHealthFailure (0.01s)
+=== RUN   TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint
+=== RUN   TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tcp-connect
+=== RUN   TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tls-handshake
+=== RUN   TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tls-clienthello
+=== RUN   TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tls-alpn
+--- PASS: TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint (0.00s)
+    --- PASS: TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tcp-connect (0.00s)
+    --- PASS: TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tls-handshake (0.00s)
+    --- PASS: TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tls-clienthello (0.00s)
+    --- PASS: TestRecoveryConnectionFailureDoesNotPoisonAlternateEndpoint/tls-alpn (0.00s)
+=== RUN   TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint
+=== RUN   TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/HTTP_404/legacy=false
+=== RUN   TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/HTTP_404/legacy=true
+=== RUN   TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/[gdt-auth/read-accept-header]_authentication_rejected/legacy=false
+=== RUN   TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/[gdt-auth/read-accept-header]_authentication_rejected/legacy=true
+--- PASS: TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint (0.00s)
+    --- PASS: TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/HTTP_404/legacy=false (0.00s)
+    --- PASS: TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/HTTP_404/legacy=true (0.00s)
+    --- PASS: TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/[gdt-auth/read-accept-header]_authentication_rejected/legacy=false (0.00s)
+    --- PASS: TestRecoveryEndpointHTTPOrAuthFailureNeverStarvesHealthyEndpoint/[gdt-auth/read-accept-header]_authentication_rejected/legacy=true (0.00s)
+=== RUN   TestRecoveryStaleCallbackScopesFailureToItsEndpoint
+--- PASS: TestRecoveryStaleCallbackScopesFailureToItsEndpoint (0.00s)
+=== RUN   TestRecoveryEndpointQuarantineUsesOneGlobalBound
+--- PASS: TestRecoveryEndpointQuarantineUsesOneGlobalBound (0.00s)
+=== RUN   TestCarrierRenewalBoundedDrainAcrossSuccessiveEpochs
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+--- PASS: TestCarrierRenewalBoundedDrainAcrossSuccessiveEpochs (0.00s)
+=== RUN   TestCarrierRenewalBoundedDrainIncludesUnacknowledgedCompletion
+=== RUN   TestCarrierRenewalBoundedDrainIncludesUnacknowledgedCompletion/missing-peer-completion
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+=== RUN   TestCarrierRenewalBoundedDrainIncludesUnacknowledgedCompletion/tracking-overflow
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+--- PASS: TestCarrierRenewalBoundedDrainIncludesUnacknowledgedCompletion (0.00s)
+    --- PASS: TestCarrierRenewalBoundedDrainIncludesUnacknowledgedCompletion/missing-peer-completion (0.00s)
+    --- PASS: TestCarrierRenewalBoundedDrainIncludesUnacknowledgedCompletion/tracking-overflow (0.00s)
+=== RUN   TestCarrierRenewalBoundedDrainLetsOtherSlotsRenew
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/2 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/2; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalBoundedDrainLetsOtherSlotsRenew (0.00s)
+=== RUN   TestCarrierRenewalFailedCandidateNeverStartsDrainDeadline
+=== RUN   TestCarrierRenewalFailedCandidateNeverStartsDrainDeadline/dial-deadline
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+=== RUN   TestCarrierRenewalFailedCandidateNeverStartsDrainDeadline/rejected-auth
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+--- PASS: TestCarrierRenewalFailedCandidateNeverStartsDrainDeadline (0.00s)
+    --- PASS: TestCarrierRenewalFailedCandidateNeverStartsDrainDeadline/dial-deadline (0.00s)
+    --- PASS: TestCarrierRenewalFailedCandidateNeverStartsDrainDeadline/rejected-auth (0.00s)
+=== RUN   TestCarrierRenewalStaleLeaseYieldsToOtherSlots
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/2 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] carrier renewal deferred: selection lease wait exceeded 30s; existing carrier retained and other slots may renew
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/2 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/2; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalStaleLeaseYieldsToOtherSlots (0.00s)
+=== RUN   TestCarrierRenewalPendingCandidateCannotCrossRouteEpoch
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] carrier renewal deferred: candidate route epoch expired before installation; existing carrier retained
+--- PASS: TestCarrierRenewalPendingCandidateCannotCrossRouteEpoch (0.00s)
+=== RUN   TestCarrierRenewalMultipleStaleLeasesCannotStarveLaterSlot
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/3 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] carrier renewal deferred: selection lease wait exceeded 30s; existing carrier retained and other slots may renew
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 2/3 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] carrier renewal deferred: selection lease wait exceeded 30s; existing carrier retained and other slots may renew
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 3/3 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 3/3; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalMultipleStaleLeasesCannotStarveLaterSlot (0.00s)
+=== RUN   TestCarrierRenewalEpochAndLeaseExpiryYieldToAnotherSlot
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/2 (route epoch advanced)
+2026/11/02 09:22:54 [origin] carrier renewal deferred: candidate route epoch expired before installation; existing carrier retained
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 2/2 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalEpochAndLeaseExpiryYieldToAnotherSlot (0.00s)
+=== RUN   TestCarrierRenewalRouteBoundaryPrecedesLifetime
+--- PASS: TestCarrierRenewalRouteBoundaryPrecedesLifetime (0.00s)
+=== RUN   TestCarrierRenewalActualRouteEpochOverridesConnectionTime
+=== RUN   TestCarrierRenewalActualRouteEpochOverridesConnectionTime/previous-route-new-connection
+=== RUN   TestCarrierRenewalActualRouteEpochOverridesConnectionTime/current-route-old-connection
+=== RUN   TestCarrierRenewalActualRouteEpochOverridesConnectionTime/future-route-in-overlap
+--- PASS: TestCarrierRenewalActualRouteEpochOverridesConnectionTime (0.00s)
+    --- PASS: TestCarrierRenewalActualRouteEpochOverridesConnectionTime/previous-route-new-connection (0.00s)
+    --- PASS: TestCarrierRenewalActualRouteEpochOverridesConnectionTime/current-route-old-connection (0.00s)
+    --- PASS: TestCarrierRenewalActualRouteEpochOverridesConnectionTime/future-route-in-overlap (0.00s)
+=== RUN   TestCarrierRenewalRejectsNewCandidateUsingPreviousOverlapRoute
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] carrier renewal deferred: candidate route epoch expired before installation; existing carrier retained
+--- PASS: TestCarrierRenewalRejectsNewCandidateUsingPreviousOverlapRoute (0.00s)
+=== RUN   TestCarrierRenewalPendingFutureRouteSurvivesEpochBoundary
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalPendingFutureRouteSurvivesEpochBoundary (0.00s)
+=== RUN   TestCarrierRenewalShrinkReactivateDuringDial
+=== RUN   TestCarrierRenewalShrinkReactivateDuringDial/idle-old-is-closed
+2026/11/02 09:22:54 [origin] adaptive session pool reduced to 1/2 after sustained low load
+2026/11/02 09:22:54 [origin] adaptive session pool increased to 2/2 (stress reactivation)
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+=== RUN   TestCarrierRenewalShrinkReactivateDuringDial/busy-old-stays-draining
+2026/11/02 09:22:54 [origin] adaptive session pool reduced to 1/2 after sustained low load; retired carrier is draining
+2026/11/02 09:22:54 [origin] adaptive session pool increased to 2/2 (stress reactivation)
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalShrinkReactivateDuringDial (0.00s)
+    --- PASS: TestCarrierRenewalShrinkReactivateDuringDial/idle-old-is-closed (0.00s)
+    --- PASS: TestCarrierRenewalShrinkReactivateDuringDial/busy-old-stays-draining (0.00s)
+=== RUN   TestCarrierRenewalDoesNotAmplifyMemoryPressure
+--- PASS: TestCarrierRenewalDoesNotAmplifyMemoryPressure (0.00s)
+=== RUN   TestCarrierRenewalReplacesBeforeDraining
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier finished draining; next renewal may proceed
+--- PASS: TestCarrierRenewalReplacesBeforeDraining (0.00s)
+=== RUN   TestCarrierRenewalWaitsForOpenStreamLease
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalWaitsForOpenStreamLease (0.00s)
+=== RUN   TestCarrierRenewalFailureKeepsOldAndBacksOff
+=== RUN   TestCarrierRenewalFailureKeepsOldAndBacksOff/dial
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+=== RUN   TestCarrierRenewalFailureKeepsOldAndBacksOff/nil
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+=== RUN   TestCarrierRenewalFailureKeepsOldAndBacksOff/unauthenticated
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+=== RUN   TestCarrierRenewalFailureKeepsOldAndBacksOff/closed
+2026/11/02 09:22:54 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+--- PASS: TestCarrierRenewalFailureKeepsOldAndBacksOff (0.00s)
+    --- PASS: TestCarrierRenewalFailureKeepsOldAndBacksOff/dial (0.00s)
+    --- PASS: TestCarrierRenewalFailureKeepsOldAndBacksOff/nil (0.00s)
+    --- PASS: TestCarrierRenewalFailureKeepsOldAndBacksOff/unauthenticated (0.00s)
+    --- PASS: TestCarrierRenewalFailureKeepsOldAndBacksOff/closed (0.00s)
+=== RUN   TestCarrierRenewalDiscardsReplacementAfterRetirement
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+--- PASS: TestCarrierRenewalDiscardsReplacementAfterRetirement (0.00s)
+=== RUN   TestCarrierRenewalShutdownDiscardsPendingButPreservesDrain
+=== RUN   TestCarrierRenewalShutdownDiscardsPendingButPreservesDrain/draining
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+=== RUN   TestCarrierRenewalShutdownDiscardsPendingButPreservesDrain/pending
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+--- PASS: TestCarrierRenewalShutdownDiscardsPendingButPreservesDrain (0.00s)
+    --- PASS: TestCarrierRenewalShutdownDiscardsPendingButPreservesDrain/draining (0.00s)
+    --- PASS: TestCarrierRenewalShutdownDiscardsPendingButPreservesDrain/pending (0.00s)
+=== RUN   TestCarrierRenewalShutdownDuringDial
+--- PASS: TestCarrierRenewalShutdownDuringDial (0.00s)
+=== RUN   TestCarrierRenewalHealthAndAgeSelection
+--- PASS: TestCarrierRenewalHealthAndAgeSelection (0.00s)
+=== RUN   TestCarrierRenewalBoundedCompletionTracking
+--- PASS: TestCarrierRenewalBoundedCompletionTracking (0.09s)
+=== RUN   TestCarrierRenewalConcurrentSelection
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+--- PASS: TestCarrierRenewalConcurrentSelection (0.01s)
+=== RUN   TestCarrierRenewalWSSPayloadContinuity
+2026/11/02 09:22:54 [tls] generating new certificate at /tmp/TestCarrierRenewalWSSPayloadContinuity4195912937/001/test.crt
+2026/11/02 09:22:54 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:22:54 [egress] tunnel established from 127.0.0.1:49520
+2026/11/02 09:22:54 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:54 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:54 [origin] tunnel session established to 127.0.0.1:40911 via wss
+2026/11/02 09:22:54 [tls] generating new certificate at /tmp/TestCarrierRenewalWSSPayloadContinuity4195912937/002/test.crt
+2026/11/02 09:22:54 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:22:54 [egress] tunnel established from 127.0.0.1:58580
+2026/11/02 09:22:54 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:54 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:54 [origin] tunnel session established to 127.0.0.1:39775 via wss
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:22:54 [egress] session read header failed: EOF
+2026/11/02 09:22:54 [origin] tunnel session to 127.0.0.1:40911 closed
+2026/11/02 09:22:54 [egress] session read header failed: read tcp 127.0.0.1:39775->127.0.0.1:58580: use of closed network connection
+2026/11/02 09:22:54 [origin] tunnel session to 127.0.0.1:39775 closed
+--- PASS: TestCarrierRenewalWSSPayloadContinuity (0.06s)
+=== RUN   TestCarrierRenewalPreservesSlowTargetUpload
+2026/11/02 09:22:54 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:22:54 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:22:54 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:22:54 [egress] session read header failed: EOF
+--- PASS: TestCarrierRenewalPreservesSlowTargetUpload (0.00s)
+PASS
+ok  	ununknowntun	4.492s

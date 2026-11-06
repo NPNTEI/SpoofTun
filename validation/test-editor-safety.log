@@ -1,0 +1,27 @@
+test_authenticated_origin_optional_metadata_bootstraps_blank_foreign_side (__main__.EditorSafetyTests.test_authenticated_origin_optional_metadata_bootstraps_blank_foreign_side) ... ok
+test_commit_rejects_ledger_or_arbitrary_other_nginx_file (__main__.EditorSafetyTests.test_commit_rejects_ledger_or_arbitrary_other_nginx_file) ... ok
+test_direct_port_edit_keeps_customer_limits_identity_and_meter_flags (__main__.EditorSafetyTests.test_direct_port_edit_keeps_customer_limits_identity_and_meter_flags) ... ok
+test_enabled_site_link_to_unrelated_configuration_is_not_replaced (__main__.EditorSafetyTests.test_enabled_site_link_to_unrelated_configuration_is_not_replaced) ... ok
+test_entry_path_keeps_customer_routes_and_rewrites_target_suffix (__main__.EditorSafetyTests.test_entry_path_keeps_customer_routes_and_rewrites_target_suffix) ... ok
+test_existing_weak_secret_export_permissions_are_tightened (__main__.EditorSafetyTests.test_existing_weak_secret_export_permissions_are_tightened) ... ok
+test_export_parent_symlink_cannot_mutate_outside_tunnel (__main__.EditorSafetyTests.test_export_parent_symlink_cannot_mutate_outside_tunnel) ... ok
+test_ip_edit_refreshes_export_without_revealing_master_credentials (__main__.EditorSafetyTests.test_ip_edit_refreshes_export_without_revealing_master_credentials) ... ok
+test_malformed_sync_schema_and_deep_json_return_user_error (__main__.EditorSafetyTests.test_malformed_sync_schema_and_deep_json_return_user_error) ... ok
+test_optional_metadata_bootstrap_still_requires_valid_previous_digest (__main__.EditorSafetyTests.test_optional_metadata_bootstrap_still_requires_valid_previous_digest) ... ok
+test_other_customer_port_reserved_even_on_same_tunnel (__main__.EditorSafetyTests.test_other_customer_port_reserved_even_on_same_tunnel) ... ok
+test_paired_update_never_contains_old_token_or_private_certificate (__main__.EditorSafetyTests.test_paired_update_never_contains_old_token_or_private_certificate) ... ok
+test_persistent_rollback_failure_stops_only_affected_service_and_retains_live_usage (__main__.EditorSafetyTests.test_persistent_rollback_failure_stops_only_affected_service_and_retains_live_usage) ... ok
+test_populated_optional_peer_metadata_still_rejects_stale_sync (__main__.EditorSafetyTests.test_populated_optional_peer_metadata_still_rejects_stale_sync) ... ok
+test_printable_shell_name_is_data_never_command (__main__.EditorSafetyTests.test_printable_shell_name_is_data_never_command) ... ok
+test_remote_ports_never_reserved_on_origin (__main__.EditorSafetyTests.test_remote_ports_never_reserved_on_origin) ... ok
+test_secret_rotation_code_old_key_authenticates_only_until_rotation (__main__.EditorSafetyTests.test_secret_rotation_code_old_key_authenticates_only_until_rotation) ... ok
+test_shared_nginx_site_refuses_mutation (__main__.EditorSafetyTests.test_shared_nginx_site_refuses_mutation) ... ok
+test_sync_created_bool_is_not_an_integer_timestamp (__main__.EditorSafetyTests.test_sync_created_bool_is_not_an_integer_timestamp) ... ok
+test_sync_rejects_duplicate_json_fields_before_interpretation (__main__.EditorSafetyTests.test_sync_rejects_duplicate_json_fields_before_interpretation) ... ok
+test_sync_tamper_wrong_peer_expiry_and_staleness_refused (__main__.EditorSafetyTests.test_sync_tamper_wrong_peer_expiry_and_staleness_refused) ... ok
+test_transaction_rejects_link_to_outside_managed_site (__main__.EditorSafetyTests.test_transaction_rejects_link_to_outside_managed_site) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.052s
+
+OK

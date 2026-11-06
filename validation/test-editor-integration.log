@@ -1,0 +1,12 @@
+test_32_upgrade_installs_new_editor_helpers_and_preserves_ledger (__main__.EditorIntegrationTests.test_32_upgrade_installs_new_editor_helpers_and_preserves_ledger) ... ok
+test_doctor_commands_use_bounded_helper_without_shell_lock (__main__.EditorIntegrationTests.test_doctor_commands_use_bounded_helper_without_shell_lock) ... ok
+test_edit_commands_use_python_editor_without_shell_lock (__main__.EditorIntegrationTests.test_edit_commands_use_python_editor_without_shell_lock) ... ok
+test_embedded_helpers_match_source_and_compile (__main__.EditorIntegrationTests.test_embedded_helpers_match_source_and_compile) ... ok
+test_failed_32_upgrade_restores_old_helpers_and_manager (__main__.EditorIntegrationTests.test_failed_32_upgrade_restores_old_helpers_and_manager) ... ok
+test_management_menu_accepts_new_options_and_rejects_out_of_range (__main__.EditorIntegrationTests.test_management_menu_accepts_new_options_and_rejects_out_of_range) ... ok
+test_version_and_release_pipeline_include_editor (__main__.EditorIntegrationTests.test_version_and_release_pipeline_include_editor) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.334s
+
+OK

@@ -1,0 +1,25 @@
+test_100_rounds_repeat_all_questions_and_only_narrow (__main__.RoundTests.test_100_rounds_repeat_all_questions_and_only_narrow) ... ok
+test_cancel_preserves_partial_and_stops_scheduling (__main__.RoundTests.test_cancel_preserves_partial_and_stops_scheduling) ... ok
+test_cancel_without_success_publishes_no_selection (__main__.RoundTests.test_cancel_without_success_publishes_no_selection) ... ok
+test_concurrent_cancel_never_starts_more_than_worker_limit (__main__.RoundTests.test_concurrent_cancel_never_starts_more_than_worker_limit) ... ok
+test_failed_probe_does_not_discard_previous_success (__main__.RoundTests.test_failed_probe_does_not_discard_previous_success) ... ok
+test_full_round_details_exported_in_every_format (__main__.RoundTests.test_full_round_details_exported_in_every_format) ... ok
+test_invalid_ranges_sample_counts_and_metadata_fail_closed (__main__.RoundTests.test_invalid_ranges_sample_counts_and_metadata_fail_closed) ... ok
+test_loss_then_latency_then_jitter_ranking (__main__.RoundTests.test_loss_then_latency_then_jitter_ranking) ... ok
+test_no_permission_no_probe (__main__.RoundTests.test_no_permission_no_probe) ... ok
+test_nonfinite_negative_and_missing_measurements_fail (__main__.RoundTests.test_nonfinite_negative_and_missing_measurements_fail) ... ok
+test_option_one_enters_guided_rounds (__main__.RoundTests.test_option_one_enters_guided_rounds) ... ok
+test_port_is_inherited_and_selection_is_private (__main__.RoundTests.test_port_is_inherited_and_selection_is_private) ... ok
+test_range_sampling_is_distinct_bounded_and_spread (__main__.RoundTests.test_range_sampling_is_distinct_bounded_and_spread) ... ok
+test_real_loopback_probe (__main__.RoundTests.test_real_loopback_probe) ... ok
+test_scanner_source_has_no_persian_ui (__main__.RoundTests.test_scanner_source_has_no_persian_ui) ... ok
+test_selected_output_is_never_overwritten_or_followed (__main__.RoundTests.test_selected_output_is_never_overwritten_or_followed) ... ok
+test_selection_rejects_unknown_and_failed_addresses (__main__.RoundTests.test_selection_rejects_unknown_and_failed_addresses) ... ok
+test_standalone_port_defaults_to_443 (__main__.RoundTests.test_standalone_port_defaults_to_443) ... ok
+test_threshold_uses_unrounded_samples_and_counts_timeout (__main__.RoundTests.test_threshold_uses_unrounded_samples_and_counts_timeout) ... ok
+test_unknown_port_rejected_before_network (__main__.RoundTests.test_unknown_port_rejected_before_network) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.304s
+
+OK

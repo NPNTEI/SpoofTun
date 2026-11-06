@@ -1,0 +1,20 @@
+test_lazy_carrier_is_not_awaited_before_client (__main__.LabFixtureTests.test_lazy_carrier_is_not_awaited_before_client) ... ok
+test_wrong_source_requires_receive_identity_counter (__main__.LabFixtureTests.test_wrong_source_requires_receive_identity_counter) ... ok
+test_arp_link_control_is_bounded_to_real_pair (__main__.WireCheckTests.test_arp_link_control_is_bounded_to_real_pair) ... ok
+test_bidirectional_capture_matches_exact_outer_inner_and_payload (__main__.WireCheckTests.test_bidirectional_capture_matches_exact_outer_inner_and_payload) ... ok
+test_checksums_all_independently_required (__main__.WireCheckTests.test_checksums_all_independently_required) ... ok
+test_file_record_bounds_and_symlink_rejected (__main__.WireCheckTests.test_file_record_bounds_and_symlink_rejected) ... ok
+test_gre_flags_inner_protocol_fragmentation_and_length_rejected (__main__.WireCheckTests.test_gre_flags_inner_protocol_fragmentation_and_length_rejected) ... ok
+test_incomplete_dropped_and_invalid_footer_rejected (__main__.WireCheckTests.test_incomplete_dropped_and_invalid_footer_rejected) ... ok
+test_independent_checksum_known_vector (__main__.WireCheckTests.test_independent_checksum_known_vector) ... ok
+test_inner_pair_and_carrier_port_rejected (__main__.WireCheckTests.test_inner_pair_and_carrier_port_rejected) ... ok
+test_insufficient_payload_and_no_shared_packets_rejected (__main__.WireCheckTests.test_insufficient_payload_and_no_shared_packets_rejected) ... ok
+test_ipv6_only_local_control_allowed (__main__.WireCheckTests.test_ipv6_only_local_control_allowed) ... ok
+test_non_gre_ipv4_leak_rejected (__main__.WireCheckTests.test_non_gre_ipv4_leak_rejected) ... ok
+test_wrong_direction_or_missing_incoming_rejected (__main__.WireCheckTests.test_wrong_direction_or_missing_incoming_rejected) ... ok
+test_wrong_outer_source_or_destination_rejected (__main__.WireCheckTests.test_wrong_outer_source_or_destination_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.229s
+
+OK

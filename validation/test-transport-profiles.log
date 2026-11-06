@@ -1,0 +1,35 @@
+test_customer_xhttp_prefix_rewrites_preserve_uuid_suffix (__main__.EditorProfileTests.test_customer_xhttp_prefix_rewrites_preserve_uuid_suffix) ... ok
+test_ech_and_fragment_constraints (__main__.EditorProfileTests.test_ech_and_fragment_constraints) ... ok
+test_egress_transport_switch_rewrites_only_routes_and_exports_sync (__main__.EditorProfileTests.test_egress_transport_switch_rewrites_only_routes_and_exports_sync) ... ok
+test_fragment_editor_limits_match_core (__main__.EditorProfileTests.test_fragment_editor_limits_match_core) ... ok
+test_legacy_arvan_auto_wss_transport_sync_bootstraps_once (__main__.EditorProfileTests.test_legacy_arvan_auto_wss_transport_sync_bootstraps_once) ... ok
+test_mux_edit_is_signed_and_never_changes_ledger (__main__.EditorProfileTests.test_mux_edit_is_signed_and_never_changes_ledger) ... ok
+test_profile_edit_rollback_preserves_live_ledger_and_other_tunnel (__main__.EditorProfileTests.test_profile_edit_rollback_preserves_live_ledger_and_other_tunnel) ... ok
+test_xhttp_editor_clean_path_and_long_legacy_path (__main__.EditorProfileTests.test_xhttp_editor_clean_path_and_long_legacy_path) ... ok
+test_fastly_forces_only_foreign_carrier_not_iran_carrier (__main__.InstallerProfileTests.test_fastly_forces_only_foreign_carrier_not_iran_carrier) ... ok
+test_fastly_iran_explicit_entry_and_legacy_entry_default (__main__.InstallerProfileTests.test_fastly_iran_explicit_entry_and_legacy_entry_default) ... ok
+test_fastly_is_explicit_experimental_and_reprompts (__main__.InstallerProfileTests.test_fastly_is_explicit_experimental_and_reprompts) ... ok
+test_fragment_is_editable_and_reprompts_only_invalid_range (__main__.InstallerProfileTests.test_fragment_is_editable_and_reprompts_only_invalid_range) ... ok
+test_fragment_ranges_reject_overflow_and_reversed_values (__main__.InstallerProfileTests.test_fragment_ranges_reject_overflow_and_reversed_values) ... ok
+test_generated_runs_include_explicit_profiles_and_no_legacy_padding (__main__.InstallerProfileTests.test_generated_runs_include_explicit_profiles_and_no_legacy_padding) ... ok
+test_iran_entry_does_not_follow_carrier_implicitly (__main__.InstallerProfileTests.test_iran_entry_does_not_follow_carrier_implicitly) ... ok
+test_local_origin_trust_is_independent_of_public_edge_trust (__main__.InstallerProfileTests.test_local_origin_trust_is_independent_of_public_edge_trust) ... ok
+test_local_package_contains_profile_in_runtime_and_source (__main__.InstallerProfileTests.test_local_package_contains_profile_in_runtime_and_source) ... ok
+test_new_normal_and_legacy_alias_render_have_no_grpc (__main__.InstallerProfileTests.test_new_normal_and_legacy_alias_render_have_no_grpc) ... ok
+test_new_origin_discards_legacy_pad_argument (__main__.InstallerProfileTests.test_new_origin_discards_legacy_pad_argument) ... ok
+test_new_profile_suite_and_guide_are_in_release_pipeline (__main__.InstallerProfileTests.test_new_profile_suite_and_guide_are_in_release_pipeline) ... ok
+test_strict_ech_any_provider_warns_real_terminator_required (__main__.InstallerProfileTests.test_strict_ech_any_provider_warns_real_terminator_required) ... ok
+test_strict_ech_cloudflare (__main__.InstallerProfileTests.test_strict_ech_cloudflare) ... ok
+test_v4_import_warns_both_peers_must_upgrade (__main__.InstallerProfileTests.test_v4_import_warns_both_peers_must_upgrade) ... ok
+test_v4_missing_profile_field_is_not_silently_legacy (__main__.InstallerProfileTests.test_v4_missing_profile_field_is_not_silently_legacy) ... ok
+test_v5_roundtrip_and_v3_import_defaults (__main__.InstallerProfileTests.test_v5_roundtrip_and_v3_import_defaults) ... ok
+test_xhttp_carrier_entry_and_customer_routes_parse_with_nginx (__main__.InstallerProfileTests.test_xhttp_carrier_entry_and_customer_routes_parse_with_nginx) ... ok
+test_xhttp_clean_paths_reprompt_and_accept_512_characters (__main__.InstallerProfileTests.test_xhttp_clean_paths_reprompt_and_accept_512_characters) ... ok
+test_xhttp_import_rejects_double_slash (__main__.InstallerProfileTests.test_xhttp_import_rejects_double_slash) ... ok
+test_xhttp_nginx_has_prefix_streaming_without_grpc (__main__.InstallerProfileTests.test_xhttp_nginx_has_prefix_streaming_without_grpc) ... ok
+test_xhttp_repairs_only_incorrect_path (__main__.InstallerProfileTests.test_xhttp_repairs_only_incorrect_path) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.759s
+
+OK

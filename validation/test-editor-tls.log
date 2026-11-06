@@ -1,0 +1,27 @@
+test_domain_certificate_rewrite_of_production_sites_parses (__main__.RealNginxEditorTests.test_domain_certificate_rewrite_of_production_sites_parses)
+Generate production sites with inert host commands, then run nginx -t. ... ok
+test_real_certificate_time_and_public_key_validation_portable (__main__.RealOpenSSLTests.test_real_certificate_time_and_public_key_validation_portable) ... ok
+test_real_openssl_hostname_matches_mismatch_and_wildcard (__main__.RealOpenSSLTests.test_real_openssl_hostname_matches_mismatch_and_wildcard) ... ok
+test_certificate_letsencrypt_style_symlink_accepted (__main__.TLSEditorTests.test_certificate_letsencrypt_style_symlink_accepted) ... ok
+test_certificate_missing_empty_or_directory_rejected_before_openssl (__main__.TLSEditorTests.test_certificate_missing_empty_or_directory_rejected_before_openssl) ... ok
+test_certificate_paths_extract_unique_pair (__main__.TLSEditorTests.test_certificate_paths_extract_unique_pair) ... ok
+test_certificate_paths_reject_ambiguous_missing_dynamic_pair (__main__.TLSEditorTests.test_certificate_paths_reject_ambiguous_missing_dynamic_pair) ... ok
+test_certificate_rejects_expiry_failure_without_exposing_output (__main__.TLSEditorTests.test_certificate_rejects_expiry_failure_without_exposing_output) ... ok
+test_certificate_rejects_hostname_false_success_and_no_checkhost_support (__main__.TLSEditorTests.test_certificate_rejects_hostname_false_success_and_no_checkhost_support) ... ok
+test_certificate_rejects_mismatched_public_keys (__main__.TLSEditorTests.test_certificate_rejects_mismatched_public_keys) ... ok
+test_certificate_rejects_not_yet_valid (__main__.TLSEditorTests.test_certificate_rejects_not_yet_valid) ... ok
+test_certificate_validates_and_never_captures_private_key (__main__.TLSEditorTests.test_certificate_validates_and_never_captures_private_key) ... ok
+test_domain_canonicalization (__main__.TLSEditorTests.test_domain_canonicalization) ... ok
+test_domain_rejects_injection_invalid_labels_ips_and_wildcards (__main__.TLSEditorTests.test_domain_rejects_injection_invalid_labels_ips_and_wildcards) ... ok
+test_issuance_failure_explains_existing_certificate_and_cdn_bootstrap (__main__.TLSEditorTests.test_issuance_failure_explains_existing_certificate_and_cdn_bootstrap) ... ok
+test_issuance_rejects_email_injection (__main__.TLSEditorTests.test_issuance_rejects_email_injection) ... ok
+test_issuance_webroot_only_and_disables_hooks (__main__.TLSEditorTests.test_issuance_webroot_only_and_disables_hooks) ... ok
+test_rewrite_domain_alone_and_quoted_values (__main__.TLSEditorTests.test_rewrite_domain_alone_and_quoted_values) ... ok
+test_rewrite_preserves_every_non_target_byte (__main__.TLSEditorTests.test_rewrite_preserves_every_non_target_byte) ... ok
+test_rewrite_rejects_path_injection_and_missing_pair (__main__.TLSEditorTests.test_rewrite_rejects_path_injection_and_missing_pair) ... ok
+test_rewrite_rejects_unknown_or_other_domain_layout (__main__.TLSEditorTests.test_rewrite_rejects_unknown_or_other_domain_layout) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.655s
+
+OK

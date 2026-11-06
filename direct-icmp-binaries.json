@@ -1,0 +1,7 @@
+{
+  "binary_sha256": {
+    "amd64": "a77203e06a39bd3ba015d4b1a67f7d86202d3a2ef7655581589282dcbf8ac3b1",
+    "arm64": "911ed249cce0a1481ab7968001802b527f715c3f0c1513574b281653f7c688c7"
+  },
+  "version": "3.7.0-preview.11"
+}

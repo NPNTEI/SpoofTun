@@ -1,0 +1,35 @@
+test_cloudflare_domain_default_and_opt_in_auto (__main__.AdvancedInstallerTests.test_cloudflare_domain_default_and_opt_in_auto) ... ok
+test_cloudflare_manual_ip_separate_sni_host (__main__.AdvancedInstallerTests.test_cloudflare_manual_ip_separate_sni_host) ... ok
+test_cloudflare_scanner_parameters_reprompt_locally_and_opt_in_interval (__main__.AdvancedInstallerTests.test_cloudflare_scanner_parameters_reprompt_locally_and_opt_in_interval) ... ok
+test_ech_source_validator_matches_supported_resolver_protocols (__main__.AdvancedInstallerTests.test_ech_source_validator_matches_supported_resolver_protocols) ... ok
+test_four_xhttp_modes_and_mux_mapping (__main__.AdvancedInstallerTests.test_four_xhttp_modes_and_mux_mapping) ... ok
+test_generated_egress_agrees_with_custom_host_mode_padding (__main__.AdvancedInstallerTests.test_generated_egress_agrees_with_custom_host_mode_padding) ... ok
+test_generated_ipv6_dial_is_bracketed_per_port (__main__.AdvancedInstallerTests.test_generated_ipv6_dial_is_bracketed_per_port) ... ok
+test_generated_origin_separates_dial_sni_http_and_retains_strict_ech (__main__.AdvancedInstallerTests.test_generated_origin_separates_dial_sni_http_and_retains_strict_ech) ... ok
+test_manual_ipv6_acceptance_host_only_rejection (__main__.AdvancedInstallerTests.test_manual_ipv6_acceptance_host_only_rejection) ... ok
+test_metadata_keeps_independent_endpoint_and_padding_values (__main__.AdvancedInstallerTests.test_metadata_keeps_independent_endpoint_and_padding_values) ... ok
+test_nginx_streaming_modes_have_unlimited_body_without_buffering (__main__.AdvancedInstallerTests.test_nginx_streaming_modes_have_unlimited_body_without_buffering) ... ok
+test_no_proxy_profile_requires_no_answers (__main__.AdvancedInstallerTests.test_no_proxy_profile_requires_no_answers) ... ok
+test_other_cdns_manual_domain_and_no_cloudflare_scan (__main__.AdvancedInstallerTests.test_other_cdns_manual_domain_and_no_cloudflare_scan) ... ok
+test_padding_prompt_ranges_repair_only_bad_number (__main__.AdvancedInstallerTests.test_padding_prompt_ranges_repair_only_bad_number) ... ok
+test_padding_validator_is_canonical_like_core (__main__.AdvancedInstallerTests.test_padding_validator_is_canonical_like_core) ... ok
+test_peer_roundtrip_host_mode_and_legacy_host_default (__main__.AdvancedInstallerTests.test_peer_roundtrip_host_mode_and_legacy_host_default) ... ok
+test_scanner_config_opt_in_saved_private_without_scan (__main__.AdvancedInstallerTests.test_scanner_config_opt_in_saved_private_without_scan) ... ok
+test_tls_auto_ech_and_fragment_remain_distinct (__main__.AdvancedInstallerTests.test_tls_auto_ech_and_fragment_remain_distinct) ... ok
+test_tls_has_only_three_modes_and_rejects_old_four (__main__.AdvancedInstallerTests.test_tls_has_only_three_modes_and_rejects_old_four) ... ok
+test_tls_manual_ech_repairs_only_the_source (__main__.AdvancedInstallerTests.test_tls_manual_ech_repairs_only_the_source) ... ok
+test_upgrade_preserves_mode_padding_ech_and_dial_separation (__main__.AdvancedUpgradeTests.test_upgrade_preserves_mode_padding_ech_and_dial_separation) ... ok
+test_cancel_exits_without_rewriting_answers_or_customer_state (__main__.InitialCarrierRepairTests.test_cancel_exits_without_rewriting_answers_or_customer_state) ... ok
+test_repair_updates_only_connection_profile_and_preserves_quota_pair_ports (__main__.InitialCarrierRepairTests.test_repair_updates_only_connection_profile_and_preserves_quota_pair_ports) ... ok
+test_retry_reuses_all_answers_without_rewriting_launch (__main__.InitialCarrierRepairTests.test_retry_reuses_all_answers_without_rewriting_launch) ... ok
+test_byte_range_parity_and_bounds (__main__.ProfileValidationTests.test_byte_range_parity_and_bounds) ... ok
+test_cli_never_echoes_private_resolver (__main__.ProfileValidationTests.test_cli_never_echoes_private_resolver) ... ok
+test_embedded_shell_source_rejects_controls_and_apostrophes (__main__.ProfileValidationTests.test_embedded_shell_source_rejects_controls_and_apostrophes) ... ok
+test_manual_list_and_descriptor_editor_parity (__main__.ProfileValidationTests.test_manual_list_and_descriptor_editor_parity) ... ok
+test_manual_list_rejects_unusable_or_malformed (__main__.ProfileValidationTests.test_manual_list_rejects_unusable_or_malformed) ... ok
+test_resolver_rejects_bad_scheme_host_port_credentials (__main__.ProfileValidationTests.test_resolver_rejects_bad_scheme_host_port_credentials) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.754s
+
+OK

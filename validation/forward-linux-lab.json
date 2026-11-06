@@ -1,0 +1,111 @@
+{
+  "binary_sha256": "911ed249cce0a1481ab7968001802b527f715c3f0c1513574b281653f7c688c7",
+  "binary_version": "ununknowntun 3.7.0-preview.11",
+  "checks": {
+    "concurrent_clients_tcp_halfclose_udp_fragment_sha256": [
+      {
+        "clients": [
+          {
+            "bytes": 65536,
+            "client": 0,
+            "port": 12055,
+            "sha256": "6d182e9e920d1e393698261c68c7dd8a357187f5ffd1f964572224547cb1d023"
+          },
+          {
+            "bytes": 65536,
+            "client": 1,
+            "port": 12056,
+            "sha256": "c4e4f4386b8e225125c21e1930d23787b74a2f0e4da259eb40375f1a81748e99"
+          },
+          {
+            "bytes": 65536,
+            "client": 2,
+            "port": 12055,
+            "sha256": "c4b4462442bf512632c5b3608a5ba81a7e8c943e308e7e9efe4a5e273e6cbe5e"
+          },
+          {
+            "bytes": 65536,
+            "client": 3,
+            "port": 12056,
+            "sha256": "68fd5e2c2a1a2bd28771d0d29f3fd458b3ec61b0096a2ab3ad453d7b77101d3e"
+          },
+          {
+            "bytes": 65536,
+            "client": 4,
+            "port": 12055,
+            "sha256": "b06a8ff0c2edc9b19fa2479fa91b363dc2862430910f375876315a240d2a8e97"
+          },
+          {
+            "bytes": 65536,
+            "client": 5,
+            "port": 12056,
+            "sha256": "0521de1e0929e9c89fd04549ef98202247c8e3a83a2efee967241c2f1b633b54"
+          }
+        ],
+        "protocol": "tcp",
+        "verified": true
+      },
+      {
+        "clients": [
+          {
+            "bytes": 4000,
+            "client": 0,
+            "port": 12055,
+            "sha256": "72d5191a9ef65039adcde59ea362e60d8c47f1bda82018c0a8b012b806b41cff"
+          },
+          {
+            "bytes": 4000,
+            "client": 1,
+            "port": 12056,
+            "sha256": "5494e6c831f0b1ba7729c6eb6cf344a72f330cf320d950608238add4781046c6"
+          },
+          {
+            "bytes": 4000,
+            "client": 2,
+            "port": 12055,
+            "sha256": "a0b342f542ae421c734fd717c4bad4bbd003f119b4a6febeff74109859249356"
+          },
+          {
+            "bytes": 4000,
+            "client": 3,
+            "port": 12056,
+            "sha256": "1edf7808f90dbc3fa8b7f865022f04e405507a277c9308c34cb0acb586dca16e"
+          },
+          {
+            "bytes": 4000,
+            "client": 4,
+            "port": 12055,
+            "sha256": "223ed533c7d8fec48eff02ddb8c98ce277f01a27a50abaee72f026533c0f86a5"
+          },
+          {
+            "bytes": 4000,
+            "client": 5,
+            "port": 12056,
+            "sha256": "8c43c2225efffdeda286dfd85daf9b793155fffbb028085921e1b377cd2ce5a6"
+          }
+        ],
+        "protocol": "udp",
+        "verified": true
+      }
+    ],
+    "forward_dials_traverse_round_robin_pool": {
+      "complete": true,
+      "sources": {
+        "17": [
+          "10.79.1.1",
+          "10.79.1.2"
+        ],
+        "6": [
+          "10.79.1.1",
+          "10.79.1.2"
+        ]
+      }
+    },
+    "host_routes_firewall_forwarding_unchanged": true,
+    "same_port_restart_payload": true,
+    "stop_closes_tcp_udp_listeners_preserves_application": true,
+    "wildcard_application_private_relay_coexist": true
+  },
+  "scope": "isolated Linux namespace evidence; not WAN/provider/production validation",
+  "status": "PASS"
+}

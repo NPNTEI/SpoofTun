@@ -1,0 +1,10 @@
+test_action_requires_exact_confirmation_and_real_success (__main__.OfflineTests.test_action_requires_exact_confirmation_and_real_success) ... ok
+test_cancel_has_no_success_claim (__main__.OfflineTests.test_cancel_has_no_success_claim) ... ok
+test_index_is_exact_pair_role (__main__.OfflineTests.test_index_is_exact_pair_role) ... ok
+test_pty_is_real_terminal_and_captures_input (__main__.OfflineTests.test_pty_is_real_terminal_and_captures_input) ... ok
+test_timeout_is_bounded (__main__.OfflineTests.test_timeout_is_bounded) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.221s
+
+OK

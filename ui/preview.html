@@ -1,0 +1,135 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UNUNKNOWNTUN — Terminal UI preview</title><style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#edf2f4;color:#263847;font-family:system-ui,sans-serif}
+header{max-width:1080px;margin:64px auto 24px;padding:0 30px}small{letter-spacing:.16em;color:#087e80;font-weight:700}
+h1{font-size:clamp(32px,6vw,58px);letter-spacing:-.05em;margin:14px 0}p{line-height:1.6;color:#60707e;max-width:720px}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}a{color:#087e80;border:1px solid #bfd4d9;border-radius:9px;padding:11px 19px;text-decoration:none;background:#fff}
+main{max-width:1080px;margin:auto;padding:0 30px 60px}section{scroll-margin:30px;background:#f8fafb;border:1px solid #cbd6de;border-radius:18px;margin:26px 0;box-shadow:0 12px 38px #334b5810;overflow:hidden}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.14em;padding:18px 24px;background:white;border-bottom:1px solid #d9e1e6;margin:0;color:#087e80}
+pre{font:clamp(10px,1.28vw,15px)/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:22px;margin:0;overflow:auto;color:#234252}
+.notice{border-left:3px solid #0d8587;padding-left:16px}footer{color:#60707e;font-size:13px}
+</style><header><small>SIK-DPI / @SIKDPI</small><h1>One calm control room.</h1>
+<p>A terminal companion for UNUNKNOWNTUN. Tunnels, tuning and evidence-based diagnostics — without replacing the tunnel core.</p>
+<p class="notice"><strong>Visual preview · sample data only.</strong> No servers were contacted. No diagnosis was run. The live program reads local installed tunnels. This page is not a web control panel.</p>
+<nav><a href="#tunnels">01 Tunnels</a><a href="#tuning">02 Tuning</a><a href="#doctor">03 Doctor</a></nav></header><main><section id="tunnels"><h2>Tunnels</h2><pre>╭────────────────────────────────────────────────────────────────────────────────────────────╮
+│  ununknowntunctl companion  /  terminal UI 3.7.0-preview.11                                    │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                            │
+│  UNUNKNOWNTUN                                      @SIKDPI                                     │
+│  sik-dpi  /  CONTROL ROOM                                                                  │
+│  SAMPLE DATA - DEMO ONLY / no actions or network                                           │
+│                                                                                            │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  [ 1 Tunnels ]      2 Tuning        3 Doctor                                               │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  Europe / primary                                                                          │
+│  Service state          active/running (sample)                                            │
+│  This server            IRAN / origin                                                      │
+│  IRAN IP + ports  -&gt;  cloudflare / WSS  -&gt;  FOREIGN                                        │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  YOUR TUNNELS                                                                              │
+│  &gt; t 1   Europe / primary                                                                  │
+│          active/running / managed                                                          │
+│    t 2   Direct / secondary                                                                │
+│          inactive/dead / managed                                                           │
+│    t 3   ununknowntun-legacy.service                                                           │
+│          active/running / read only                                                        │
+│                                                                                            │
+│  t NUMBER Select    e Edit    c Customers    u Usage                                       │
+│  n CDN settings    b Guided scan rounds    s Auto-policy scan/apply    v CDN status        │
+│  o Service actions (start / stop / restart / remove)                                       │
+│  Use the installer to add tunnels. Direct ICMP: press i for its dedicated manager.         │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  1 Tunnels   2 Tuning   3 Doctor   r Refresh   q Exit                                      │
+│  k Full SIKDPI scanner (IP / SNI / REALITY / speed / exports)                              │
+│  i Direct ICMP manager (status / forwarding info / services / diagnostics)                 │
+│  ununknowntun &gt; tunnels _                                                                      │
+╰────────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></section><section id="tuning"><h2>Tuning</h2><pre>╭────────────────────────────────────────────────────────────────────────────────────────────╮
+│  ununknowntunctl companion  /  terminal UI 3.7.0-preview.11                                    │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                            │
+│  UNUNKNOWNTUN                                      @SIKDPI                                     │
+│  sik-dpi  /  CONTROL ROOM                                                                  │
+│  SAMPLE DATA - DEMO ONLY / no actions or network                                           │
+│                                                                                            │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│    1 Tunnels      [ 2 Tuning ]      3 Doctor                                               │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  Europe / primary                                                                          │
+│  Service state          active/running (sample)                                            │
+│  This server            IRAN / origin                                                      │
+│  IRAN IP + ports  -&gt;  cloudflare / WSS  -&gt;  FOREIGN                                        │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  Carrier                wss                                                                │
+│  Foreign proxy          cloudflare                                                         │
+│  Iran proxy             none                                                               │
+│  Foreign domain         edge.example                                                       │
+│  Endpoint override      192.0.2.10                                                         │
+│  Dial endpoint          192.0.2.10:443                                                     │
+│  TLS SNI                edge.example                                                       │
+│  HTTP Host              edge.example                                                       │
+│  Iran entry ports       2055                                                               │
+│  Foreign TLS ports      443                                                                │
+│  Foreign target port    18082                                                              │
+│  MUX                    on                                                                 │
+│  ECH                    off                                                                │
+│  ECH source             Automatic DNS discovery                                            │
+│  XHTTP mode             auto                                                               │
+│  Frame padding bytes    0                                                                  │
+│  XHTTP HTTP padding     0                                                                  │
+│  TLS fragment           off                                                                │
+│  Fragment size          not explicit                                                       │
+│  Session min / max      2 / 8                                                              │
+│  Path rotation / count  0 / 3                                                              │
+│  Carrier renewal        0                                                                  │
+│  Max streams            256                                                                │
+│                                                                                            │
+│  e Open existing full editor    a Apply peer update                                        │
+│  n CDN settings    b Guided scan rounds    p Preview scan    s Auto-policy scan/apply      │
+│  v CDN status                                                                              │
+│  CDN scanning is opt-in and Cloudflare-only. A scan/apply may restart this tunnel.         │
+│  TLS modes: ordinary / strict ECH / ClientHello fragmentation. Streaming CDN               │
+│  compatibility needs live testing.                                                         │
+│  Values above are saved configuration, not proof of a negotiated feature. The editor       │
+│  previews each change and handles paired updates.                                          │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  1 Tunnels   2 Tuning   3 Doctor   r Refresh   q Exit                                      │
+│  k Full SIKDPI scanner (IP / SNI / REALITY / speed / exports)                              │
+│  i Direct ICMP manager (status / forwarding info / services / diagnostics)                 │
+│  ununknowntun &gt; tuning _                                                                       │
+╰────────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></section><section id="doctor"><h2>Doctor</h2><pre>╭────────────────────────────────────────────────────────────────────────────────────────────╮
+│  ununknowntunctl companion  /  terminal UI 3.7.0-preview.11                                    │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                            │
+│  UNUNKNOWNTUN                                      @SIKDPI                                     │
+│  sik-dpi  /  CONTROL ROOM                                                                  │
+│  SAMPLE DATA - DEMO ONLY / no actions or network                                           │
+│                                                                                            │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│    1 Tunnels        2 Tuning      [ 3 Doctor ]                                             │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  Europe / primary                                                                          │
+│  Service state          active/running (sample)                                            │
+│  This server            IRAN / origin                                                      │
+│  IRAN IP + ports  -&gt;  cloudflare / WSS  -&gt;  FOREIGN                                        │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  WAIT   Configuration                                                                      │
+│         Not checked in this UI session.                                                    │
+│  WAIT   DNS / TCP / TLS                                                                    │
+│         No network probe has run.                                                          │
+│  WAIT   Tunnel authentication                                                              │
+│         Service active does not prove authentication.                                      │
+│  TODO   Real client payload                                                                │
+│         Test with a real client; never inferred from TLS.                                  │
+│                                                                                            │
+│  d Run configured endpoint checks    f Check config offline                                │
+│  No port-range scanning. No TLS bypass. No guessed root cause.                             │
+├────────────────────────────────────────────────────────────────────────────────────────────┤
+│  1 Tunnels   2 Tuning   3 Doctor   r Refresh   q Exit                                      │
+│  k Full SIKDPI scanner (IP / SNI / REALITY / speed / exports)                              │
+│  i Direct ICMP manager (status / forwarding info / services / diagnostics)                 │
+│  ununknowntun &gt; doctor _                                                                       │
+╰────────────────────────────────────────────────────────────────────────────────────────────╯
+</pre></section><footer>UNUNKNOWNTUN UI 3.7.0-preview.11 · Python standard library · SSH / Termius friendly · no browser service</footer></main></html>

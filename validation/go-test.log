@@ -1,0 +1,1153 @@
+2026/11/02 09:21:25 [tls] generating new certificate at /tmp/TestAccessRunOriginMetersRealStreamsAndHasNoListenBypass1212567998/001/server.crt
+2026/11/02 09:21:25 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:25 [egress] tunnel established from 127.0.0.1:49546
+2026/11/02 09:21:25 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:25 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:25 [origin] tunnel session established to 127.0.0.1:33009 via wss
+2026/11/02 09:21:25 [access] 2 customer listeners active, accounting upload + download
+2026/11/02 09:21:26 [stream 1] read error: read tcp 127.0.0.1:42311->127.0.0.1:38134: use of closed network connection
+2026/11/02 09:21:26 [stream 1] read error: read tcp 127.0.0.1:56424->127.0.0.1:41079: use of closed network connection
+2026/11/02 09:21:28 [origin] tunnel session to 127.0.0.1:33009 closed
+2026/11/02 09:21:28 [tls] generating new certificate at /tmp/TestCDNTLS12RequiresExplicitCompatibilityAndStillChecksPin2723761711/001/test.crt
+2026/11/02 09:21:29 [origin] peer uses legacy initial-stream credit; upgrade both endpoints for resize-race protection
+2026/11/02 09:21:29 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:21:29 [origin] tunnel session established to test via tls
+2026/11/02 09:21:30 [origin] tunnel session to test closed
+2026/11/02 09:21:30 [origin] peer uses legacy initial-stream credit; upgrade both endpoints for resize-race protection
+2026/11/02 09:21:30 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:21:30 [origin] tunnel session established to test via wss
+2026/11/02 09:21:30 [origin] tunnel session to test closed
+2026/11/02 09:21:30 [origin] stream 1 memory budget exceeded
+2026/11/02 09:21:30 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:21:30 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:21:30 [egress] protocol state violation for cmd 0x0D: carrier health before authentication/negotiation or invalid payload
+2026/11/02 09:21:30 [egress] protocol state violation for cmd 0x0D: carrier health before authentication/negotiation or invalid payload
+2026/11/02 09:21:30 [egress] tunnel established from pipe
+2026/11/02 09:21:30 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:30 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:30 [origin] tunnel session established to test via tls
+2026/11/02 09:21:30 [origin] tunnel session to test closed
+2026/11/02 09:21:30 [egress] tunnel established from pipe
+2026/11/02 09:21:30 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:30 [egress] session read header failed: EOF
+2026/11/02 09:21:30 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:21:30 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [origin] [drop-detector] peer receive window is now 2048KB
+2026/11/02 09:21:30 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportBlackholePoolRecoverywss2286639633/001/test.crt
+2026/11/02 09:21:30 [egress] tunnel established from 127.0.0.1:46060
+2026/11/02 09:21:30 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:30 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:30 [origin] tunnel session established to 127.0.0.1:35443 via wss
+2026/11/02 09:21:30 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:21:30 [stream 1] read error: read tcp 127.0.0.1:42431->127.0.0.1:41160: use of closed network connection
+2026/11/02 09:21:30 [origin] tunnel session to 127.0.0.1:35443 closed
+2026/11/02 09:21:30 [egress] session read header failed: EOF
+2026/11/02 09:21:30 [stream 1] read error: read tcp 127.0.0.1:47150->127.0.0.1:37565: use of closed network connection
+2026/11/02 09:21:31 [egress] tunnel established from 127.0.0.1:46070
+2026/11/02 09:21:31 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:31 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:31 [origin] tunnel session established to 127.0.0.1:35443 via wss
+2026/11/02 09:21:31 [egress] session read header failed: EOF
+2026/11/02 09:21:31 [stream 1] read error: read tcp 127.0.0.1:47164->127.0.0.1:37565: use of closed network connection
+2026/11/02 09:21:31 [origin] tunnel session to 127.0.0.1:35443 closed
+2026/11/02 09:21:31 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportBlackholePoolRecoveryxhttp3090400522/001/test.crt
+2026/11/02 09:21:31 [egress] tunnel established from pipe
+2026/11/02 09:21:31 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:31 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:31 [origin] tunnel session established to 127.0.0.1:44927 via xhttp
+2026/11/02 09:21:31 [origin] [carrier-health] authenticated payload roundtrip timed out on 3 consecutive attempts; closing failed carrier for reconnect
+2026/11/02 09:21:31 [stream 1] read error: read tcp 127.0.0.1:34899->127.0.0.1:45044: use of closed network connection
+2026/11/02 09:21:31 [origin] tunnel session to 127.0.0.1:44927 closed
+2026/11/02 09:21:31 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:31 [stream 1] read error: read tcp 127.0.0.1:56450->127.0.0.1:33815: use of closed network connection
+2026/11/02 09:21:32 [egress] tunnel established from pipe
+2026/11/02 09:21:32 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:32 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:32 [origin] tunnel session established to 127.0.0.1:44927 via xhttp
+2026/11/02 09:21:32 [stream 1] read error: read tcp 127.0.0.1:46805->127.0.0.1:32906: use of closed network connection
+2026/11/02 09:21:32 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:32 [stream 1] read error: read tcp 127.0.0.1:56464->127.0.0.1:33815: use of closed network connection
+2026/11/02 09:21:32 [origin] tunnel session to 127.0.0.1:44927 closed
+2026/11/02 09:21:32 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportLegacyCoveragewss282885290/001/test.crt
+2026/11/02 09:21:32 [egress] tunnel established from 127.0.0.1:49648
+2026/11/02 09:21:32 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:32 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:21:32 [origin] tunnel session established to 127.0.0.1:33511 via wss
+2026/11/02 09:21:32 [egress] session read header failed: EOF
+2026/11/02 09:21:32 [origin] tunnel session to 127.0.0.1:33511 closed
+2026/11/02 09:21:32 [tls] generating new certificate at /tmp/TestCarrierHealthRealTransportLegacyCoveragexhttp2842674397/001/test.crt
+2026/11/02 09:21:32 [egress] tunnel established from pipe
+2026/11/02 09:21:32 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:32 [origin] peer uses legacy 8-byte carrier heartbeat; no full payload coverage, upgrade both endpoints
+2026/11/02 09:21:32 [origin] tunnel session established to 127.0.0.1:39243 via xhttp
+2026/11/02 09:21:32 [origin] tunnel session to 127.0.0.1:39243 closed
+2026/11/02 09:21:32 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:32 [stream 1] read error: read tcp 127.0.0.1:38712->127.0.0.1:44549: use of closed network connection
+--- FAIL: TestDirectICMPForwardUDPMultipleClientsIdleAndCancel (2.75s)
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:36824->127.0.0.1:48431: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:47379->127.0.0.1:48431: i/o timeout
+    direct_icmp_forward_test.go:279: UDP client isolation/payload failed: read udp4 127.0.0.1:60881->127.0.0.1:48431: i/o timeout
+2026/11/02 09:21:36 [tls] generating new certificate at /tmp/TestStrictECHAcceptedCarrierAuthenticationwss3947165203/001/inner.crt
+2026/11/02 09:21:36 [egress] tunnel established from 127.0.0.1:43364
+2026/11/02 09:21:36 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:36 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:36 [origin] tunnel session established to 127.0.0.1:37365 via wss-ech
+2026/11/02 09:21:36 [origin] tunnel session to 127.0.0.1:37365 closed
+2026/11/02 09:21:36 [egress] session read header failed: EOF
+2026/11/02 09:21:36 [tls] generating new certificate at /tmp/TestStrictECHAcceptedCarrierAuthenticationxhttp4068160346/001/inner.crt
+2026/11/02 09:21:36 [egress] tunnel established from pipe
+2026/11/02 09:21:36 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:36 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:36 [origin] tunnel session established to 127.0.0.1:41209 via xhttp-ech
+2026/11/02 09:21:36 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:36 [tls] generating new certificate at /tmp/TestECHManualSourceAcceptedCarrierwss2502680280/001/inner.pem
+2026/11/02 09:21:36 [origin] tunnel session to 127.0.0.1:41209 closed
+2026/11/02 09:21:36 [egress] tunnel established from 127.0.0.1:41576
+2026/11/02 09:21:36 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:36 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:36 [origin] tunnel session established to 127.0.0.1:45009 via wss-ech
+2026/11/02 09:21:36 [origin] tunnel session to 127.0.0.1:45009 closed
+2026/11/02 09:21:36 [egress] session read header failed: EOF
+2026/11/02 09:21:36 [tls] generating new certificate at /tmp/TestECHManualSourceAcceptedCarrierxhttp2671963416/001/inner.pem
+2026/11/02 09:21:36 [egress] tunnel established from pipe
+2026/11/02 09:21:36 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:36 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:36 [origin] tunnel session established to 127.0.0.1:46641 via xhttp-ech
+2026/11/02 09:21:36 [origin] tunnel session to 127.0.0.1:46641 closed
+2026/11/02 09:21:36 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:39 [tls] generating new certificate at /tmp/TestLocalTunnelDataAndChurnwss132289887/001/test.crt
+2026/11/02 09:21:39 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:39 [egress] tunnel established from 127.0.0.1:38296
+2026/11/02 09:21:39 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:39 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:39 [origin] tunnel session established to 127.0.0.1:34937 via wss
+2026/11/02 09:21:40 [stream 65] read error: read tcp 127.0.0.1:45953->127.0.0.1:33956: read: connection reset by peer
+2026/11/02 09:21:40 [stream 65] read error: read tcp 127.0.0.1:54312->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 67] read error: read tcp 127.0.0.1:42511->127.0.0.1:40690: read: connection reset by peer
+2026/11/02 09:21:40 [stream 67] read error: read tcp 127.0.0.1:54322->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 69] read error: read tcp 127.0.0.1:43927->127.0.0.1:46270: read: connection reset by peer
+2026/11/02 09:21:40 [stream 69] read error: read tcp 127.0.0.1:54326->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 71] read error: read tcp 127.0.0.1:37423->127.0.0.1:47528: read: connection reset by peer
+2026/11/02 09:21:40 [stream 71] read error: read tcp 127.0.0.1:54340->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 73] read error: read tcp 127.0.0.1:34251->127.0.0.1:39622: read: connection reset by peer
+2026/11/02 09:21:40 [stream 73] read error: read tcp 127.0.0.1:54344->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 75] read error: read tcp 127.0.0.1:35291->127.0.0.1:35556: read: connection reset by peer
+2026/11/02 09:21:40 [stream 75] read error: read tcp 127.0.0.1:54346->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 77] read error: read tcp 127.0.0.1:36665->127.0.0.1:50842: read: connection reset by peer
+2026/11/02 09:21:40 [stream 77] read error: read tcp 127.0.0.1:54354->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 79] read error: read tcp 127.0.0.1:46241->127.0.0.1:53418: read: connection reset by peer
+2026/11/02 09:21:40 [stream 79] read error: read tcp 127.0.0.1:54362->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 81] read error: read tcp 127.0.0.1:36745->127.0.0.1:53930: read: connection reset by peer
+2026/11/02 09:21:40 [stream 81] read error: read tcp 127.0.0.1:54368->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 83] read error: read tcp 127.0.0.1:41013->127.0.0.1:35794: read: connection reset by peer
+2026/11/02 09:21:40 [stream 83] read error: read tcp 127.0.0.1:54380->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 85] read error: read tcp 127.0.0.1:35113->127.0.0.1:45016: read: connection reset by peer
+2026/11/02 09:21:40 [stream 85] read error: read tcp 127.0.0.1:54386->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 87] read error: read tcp 127.0.0.1:34059->127.0.0.1:37818: read: connection reset by peer
+2026/11/02 09:21:40 [stream 87] read error: read tcp 127.0.0.1:54398->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 89] read error: read tcp 127.0.0.1:45737->127.0.0.1:44224: read: connection reset by peer
+2026/11/02 09:21:40 [stream 89] read error: read tcp 127.0.0.1:54414->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 91] read error: read tcp 127.0.0.1:39495->127.0.0.1:43802: read: connection reset by peer
+2026/11/02 09:21:40 [stream 91] read error: read tcp 127.0.0.1:54420->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 93] read error: read tcp 127.0.0.1:45063->127.0.0.1:43506: read: connection reset by peer
+2026/11/02 09:21:40 [stream 93] read error: read tcp 127.0.0.1:54424->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 95] read error: read tcp 127.0.0.1:33119->127.0.0.1:58948: read: connection reset by peer
+2026/11/02 09:21:40 [stream 95] read error: read tcp 127.0.0.1:54440->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 97] read error: read tcp 127.0.0.1:41173->127.0.0.1:42724: read: connection reset by peer
+2026/11/02 09:21:40 [stream 97] read error: read tcp 127.0.0.1:54450->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 99] read error: read tcp 127.0.0.1:43437->127.0.0.1:51736: read: connection reset by peer
+2026/11/02 09:21:40 [stream 99] read error: read tcp 127.0.0.1:54462->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 101] read error: read tcp 127.0.0.1:33433->127.0.0.1:55202: read: connection reset by peer
+2026/11/02 09:21:40 [stream 101] read error: read tcp 127.0.0.1:54468->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 103] read error: read tcp 127.0.0.1:40155->127.0.0.1:57888: read: connection reset by peer
+2026/11/02 09:21:40 [stream 103] read error: read tcp 127.0.0.1:54478->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 105] read error: read tcp 127.0.0.1:41521->127.0.0.1:52948: read: connection reset by peer
+2026/11/02 09:21:40 [stream 105] read error: read tcp 127.0.0.1:54480->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 107] read error: read tcp 127.0.0.1:45509->127.0.0.1:53668: read: connection reset by peer
+2026/11/02 09:21:40 [stream 107] read error: read tcp 127.0.0.1:54486->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 109] read error: read tcp 127.0.0.1:44859->127.0.0.1:40952: read: connection reset by peer
+2026/11/02 09:21:40 [stream 109] read error: read tcp 127.0.0.1:54498->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 111] read error: read tcp 127.0.0.1:36765->127.0.0.1:40446: read: connection reset by peer
+2026/11/02 09:21:40 [stream 111] read error: read tcp 127.0.0.1:54514->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 113] read error: read tcp 127.0.0.1:45669->127.0.0.1:44290: read: connection reset by peer
+2026/11/02 09:21:40 [stream 113] read error: read tcp 127.0.0.1:54520->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 115] read error: read tcp 127.0.0.1:37201->127.0.0.1:44636: read: connection reset by peer
+2026/11/02 09:21:40 [stream 115] read error: read tcp 127.0.0.1:54526->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 117] read error: read tcp 127.0.0.1:38215->127.0.0.1:47828: read: connection reset by peer
+2026/11/02 09:21:40 [stream 117] read error: read tcp 127.0.0.1:54542->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 119] read error: read tcp 127.0.0.1:34509->127.0.0.1:35336: read: connection reset by peer
+2026/11/02 09:21:40 [stream 119] read error: read tcp 127.0.0.1:54554->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 121] read error: read tcp 127.0.0.1:46505->127.0.0.1:48906: read: connection reset by peer
+2026/11/02 09:21:40 [stream 121] read error: read tcp 127.0.0.1:54560->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 123] read error: read tcp 127.0.0.1:34185->127.0.0.1:41234: read: connection reset by peer
+2026/11/02 09:21:40 [stream 123] read error: read tcp 127.0.0.1:54572->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 125] read error: read tcp 127.0.0.1:32843->127.0.0.1:45562: read: connection reset by peer
+2026/11/02 09:21:40 [stream 125] read error: read tcp 127.0.0.1:54574->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 127] read error: read tcp 127.0.0.1:42183->127.0.0.1:51194: read: connection reset by peer
+2026/11/02 09:21:40 [stream 127] read error: read tcp 127.0.0.1:54588->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 129] read error: read tcp 127.0.0.1:39607->127.0.0.1:46862: read: connection reset by peer
+2026/11/02 09:21:40 [stream 129] read error: read tcp 127.0.0.1:54592->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 131] read error: read tcp 127.0.0.1:34333->127.0.0.1:59074: read: connection reset by peer
+2026/11/02 09:21:40 [stream 131] read error: read tcp 127.0.0.1:54594->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 133] read error: read tcp 127.0.0.1:40671->127.0.0.1:40682: read: connection reset by peer
+2026/11/02 09:21:40 [stream 133] read error: read tcp 127.0.0.1:54598->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 135] read error: read tcp 127.0.0.1:34831->127.0.0.1:60896: read: connection reset by peer
+2026/11/02 09:21:40 [stream 135] read error: read tcp 127.0.0.1:54600->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 137] read error: read tcp 127.0.0.1:42849->127.0.0.1:51818: read: connection reset by peer
+2026/11/02 09:21:40 [stream 137] read error: read tcp 127.0.0.1:54616->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 139] read error: read tcp 127.0.0.1:46121->127.0.0.1:46818: read: connection reset by peer
+2026/11/02 09:21:40 [stream 139] read error: read tcp 127.0.0.1:54624->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 141] read error: read tcp 127.0.0.1:43779->127.0.0.1:59046: read: connection reset by peer
+2026/11/02 09:21:40 [stream 141] read error: read tcp 127.0.0.1:54628->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 143] read error: read tcp 127.0.0.1:45753->127.0.0.1:40732: read: connection reset by peer
+2026/11/02 09:21:40 [stream 143] read error: read tcp 127.0.0.1:54632->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 145] read error: read tcp 127.0.0.1:41007->127.0.0.1:35148: read: connection reset by peer
+2026/11/02 09:21:40 [stream 145] read error: read tcp 127.0.0.1:54634->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 147] read error: read tcp 127.0.0.1:32851->127.0.0.1:54178: read: connection reset by peer
+2026/11/02 09:21:40 [stream 147] read error: read tcp 127.0.0.1:54642->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 149] read error: read tcp 127.0.0.1:34055->127.0.0.1:55552: read: connection reset by peer
+2026/11/02 09:21:40 [stream 149] read error: read tcp 127.0.0.1:54658->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 151] read error: read tcp 127.0.0.1:42405->127.0.0.1:35042: read: connection reset by peer
+2026/11/02 09:21:40 [stream 151] read error: read tcp 127.0.0.1:54668->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 153] read error: read tcp 127.0.0.1:44751->127.0.0.1:56898: read: connection reset by peer
+2026/11/02 09:21:40 [stream 153] read error: read tcp 127.0.0.1:54672->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 155] read error: read tcp 127.0.0.1:46081->127.0.0.1:34730: read: connection reset by peer
+2026/11/02 09:21:40 [stream 155] read error: read tcp 127.0.0.1:54674->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 157] read error: read tcp 127.0.0.1:37041->127.0.0.1:41054: read: connection reset by peer
+2026/11/02 09:21:40 [stream 157] read error: read tcp 127.0.0.1:54690->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 159] read error: read tcp 127.0.0.1:33765->127.0.0.1:49070: read: connection reset by peer
+2026/11/02 09:21:40 [stream 159] read error: read tcp 127.0.0.1:54698->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 161] read error: read tcp 127.0.0.1:40233->127.0.0.1:52296: read: connection reset by peer
+2026/11/02 09:21:40 [stream 161] read error: read tcp 127.0.0.1:54712->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 163] read error: read tcp 127.0.0.1:33163->127.0.0.1:54596: read: connection reset by peer
+2026/11/02 09:21:40 [stream 163] read error: read tcp 127.0.0.1:54726->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 165] read error: read tcp 127.0.0.1:44159->127.0.0.1:60494: read: connection reset by peer
+2026/11/02 09:21:40 [stream 165] read error: read tcp 127.0.0.1:54736->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 167] read error: read tcp 127.0.0.1:44757->127.0.0.1:33154: read: connection reset by peer
+2026/11/02 09:21:40 [stream 167] read error: read tcp 127.0.0.1:54748->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 169] read error: read tcp 127.0.0.1:32809->127.0.0.1:42860: read: connection reset by peer
+2026/11/02 09:21:40 [stream 169] read error: read tcp 127.0.0.1:54764->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 171] read error: read tcp 127.0.0.1:45813->127.0.0.1:52576: read: connection reset by peer
+2026/11/02 09:21:40 [stream 171] read error: read tcp 127.0.0.1:54768->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 173] read error: read tcp 127.0.0.1:37355->127.0.0.1:36816: read: connection reset by peer
+2026/11/02 09:21:40 [stream 173] read error: read tcp 127.0.0.1:54782->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 175] read error: read tcp 127.0.0.1:40585->127.0.0.1:44256: read: connection reset by peer
+2026/11/02 09:21:40 [stream 175] read error: read tcp 127.0.0.1:54796->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 177] read error: read tcp 127.0.0.1:36781->127.0.0.1:33456: read: connection reset by peer
+2026/11/02 09:21:40 [stream 177] read error: read tcp 127.0.0.1:54802->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 179] read error: read tcp 127.0.0.1:34541->127.0.0.1:58508: read: connection reset by peer
+2026/11/02 09:21:40 [stream 179] read error: read tcp 127.0.0.1:54814->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 181] read error: read tcp 127.0.0.1:39791->127.0.0.1:54328: read: connection reset by peer
+2026/11/02 09:21:40 [stream 181] read error: read tcp 127.0.0.1:54818->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 183] read error: read tcp 127.0.0.1:40711->127.0.0.1:57156: read: connection reset by peer
+2026/11/02 09:21:40 [stream 183] read error: read tcp 127.0.0.1:54824->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 185] read error: read tcp 127.0.0.1:42991->127.0.0.1:37152: read: connection reset by peer
+2026/11/02 09:21:40 [stream 185] read error: read tcp 127.0.0.1:54830->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 187] read error: read tcp 127.0.0.1:45359->127.0.0.1:54160: read: connection reset by peer
+2026/11/02 09:21:40 [stream 187] read error: read tcp 127.0.0.1:54846->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 189] read error: read tcp 127.0.0.1:44881->127.0.0.1:42408: read: connection reset by peer
+2026/11/02 09:21:40 [stream 191] read error: read tcp 127.0.0.1:33943->127.0.0.1:44114: read: connection reset by peer
+2026/11/02 09:21:40 [stream 189] read error: read tcp 127.0.0.1:54860->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 193] read error: read tcp 127.0.0.1:38987->127.0.0.1:54822: read: connection reset by peer
+2026/11/02 09:21:40 [stream 191] read error: read tcp 127.0.0.1:54876->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 195] read error: read tcp 127.0.0.1:34811->127.0.0.1:46828: read: connection reset by peer
+2026/11/02 09:21:40 [stream 193] read error: read tcp 127.0.0.1:54888->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 197] read error: read tcp 127.0.0.1:39663->127.0.0.1:51692: read: connection reset by peer
+2026/11/02 09:21:40 [stream 195] read error: read tcp 127.0.0.1:54904->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 199] read error: read tcp 127.0.0.1:46565->127.0.0.1:44456: read: connection reset by peer
+2026/11/02 09:21:40 [stream 197] read error: read tcp 127.0.0.1:54908->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 201] read error: read tcp 127.0.0.1:44279->127.0.0.1:39902: read: connection reset by peer
+2026/11/02 09:21:40 [stream 199] read error: read tcp 127.0.0.1:54922->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 203] read error: read tcp 127.0.0.1:35881->127.0.0.1:56310: read: connection reset by peer
+2026/11/02 09:21:40 [stream 201] read error: read tcp 127.0.0.1:54930->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 205] read error: read tcp 127.0.0.1:36657->127.0.0.1:35010: read: connection reset by peer
+2026/11/02 09:21:40 [stream 203] read error: read tcp 127.0.0.1:54944->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 207] read error: read tcp 127.0.0.1:40451->127.0.0.1:53030: read: connection reset by peer
+2026/11/02 09:21:40 [stream 205] read error: read tcp 127.0.0.1:54956->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 207] read error: read tcp 127.0.0.1:54968->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 209] read error: read tcp 127.0.0.1:37845->127.0.0.1:41372: read: connection reset by peer
+2026/11/02 09:21:40 [stream 209] read error: read tcp 127.0.0.1:54982->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 211] read error: read tcp 127.0.0.1:43055->127.0.0.1:60218: read: connection reset by peer
+2026/11/02 09:21:40 [stream 211] read error: read tcp 127.0.0.1:54996->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 213] read error: read tcp 127.0.0.1:35927->127.0.0.1:60354: read: connection reset by peer
+2026/11/02 09:21:40 [stream 213] read error: read tcp 127.0.0.1:54998->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 215] read error: read tcp 127.0.0.1:36345->127.0.0.1:53716: read: connection reset by peer
+2026/11/02 09:21:40 [stream 215] read error: read tcp 127.0.0.1:55012->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 217] read error: read tcp 127.0.0.1:37611->127.0.0.1:51402: read: connection reset by peer
+2026/11/02 09:21:40 [stream 217] read error: read tcp 127.0.0.1:55020->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 219] read error: read tcp 127.0.0.1:43839->127.0.0.1:38208: read: connection reset by peer
+2026/11/02 09:21:40 [stream 219] read error: read tcp 127.0.0.1:55034->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 221] read error: read tcp 127.0.0.1:40287->127.0.0.1:45454: read: connection reset by peer
+2026/11/02 09:21:40 [stream 221] read error: read tcp 127.0.0.1:55038->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 223] read error: read tcp 127.0.0.1:33377->127.0.0.1:48756: read: connection reset by peer
+2026/11/02 09:21:40 [stream 223] read error: read tcp 127.0.0.1:55040->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 225] read error: read tcp 127.0.0.1:35589->127.0.0.1:49202: read: connection reset by peer
+2026/11/02 09:21:40 [stream 225] read error: read tcp 127.0.0.1:55048->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 227] read error: read tcp 127.0.0.1:32955->127.0.0.1:38784: read: connection reset by peer
+2026/11/02 09:21:40 [stream 227] read error: read tcp 127.0.0.1:55064->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 229] read error: read tcp 127.0.0.1:34413->127.0.0.1:34146: read: connection reset by peer
+2026/11/02 09:21:40 [stream 229] read error: read tcp 127.0.0.1:55066->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 231] read error: read tcp 127.0.0.1:40081->127.0.0.1:49800: read: connection reset by peer
+2026/11/02 09:21:40 [stream 231] read error: read tcp 127.0.0.1:55082->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 233] read error: read tcp 127.0.0.1:35957->127.0.0.1:37420: read: connection reset by peer
+2026/11/02 09:21:40 [stream 233] read error: read tcp 127.0.0.1:55088->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 235] read error: read tcp 127.0.0.1:45311->127.0.0.1:33120: read: connection reset by peer
+2026/11/02 09:21:40 [stream 235] read error: read tcp 127.0.0.1:55094->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 237] read error: read tcp 127.0.0.1:44087->127.0.0.1:52916: read: connection reset by peer
+2026/11/02 09:21:40 [stream 237] read error: read tcp 127.0.0.1:55110->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 239] read error: read tcp 127.0.0.1:37615->127.0.0.1:47712: read: connection reset by peer
+2026/11/02 09:21:40 [stream 239] read error: read tcp 127.0.0.1:55120->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 241] read error: read tcp 127.0.0.1:42825->127.0.0.1:40368: read: connection reset by peer
+2026/11/02 09:21:40 [stream 241] read error: read tcp 127.0.0.1:55136->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 243] read error: read tcp 127.0.0.1:35243->127.0.0.1:60028: read: connection reset by peer
+2026/11/02 09:21:40 [stream 243] read error: read tcp 127.0.0.1:55152->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 245] read error: read tcp 127.0.0.1:36029->127.0.0.1:33286: read: connection reset by peer
+2026/11/02 09:21:40 [stream 245] read error: read tcp 127.0.0.1:55166->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 247] read error: read tcp 127.0.0.1:43853->127.0.0.1:38060: read: connection reset by peer
+2026/11/02 09:21:40 [stream 247] read error: read tcp 127.0.0.1:55182->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 249] read error: read tcp 127.0.0.1:43389->127.0.0.1:32998: read: connection reset by peer
+2026/11/02 09:21:40 [stream 249] read error: read tcp 127.0.0.1:55186->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 251] read error: read tcp 127.0.0.1:45925->127.0.0.1:55536: read: connection reset by peer
+2026/11/02 09:21:40 [stream 251] read error: read tcp 127.0.0.1:55202->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 253] read error: read tcp 127.0.0.1:38183->127.0.0.1:37788: read: connection reset by peer
+2026/11/02 09:21:40 [stream 253] read error: read tcp 127.0.0.1:55218->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 255] read error: read tcp 127.0.0.1:40755->127.0.0.1:38504: read: connection reset by peer
+2026/11/02 09:21:40 [stream 255] read error: read tcp 127.0.0.1:55220->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 257] read error: read tcp 127.0.0.1:46235->127.0.0.1:38928: read: connection reset by peer
+2026/11/02 09:21:40 [stream 257] read error: read tcp 127.0.0.1:55234->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 259] read error: read tcp 127.0.0.1:39959->127.0.0.1:43704: read: connection reset by peer
+2026/11/02 09:21:40 [stream 259] read error: read tcp 127.0.0.1:55250->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 261] read error: read tcp 127.0.0.1:34965->127.0.0.1:55492: read: connection reset by peer
+2026/11/02 09:21:40 [stream 261] read error: read tcp 127.0.0.1:55260->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [stream 263] read error: read tcp 127.0.0.1:42797->127.0.0.1:38206: read: connection reset by peer
+2026/11/02 09:21:40 [stream 263] read error: read tcp 127.0.0.1:55272->127.0.0.1:35789: use of closed network connection
+2026/11/02 09:21:40 [egress] session read header failed: read tcp 127.0.0.1:34937->127.0.0.1:38296: use of closed network connection
+2026/11/02 09:21:40 [origin] tunnel session to 127.0.0.1:34937 closed
+2026/11/02 09:21:40 [tls] generating new certificate at /tmp/TestLocalTunnelDataAndChurnauto4256153441/001/test.crt
+2026/11/02 09:21:40 [config/deprecated] transport "auto" now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:40 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:40 [egress] tunnel established from 127.0.0.1:37960
+2026/11/02 09:21:40 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:40 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:40 [origin] tunnel session established to 127.0.0.1:33873 via wss
+2026/11/02 09:21:41 [stream 65] read error: read tcp 127.0.0.1:42777->127.0.0.1:35088: read: connection reset by peer
+2026/11/02 09:21:41 [stream 65] read error: read tcp 127.0.0.1:56544->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 67] read error: read tcp 127.0.0.1:44043->127.0.0.1:51040: read: connection reset by peer
+2026/11/02 09:21:41 [stream 67] read error: read tcp 127.0.0.1:56560->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 69] read error: read tcp 127.0.0.1:33263->127.0.0.1:47554: read: connection reset by peer
+2026/11/02 09:21:41 [stream 69] read error: read tcp 127.0.0.1:56562->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 71] read error: read tcp 127.0.0.1:41783->127.0.0.1:44722: read: connection reset by peer
+2026/11/02 09:21:41 [stream 71] read error: read tcp 127.0.0.1:56572->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 73] read error: read tcp 127.0.0.1:33139->127.0.0.1:36508: read: connection reset by peer
+2026/11/02 09:21:41 [stream 73] read error: read tcp 127.0.0.1:56576->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 75] read error: read tcp 127.0.0.1:34545->127.0.0.1:39400: read: connection reset by peer
+2026/11/02 09:21:41 [stream 77] read error: read tcp 127.0.0.1:37141->127.0.0.1:52662: read: connection reset by peer
+2026/11/02 09:21:41 [stream 77] read error: read tcp 127.0.0.1:56590->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 79] read error: read tcp 127.0.0.1:37861->127.0.0.1:39226: read: connection reset by peer
+2026/11/02 09:21:41 [stream 79] read error: read tcp 127.0.0.1:56600->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 81] read error: read tcp 127.0.0.1:39755->127.0.0.1:38858: read: connection reset by peer
+2026/11/02 09:21:41 [stream 81] read error: read tcp 127.0.0.1:56612->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 83] read error: read tcp 127.0.0.1:39969->127.0.0.1:48754: read: connection reset by peer
+2026/11/02 09:21:41 [stream 83] read error: read tcp 127.0.0.1:56620->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 85] read error: read tcp 127.0.0.1:43769->127.0.0.1:54120: read: connection reset by peer
+2026/11/02 09:21:41 [stream 85] read error: read tcp 127.0.0.1:56622->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 87] read error: read tcp 127.0.0.1:36199->127.0.0.1:43470: read: connection reset by peer
+2026/11/02 09:21:41 [stream 87] read error: read tcp 127.0.0.1:56626->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 89] read error: read tcp 127.0.0.1:33677->127.0.0.1:42786: read: connection reset by peer
+2026/11/02 09:21:41 [stream 89] read error: read tcp 127.0.0.1:56638->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 91] read error: read tcp 127.0.0.1:46001->127.0.0.1:39692: read: connection reset by peer
+2026/11/02 09:21:41 [stream 91] read error: read tcp 127.0.0.1:56654->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 93] read error: read tcp 127.0.0.1:35911->127.0.0.1:34550: read: connection reset by peer
+2026/11/02 09:21:41 [stream 93] read error: read tcp 127.0.0.1:56658->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 95] read error: read tcp 127.0.0.1:35149->127.0.0.1:60174: read: connection reset by peer
+2026/11/02 09:21:41 [stream 95] read error: read tcp 127.0.0.1:56662->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 97] read error: read tcp 127.0.0.1:35021->127.0.0.1:53072: read: connection reset by peer
+2026/11/02 09:21:41 [stream 97] read error: read tcp 127.0.0.1:56674->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 99] read error: read tcp 127.0.0.1:46295->127.0.0.1:41818: read: connection reset by peer
+2026/11/02 09:21:41 [stream 99] read error: read tcp 127.0.0.1:56684->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 101] read error: read tcp 127.0.0.1:36693->127.0.0.1:59864: read: connection reset by peer
+2026/11/02 09:21:41 [stream 101] read error: read tcp 127.0.0.1:56690->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 103] read error: read tcp 127.0.0.1:32965->127.0.0.1:35018: read: connection reset by peer
+2026/11/02 09:21:41 [stream 103] read error: read tcp 127.0.0.1:56704->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 105] read error: read tcp 127.0.0.1:40191->127.0.0.1:59654: read: connection reset by peer
+2026/11/02 09:21:41 [stream 105] read error: read tcp 127.0.0.1:56714->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 107] read error: read tcp 127.0.0.1:45893->127.0.0.1:38484: read: connection reset by peer
+2026/11/02 09:21:41 [stream 107] read error: read tcp 127.0.0.1:56726->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 109] read error: read tcp 127.0.0.1:35235->127.0.0.1:46506: read: connection reset by peer
+2026/11/02 09:21:41 [stream 109] read error: read tcp 127.0.0.1:56738->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 111] read error: read tcp 127.0.0.1:38597->127.0.0.1:60576: read: connection reset by peer
+2026/11/02 09:21:41 [stream 111] read error: read tcp 127.0.0.1:56750->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 113] read error: read tcp 127.0.0.1:33739->127.0.0.1:49380: read: connection reset by peer
+2026/11/02 09:21:41 [stream 113] read error: read tcp 127.0.0.1:56766->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 115] read error: read tcp 127.0.0.1:39069->127.0.0.1:56940: read: connection reset by peer
+2026/11/02 09:21:41 [stream 115] read error: read tcp 127.0.0.1:56776->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 117] read error: read tcp 127.0.0.1:39657->127.0.0.1:36666: read: connection reset by peer
+2026/11/02 09:21:41 [stream 117] read error: read tcp 127.0.0.1:56788->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 119] read error: read tcp 127.0.0.1:35623->127.0.0.1:41570: read: connection reset by peer
+2026/11/02 09:21:41 [stream 119] read error: read tcp 127.0.0.1:56796->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 121] read error: read tcp 127.0.0.1:36549->127.0.0.1:41262: read: connection reset by peer
+2026/11/02 09:21:41 [stream 121] read error: read tcp 127.0.0.1:56804->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 123] read error: read tcp 127.0.0.1:36663->127.0.0.1:43910: read: connection reset by peer
+2026/11/02 09:21:41 [stream 123] read error: read tcp 127.0.0.1:56808->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 125] read error: read tcp 127.0.0.1:43779->127.0.0.1:59058: read: connection reset by peer
+2026/11/02 09:21:41 [stream 125] read error: read tcp 127.0.0.1:56818->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 127] read error: read tcp 127.0.0.1:43417->127.0.0.1:44774: read: connection reset by peer
+2026/11/02 09:21:41 [stream 127] read error: read tcp 127.0.0.1:56820->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 129] read error: read tcp 127.0.0.1:33203->127.0.0.1:44614: read: connection reset by peer
+2026/11/02 09:21:41 [stream 129] read error: read tcp 127.0.0.1:56824->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 131] read error: read tcp 127.0.0.1:35307->127.0.0.1:48582: read: connection reset by peer
+2026/11/02 09:21:41 [stream 131] read error: read tcp 127.0.0.1:56826->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 133] read error: read tcp 127.0.0.1:36087->127.0.0.1:44264: read: connection reset by peer
+2026/11/02 09:21:41 [stream 133] read error: read tcp 127.0.0.1:56834->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 135] read error: read tcp 127.0.0.1:35811->127.0.0.1:47380: read: connection reset by peer
+2026/11/02 09:21:41 [stream 135] read error: read tcp 127.0.0.1:56842->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 137] read error: read tcp 127.0.0.1:45191->127.0.0.1:40308: read: connection reset by peer
+2026/11/02 09:21:41 [stream 137] read error: read tcp 127.0.0.1:56854->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 139] read error: read tcp 127.0.0.1:35829->127.0.0.1:52618: read: connection reset by peer
+2026/11/02 09:21:41 [stream 139] read error: read tcp 127.0.0.1:56856->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 141] read error: read tcp 127.0.0.1:34637->127.0.0.1:54740: read: connection reset by peer
+2026/11/02 09:21:41 [stream 141] read error: read tcp 127.0.0.1:56864->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 143] read error: read tcp 127.0.0.1:42653->127.0.0.1:39142: read: connection reset by peer
+2026/11/02 09:21:41 [stream 143] read error: read tcp 127.0.0.1:56878->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 145] read error: read tcp 127.0.0.1:45799->127.0.0.1:38834: read: connection reset by peer
+2026/11/02 09:21:41 [stream 145] read error: read tcp 127.0.0.1:56890->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 147] read error: read tcp 127.0.0.1:44869->127.0.0.1:52958: read: connection reset by peer
+2026/11/02 09:21:41 [stream 147] read error: read tcp 127.0.0.1:56892->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 149] read error: read tcp 127.0.0.1:46595->127.0.0.1:57062: read: connection reset by peer
+2026/11/02 09:21:41 [stream 149] read error: read tcp 127.0.0.1:56902->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 151] read error: read tcp 127.0.0.1:43899->127.0.0.1:32906: read: connection reset by peer
+2026/11/02 09:21:41 [stream 151] read error: read tcp 127.0.0.1:56912->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 153] read error: read tcp 127.0.0.1:39039->127.0.0.1:45010: read: connection reset by peer
+2026/11/02 09:21:41 [stream 153] read error: read tcp 127.0.0.1:56922->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 155] read error: read tcp 127.0.0.1:45265->127.0.0.1:33152: read: connection reset by peer
+2026/11/02 09:21:41 [stream 155] read error: read tcp 127.0.0.1:56924->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 157] read error: read tcp 127.0.0.1:33723->127.0.0.1:60162: read: connection reset by peer
+2026/11/02 09:21:41 [stream 157] read error: read tcp 127.0.0.1:56936->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 159] read error: read tcp 127.0.0.1:40063->127.0.0.1:45032: read: connection reset by peer
+2026/11/02 09:21:41 [stream 159] read error: read tcp 127.0.0.1:56944->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 161] read error: read tcp 127.0.0.1:38193->127.0.0.1:57718: read: connection reset by peer
+2026/11/02 09:21:41 [stream 161] read error: read tcp 127.0.0.1:56950->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 163] read error: read tcp 127.0.0.1:33619->127.0.0.1:53434: read: connection reset by peer
+2026/11/02 09:21:41 [stream 163] read error: read tcp 127.0.0.1:56952->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 165] read error: read tcp 127.0.0.1:40921->127.0.0.1:49142: read: connection reset by peer
+2026/11/02 09:21:41 [stream 165] read error: read tcp 127.0.0.1:56956->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 167] read error: read tcp 127.0.0.1:40077->127.0.0.1:54264: read: connection reset by peer
+2026/11/02 09:21:41 [stream 167] read error: read tcp 127.0.0.1:56958->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 169] read error: read tcp 127.0.0.1:43117->127.0.0.1:46666: read: connection reset by peer
+2026/11/02 09:21:41 [stream 169] read error: read tcp 127.0.0.1:56962->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 171] read error: read tcp 127.0.0.1:39073->127.0.0.1:40926: read: connection reset by peer
+2026/11/02 09:21:41 [stream 171] read error: read tcp 127.0.0.1:56978->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 173] read error: read tcp 127.0.0.1:33639->127.0.0.1:39120: read: connection reset by peer
+2026/11/02 09:21:41 [stream 173] read error: read tcp 127.0.0.1:56982->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 175] read error: read tcp 127.0.0.1:39637->127.0.0.1:41950: read: connection reset by peer
+2026/11/02 09:21:41 [stream 175] read error: read tcp 127.0.0.1:56984->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 177] read error: read tcp 127.0.0.1:39159->127.0.0.1:48196: read: connection reset by peer
+2026/11/02 09:21:41 [stream 177] read error: read tcp 127.0.0.1:56990->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 179] read error: read tcp 127.0.0.1:43741->127.0.0.1:53850: read: connection reset by peer
+2026/11/02 09:21:41 [stream 179] read error: read tcp 127.0.0.1:56996->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 181] read error: read tcp 127.0.0.1:45451->127.0.0.1:36020: read: connection reset by peer
+2026/11/02 09:21:41 [stream 181] read error: read tcp 127.0.0.1:57012->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 183] read error: read tcp 127.0.0.1:33035->127.0.0.1:55344: read: connection reset by peer
+2026/11/02 09:21:41 [stream 183] read error: read tcp 127.0.0.1:57022->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 185] read error: read tcp 127.0.0.1:35041->127.0.0.1:56600: read: connection reset by peer
+2026/11/02 09:21:41 [stream 185] read error: read tcp 127.0.0.1:57036->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 187] read error: read tcp 127.0.0.1:45445->127.0.0.1:41596: read: connection reset by peer
+2026/11/02 09:21:41 [stream 187] read error: read tcp 127.0.0.1:57052->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 189] read error: read tcp 127.0.0.1:44213->127.0.0.1:53400: read: connection reset by peer
+2026/11/02 09:21:41 [stream 189] read error: read tcp 127.0.0.1:57058->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 191] read error: read tcp 127.0.0.1:41937->127.0.0.1:49374: read: connection reset by peer
+2026/11/02 09:21:41 [stream 191] read error: read tcp 127.0.0.1:57066->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 193] read error: read tcp 127.0.0.1:44447->127.0.0.1:45424: read: connection reset by peer
+2026/11/02 09:21:41 [stream 193] read error: read tcp 127.0.0.1:57078->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 195] read error: read tcp 127.0.0.1:44641->127.0.0.1:59896: read: connection reset by peer
+2026/11/02 09:21:41 [stream 195] read error: read tcp 127.0.0.1:57088->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 197] read error: read tcp 127.0.0.1:45865->127.0.0.1:40360: read: connection reset by peer
+2026/11/02 09:21:41 [stream 197] read error: read tcp 127.0.0.1:57092->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 199] read error: read tcp 127.0.0.1:33241->127.0.0.1:43536: read: connection reset by peer
+2026/11/02 09:21:41 [stream 199] read error: read tcp 127.0.0.1:57108->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 201] read error: read tcp 127.0.0.1:43577->127.0.0.1:42054: read: connection reset by peer
+2026/11/02 09:21:41 [stream 201] read error: read tcp 127.0.0.1:57116->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 203] read error: read tcp 127.0.0.1:46223->127.0.0.1:47230: read: connection reset by peer
+2026/11/02 09:21:41 [stream 203] read error: read tcp 127.0.0.1:57132->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 205] read error: read tcp 127.0.0.1:43261->127.0.0.1:39762: read: connection reset by peer
+2026/11/02 09:21:41 [stream 205] read error: read tcp 127.0.0.1:57138->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 207] read error: read tcp 127.0.0.1:34997->127.0.0.1:47718: read: connection reset by peer
+2026/11/02 09:21:41 [stream 207] read error: read tcp 127.0.0.1:57152->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 209] read error: read tcp 127.0.0.1:35041->127.0.0.1:56614: read: connection reset by peer
+2026/11/02 09:21:41 [stream 209] read error: read tcp 127.0.0.1:57154->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 211] read error: read tcp 127.0.0.1:43565->127.0.0.1:50806: read: connection reset by peer
+2026/11/02 09:21:41 [stream 213] read error: read tcp 127.0.0.1:42321->127.0.0.1:53820: read: connection reset by peer
+2026/11/02 09:21:41 [stream 211] read error: read tcp 127.0.0.1:57158->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 213] read error: read tcp 127.0.0.1:57164->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 215] read error: read tcp 127.0.0.1:33033->127.0.0.1:48230: read: connection reset by peer
+2026/11/02 09:21:41 [stream 215] read error: read tcp 127.0.0.1:57176->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 217] read error: read tcp 127.0.0.1:38105->127.0.0.1:53314: read: connection reset by peer
+2026/11/02 09:21:41 [stream 217] read error: read tcp 127.0.0.1:57178->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 219] read error: read tcp 127.0.0.1:33941->127.0.0.1:42664: read: connection reset by peer
+2026/11/02 09:21:41 [stream 219] read error: read tcp 127.0.0.1:57182->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 221] read error: read tcp 127.0.0.1:43223->127.0.0.1:47254: read: connection reset by peer
+2026/11/02 09:21:41 [stream 221] read error: read tcp 127.0.0.1:57190->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 223] read error: read tcp 127.0.0.1:36139->127.0.0.1:57632: read: connection reset by peer
+2026/11/02 09:21:41 [stream 223] read error: read tcp 127.0.0.1:57192->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 225] read error: read tcp 127.0.0.1:35037->127.0.0.1:60058: read: connection reset by peer
+2026/11/02 09:21:41 [stream 225] read error: read tcp 127.0.0.1:57206->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 227] read error: read tcp 127.0.0.1:40859->127.0.0.1:47770: read: connection reset by peer
+2026/11/02 09:21:41 [stream 227] read error: read tcp 127.0.0.1:57210->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 229] read error: read tcp 127.0.0.1:35417->127.0.0.1:43054: read: connection reset by peer
+2026/11/02 09:21:41 [stream 229] read error: read tcp 127.0.0.1:57222->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 231] read error: read tcp 127.0.0.1:57228->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 235] read error: read tcp 127.0.0.1:46603->127.0.0.1:50216: read: connection reset by peer
+2026/11/02 09:21:41 [stream 235] read error: read tcp 127.0.0.1:57244->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 237] read error: read tcp 127.0.0.1:33013->127.0.0.1:36504: read: connection reset by peer
+2026/11/02 09:21:41 [stream 237] read error: read tcp 127.0.0.1:57258->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 239] read error: read tcp 127.0.0.1:34401->127.0.0.1:43980: read: connection reset by peer
+2026/11/02 09:21:41 [stream 239] read error: read tcp 127.0.0.1:57270->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 241] read error: read tcp 127.0.0.1:36273->127.0.0.1:58874: read: connection reset by peer
+2026/11/02 09:21:41 [stream 241] read error: read tcp 127.0.0.1:57272->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 243] read error: read tcp 127.0.0.1:35251->127.0.0.1:34442: read: connection reset by peer
+2026/11/02 09:21:41 [stream 243] read error: read tcp 127.0.0.1:57274->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 245] read error: read tcp 127.0.0.1:41465->127.0.0.1:43432: read: connection reset by peer
+2026/11/02 09:21:41 [stream 245] read error: read tcp 127.0.0.1:57278->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 247] read error: read tcp 127.0.0.1:45397->127.0.0.1:40036: read: connection reset by peer
+2026/11/02 09:21:41 [stream 247] read error: read tcp 127.0.0.1:57294->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 233] read error: read tcp 127.0.0.1:34967->127.0.0.1:33612: read: connection reset by peer
+2026/11/02 09:21:41 [stream 233] read error: read tcp 127.0.0.1:57240->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 249] read error: read tcp 127.0.0.1:43637->127.0.0.1:42380: read: connection reset by peer
+2026/11/02 09:21:41 [stream 251] read error: read tcp 127.0.0.1:42287->127.0.0.1:42342: read: connection reset by peer
+2026/11/02 09:21:41 [stream 253] read error: read tcp 127.0.0.1:46713->127.0.0.1:39056: read: connection reset by peer
+2026/11/02 09:21:41 [stream 251] read error: read tcp 127.0.0.1:57310->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 255] read error: read tcp 127.0.0.1:45867->127.0.0.1:44308: read: connection reset by peer
+2026/11/02 09:21:41 [stream 253] read error: read tcp 127.0.0.1:57318->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 257] read error: read tcp 127.0.0.1:38203->127.0.0.1:38288: read: connection reset by peer
+2026/11/02 09:21:41 [stream 255] read error: read tcp 127.0.0.1:57328->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 259] read error: read tcp 127.0.0.1:44041->127.0.0.1:51246: read: connection reset by peer
+2026/11/02 09:21:41 [stream 257] read error: read tcp 127.0.0.1:57342->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 261] read error: read tcp 127.0.0.1:34221->127.0.0.1:38634: read: connection reset by peer
+2026/11/02 09:21:41 [stream 259] read error: read tcp 127.0.0.1:57356->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 263] read error: read tcp 127.0.0.1:36379->127.0.0.1:59296: read: connection reset by peer
+2026/11/02 09:21:41 [stream 261] read error: read tcp 127.0.0.1:57360->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 263] read error: read tcp 127.0.0.1:57362->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [stream 249] read error: read tcp 127.0.0.1:57306->127.0.0.1:38555: use of closed network connection
+2026/11/02 09:21:41 [egress] session read header failed: read tcp 127.0.0.1:33873->127.0.0.1:37960: use of closed network connection
+2026/11/02 09:21:41 [origin] tunnel session to 127.0.0.1:33873 closed
+2026/11/02 09:21:41 [tls] generating new certificate at /tmp/TestLocalTunnelDataAndChurnh24243959825/001/test.crt
+2026/11/02 09:21:41 [config/deprecated] transport "h2" now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:41 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:41 [egress] tunnel established from 127.0.0.1:42172
+2026/11/02 09:21:41 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:41 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:41 [origin] tunnel session established to 127.0.0.1:33911 via wss
+2026/11/02 09:21:42 [stream 65] read error: read tcp 127.0.0.1:35125->127.0.0.1:40984: read: connection reset by peer
+2026/11/02 09:21:42 [stream 65] read error: read tcp 127.0.0.1:57430->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 67] read error: read tcp 127.0.0.1:40373->127.0.0.1:59364: read: connection reset by peer
+2026/11/02 09:21:42 [stream 67] read error: read tcp 127.0.0.1:57438->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 69] read error: read tcp 127.0.0.1:39019->127.0.0.1:34940: read: connection reset by peer
+2026/11/02 09:21:42 [stream 69] read error: read tcp 127.0.0.1:57450->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 71] read error: read tcp 127.0.0.1:41535->127.0.0.1:39850: read: connection reset by peer
+2026/11/02 09:21:42 [stream 71] read error: read tcp 127.0.0.1:57460->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 73] read error: read tcp 127.0.0.1:35111->127.0.0.1:34798: read: connection reset by peer
+2026/11/02 09:21:42 [stream 73] read error: read tcp 127.0.0.1:57470->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 75] read error: read tcp 127.0.0.1:40289->127.0.0.1:33142: read: connection reset by peer
+2026/11/02 09:21:42 [stream 75] read error: read tcp 127.0.0.1:57478->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 77] read error: read tcp 127.0.0.1:39653->127.0.0.1:49318: read: connection reset by peer
+2026/11/02 09:21:42 [stream 77] read error: read tcp 127.0.0.1:57486->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 79] read error: read tcp 127.0.0.1:37323->127.0.0.1:57056: read: connection reset by peer
+2026/11/02 09:21:42 [stream 79] read error: read tcp 127.0.0.1:57502->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 81] read error: read tcp 127.0.0.1:40685->127.0.0.1:35120: read: connection reset by peer
+2026/11/02 09:21:42 [stream 81] read error: read tcp 127.0.0.1:57514->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 83] read error: read tcp 127.0.0.1:40737->127.0.0.1:50662: read: connection reset by peer
+2026/11/02 09:21:42 [stream 83] read error: read tcp 127.0.0.1:57524->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 85] read error: read tcp 127.0.0.1:40581->127.0.0.1:44346: read: connection reset by peer
+2026/11/02 09:21:42 [stream 85] read error: read tcp 127.0.0.1:57534->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 87] read error: read tcp 127.0.0.1:43801->127.0.0.1:51952: read: connection reset by peer
+2026/11/02 09:21:42 [stream 87] read error: read tcp 127.0.0.1:57544->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 89] read error: read tcp 127.0.0.1:45467->127.0.0.1:44170: read: connection reset by peer
+2026/11/02 09:21:42 [stream 89] read error: read tcp 127.0.0.1:57556->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 91] read error: read tcp 127.0.0.1:36749->127.0.0.1:34970: read: connection reset by peer
+2026/11/02 09:21:42 [stream 91] read error: read tcp 127.0.0.1:57570->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 93] read error: read tcp 127.0.0.1:42497->127.0.0.1:54026: read: connection reset by peer
+2026/11/02 09:21:42 [stream 93] read error: read tcp 127.0.0.1:57586->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 95] read error: read tcp 127.0.0.1:34787->127.0.0.1:41240: read: connection reset by peer
+2026/11/02 09:21:42 [stream 95] read error: read tcp 127.0.0.1:57592->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 97] read error: read tcp 127.0.0.1:42683->127.0.0.1:59474: read: connection reset by peer
+2026/11/02 09:21:42 [stream 99] read error: read tcp 127.0.0.1:43685->127.0.0.1:41166: read: connection reset by peer
+2026/11/02 09:21:42 [stream 99] read error: read tcp 127.0.0.1:57610->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 101] read error: read tcp 127.0.0.1:44563->127.0.0.1:46834: read: connection reset by peer
+2026/11/02 09:21:42 [stream 101] read error: read tcp 127.0.0.1:57620->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 103] read error: read tcp 127.0.0.1:34841->127.0.0.1:50126: read: connection reset by peer
+2026/11/02 09:21:42 [stream 103] read error: read tcp 127.0.0.1:57636->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 105] read error: read tcp 127.0.0.1:37797->127.0.0.1:38226: read: connection reset by peer
+2026/11/02 09:21:42 [stream 105] read error: read tcp 127.0.0.1:57642->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 107] read error: read tcp 127.0.0.1:36953->127.0.0.1:40774: read: connection reset by peer
+2026/11/02 09:21:42 [stream 109] read error: read tcp 127.0.0.1:38325->127.0.0.1:58028: read: connection reset by peer
+2026/11/02 09:21:42 [stream 111] read error: read tcp 127.0.0.1:39809->127.0.0.1:48352: read: connection reset by peer
+2026/11/02 09:21:42 [stream 109] read error: read tcp 127.0.0.1:57662->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 113] read error: read tcp 127.0.0.1:40401->127.0.0.1:49088: read: connection reset by peer
+2026/11/02 09:21:42 [stream 111] read error: read tcp 127.0.0.1:57670->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 115] read error: read tcp 127.0.0.1:33555->127.0.0.1:57686: read: connection reset by peer
+2026/11/02 09:21:42 [stream 113] read error: read tcp 127.0.0.1:57672->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 117] read error: read tcp 127.0.0.1:43715->127.0.0.1:51412: read: connection reset by peer
+2026/11/02 09:21:42 [stream 115] read error: read tcp 127.0.0.1:57682->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 119] read error: read tcp 127.0.0.1:34709->127.0.0.1:56040: read: connection reset by peer
+2026/11/02 09:21:42 [stream 117] read error: read tcp 127.0.0.1:57698->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 121] read error: read tcp 127.0.0.1:34199->127.0.0.1:35400: read: connection reset by peer
+2026/11/02 09:21:42 [stream 119] read error: read tcp 127.0.0.1:57704->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 123] read error: read tcp 127.0.0.1:37927->127.0.0.1:49846: read: connection reset by peer
+2026/11/02 09:21:42 [stream 121] read error: read tcp 127.0.0.1:57706->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 125] read error: read tcp 127.0.0.1:41859->127.0.0.1:33834: read: connection reset by peer
+2026/11/02 09:21:42 [stream 123] read error: read tcp 127.0.0.1:57722->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 107] read error: read tcp 127.0.0.1:57646->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 125] read error: read tcp 127.0.0.1:57732->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 127] read error: read tcp 127.0.0.1:45787->127.0.0.1:42350: read: connection reset by peer
+2026/11/02 09:21:42 [stream 127] read error: read tcp 127.0.0.1:57748->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 129] read error: read tcp 127.0.0.1:43873->127.0.0.1:54054: read: connection reset by peer
+2026/11/02 09:21:42 [stream 129] read error: read tcp 127.0.0.1:57758->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 131] read error: read tcp 127.0.0.1:42143->127.0.0.1:43188: read: connection reset by peer
+2026/11/02 09:21:42 [stream 131] read error: read tcp 127.0.0.1:57768->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 133] read error: read tcp 127.0.0.1:44397->127.0.0.1:52264: read: connection reset by peer
+2026/11/02 09:21:42 [stream 133] read error: read tcp 127.0.0.1:57780->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 135] read error: read tcp 127.0.0.1:34903->127.0.0.1:40600: read: connection reset by peer
+2026/11/02 09:21:42 [stream 135] read error: read tcp 127.0.0.1:57782->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 137] read error: read tcp 127.0.0.1:43339->127.0.0.1:33520: read: connection reset by peer
+2026/11/02 09:21:42 [stream 137] read error: read tcp 127.0.0.1:57798->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 139] read error: read tcp 127.0.0.1:36873->127.0.0.1:53048: read: connection reset by peer
+2026/11/02 09:21:42 [stream 139] read error: read tcp 127.0.0.1:57804->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 141] read error: read tcp 127.0.0.1:38767->127.0.0.1:39742: read: connection reset by peer
+2026/11/02 09:21:42 [stream 141] read error: read tcp 127.0.0.1:57818->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 143] read error: read tcp 127.0.0.1:38435->127.0.0.1:43796: read: connection reset by peer
+2026/11/02 09:21:42 [stream 143] read error: read tcp 127.0.0.1:57826->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 145] read error: read tcp 127.0.0.1:35575->127.0.0.1:41822: read: connection reset by peer
+2026/11/02 09:21:42 [stream 145] read error: read tcp 127.0.0.1:57836->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 147] read error: read tcp 127.0.0.1:33359->127.0.0.1:44858: read: connection reset by peer
+2026/11/02 09:21:42 [stream 147] read error: read tcp 127.0.0.1:57848->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 149] read error: read tcp 127.0.0.1:42381->127.0.0.1:50498: read: connection reset by peer
+2026/11/02 09:21:42 [stream 149] read error: read tcp 127.0.0.1:57852->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 151] read error: read tcp 127.0.0.1:40933->127.0.0.1:33708: read: connection reset by peer
+2026/11/02 09:21:42 [stream 151] read error: read tcp 127.0.0.1:57862->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 153] read error: read tcp 127.0.0.1:33637->127.0.0.1:35002: read: connection reset by peer
+2026/11/02 09:21:42 [stream 153] read error: read tcp 127.0.0.1:57878->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 155] read error: read tcp 127.0.0.1:44037->127.0.0.1:33218: read: connection reset by peer
+2026/11/02 09:21:42 [stream 155] read error: read tcp 127.0.0.1:57882->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 157] read error: read tcp 127.0.0.1:41547->127.0.0.1:37988: read: connection reset by peer
+2026/11/02 09:21:42 [stream 157] read error: read tcp 127.0.0.1:57896->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 159] read error: read tcp 127.0.0.1:38083->127.0.0.1:48244: read: connection reset by peer
+2026/11/02 09:21:42 [stream 159] read error: read tcp 127.0.0.1:57898->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 161] read error: read tcp 127.0.0.1:37491->127.0.0.1:50970: read: connection reset by peer
+2026/11/02 09:21:42 [stream 161] read error: read tcp 127.0.0.1:57900->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 163] read error: read tcp 127.0.0.1:45339->127.0.0.1:50032: read: connection reset by peer
+2026/11/02 09:21:42 [stream 163] read error: read tcp 127.0.0.1:57916->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 165] read error: read tcp 127.0.0.1:41841->127.0.0.1:53098: read: connection reset by peer
+2026/11/02 09:21:42 [stream 165] read error: read tcp 127.0.0.1:57926->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 167] read error: read tcp 127.0.0.1:45725->127.0.0.1:52066: read: connection reset by peer
+2026/11/02 09:21:42 [stream 167] read error: read tcp 127.0.0.1:57936->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 169] read error: read tcp 127.0.0.1:38247->127.0.0.1:53794: read: connection reset by peer
+2026/11/02 09:21:42 [stream 169] read error: read tcp 127.0.0.1:57952->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 171] read error: read tcp 127.0.0.1:34909->127.0.0.1:44262: read: connection reset by peer
+2026/11/02 09:21:42 [stream 171] read error: read tcp 127.0.0.1:57960->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 173] read error: read tcp 127.0.0.1:39283->127.0.0.1:42080: read: connection reset by peer
+2026/11/02 09:21:42 [stream 173] read error: read tcp 127.0.0.1:57968->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 175] read error: read tcp 127.0.0.1:33023->127.0.0.1:53388: read: connection reset by peer
+2026/11/02 09:21:42 [stream 175] read error: read tcp 127.0.0.1:57974->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 177] read error: read tcp 127.0.0.1:37875->127.0.0.1:39980: read: connection reset by peer
+2026/11/02 09:21:42 [stream 177] read error: read tcp 127.0.0.1:57976->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 179] read error: read tcp 127.0.0.1:42715->127.0.0.1:33866: read: connection reset by peer
+2026/11/02 09:21:42 [stream 181] read error: read tcp 127.0.0.1:36311->127.0.0.1:58966: read: connection reset by peer
+2026/11/02 09:21:42 [stream 181] read error: read tcp 127.0.0.1:57984->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 183] read error: read tcp 127.0.0.1:44629->127.0.0.1:52700: read: connection reset by peer
+2026/11/02 09:21:42 [stream 183] read error: read tcp 127.0.0.1:57992->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 185] read error: read tcp 127.0.0.1:33691->127.0.0.1:45556: read: connection reset by peer
+2026/11/02 09:21:42 [stream 185] read error: read tcp 127.0.0.1:58000->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 187] read error: read tcp 127.0.0.1:35665->127.0.0.1:43048: read: connection reset by peer
+2026/11/02 09:21:42 [stream 187] read error: read tcp 127.0.0.1:58008->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 189] read error: read tcp 127.0.0.1:33289->127.0.0.1:52432: read: connection reset by peer
+2026/11/02 09:21:42 [stream 189] read error: read tcp 127.0.0.1:58016->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 191] read error: read tcp 127.0.0.1:40941->127.0.0.1:60602: read: connection reset by peer
+2026/11/02 09:21:42 [stream 191] read error: read tcp 127.0.0.1:58032->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 193] read error: read tcp 127.0.0.1:43171->127.0.0.1:40588: read: connection reset by peer
+2026/11/02 09:21:42 [stream 193] read error: read tcp 127.0.0.1:58038->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 195] read error: read tcp 127.0.0.1:35025->127.0.0.1:33498: read: connection reset by peer
+2026/11/02 09:21:42 [stream 195] read error: read tcp 127.0.0.1:58054->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 197] read error: read tcp 127.0.0.1:46657->127.0.0.1:57868: read: connection reset by peer
+2026/11/02 09:21:42 [stream 197] read error: read tcp 127.0.0.1:58066->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 199] read error: read tcp 127.0.0.1:38085->127.0.0.1:37042: read: connection reset by peer
+2026/11/02 09:21:42 [stream 199] read error: read tcp 127.0.0.1:58076->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 201] read error: read tcp 127.0.0.1:42953->127.0.0.1:57530: read: connection reset by peer
+2026/11/02 09:21:42 [stream 201] read error: read tcp 127.0.0.1:58086->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 203] read error: read tcp 127.0.0.1:33901->127.0.0.1:40218: read: connection reset by peer
+2026/11/02 09:21:42 [stream 203] read error: read tcp 127.0.0.1:58090->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 205] read error: read tcp 127.0.0.1:33689->127.0.0.1:43898: read: connection reset by peer
+2026/11/02 09:21:42 [stream 205] read error: read tcp 127.0.0.1:58102->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 207] read error: read tcp 127.0.0.1:39651->127.0.0.1:50424: read: connection reset by peer
+2026/11/02 09:21:42 [stream 207] read error: read tcp 127.0.0.1:58116->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 209] read error: read tcp 127.0.0.1:36213->127.0.0.1:53024: read: connection reset by peer
+2026/11/02 09:21:42 [stream 209] read error: read tcp 127.0.0.1:58128->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 211] read error: read tcp 127.0.0.1:44545->127.0.0.1:35490: read: connection reset by peer
+2026/11/02 09:21:42 [stream 211] read error: read tcp 127.0.0.1:58144->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 213] read error: read tcp 127.0.0.1:44015->127.0.0.1:43800: read: connection reset by peer
+2026/11/02 09:21:42 [stream 213] read error: read tcp 127.0.0.1:58148->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 215] read error: read tcp 127.0.0.1:38907->127.0.0.1:54008: read: connection reset by peer
+2026/11/02 09:21:42 [stream 215] read error: read tcp 127.0.0.1:58158->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 217] read error: read tcp 127.0.0.1:33727->127.0.0.1:50052: read: connection reset by peer
+2026/11/02 09:21:42 [stream 217] read error: read tcp 127.0.0.1:58160->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 219] read error: read tcp 127.0.0.1:45393->127.0.0.1:48820: read: connection reset by peer
+2026/11/02 09:21:42 [stream 219] read error: read tcp 127.0.0.1:58162->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 221] read error: read tcp 127.0.0.1:33405->127.0.0.1:44350: read: connection reset by peer
+2026/11/02 09:21:42 [stream 221] read error: read tcp 127.0.0.1:58168->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 223] read error: read tcp 127.0.0.1:43609->127.0.0.1:55076: read: connection reset by peer
+2026/11/02 09:21:42 [stream 223] read error: read tcp 127.0.0.1:58180->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 225] read error: read tcp 127.0.0.1:36903->127.0.0.1:57554: read: connection reset by peer
+2026/11/02 09:21:42 [stream 227] read error: read tcp 127.0.0.1:37537->127.0.0.1:45748: read: connection reset by peer
+2026/11/02 09:21:42 [stream 227] read error: read tcp 127.0.0.1:58200->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 229] read error: read tcp 127.0.0.1:40021->127.0.0.1:42384: read: connection reset by peer
+2026/11/02 09:21:42 [stream 229] read error: read tcp 127.0.0.1:58208->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 231] read error: read tcp 127.0.0.1:44705->127.0.0.1:58012: read: connection reset by peer
+2026/11/02 09:21:42 [stream 231] read error: read tcp 127.0.0.1:58222->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 233] read error: read tcp 127.0.0.1:34843->127.0.0.1:45524: read: connection reset by peer
+2026/11/02 09:21:42 [stream 233] read error: read tcp 127.0.0.1:58224->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 235] read error: read tcp 127.0.0.1:39967->127.0.0.1:42352: read: connection reset by peer
+2026/11/02 09:21:42 [stream 235] read error: read tcp 127.0.0.1:58236->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 237] read error: read tcp 127.0.0.1:40613->127.0.0.1:33960: read: connection reset by peer
+2026/11/02 09:21:42 [stream 237] read error: read tcp 127.0.0.1:58246->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 239] read error: read tcp 127.0.0.1:37421->127.0.0.1:41882: read: connection reset by peer
+2026/11/02 09:21:42 [stream 239] read error: read tcp 127.0.0.1:58256->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 241] read error: read tcp 127.0.0.1:38465->127.0.0.1:32856: read: connection reset by peer
+2026/11/02 09:21:42 [stream 241] read error: read tcp 127.0.0.1:58264->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 243] read error: read tcp 127.0.0.1:43881->127.0.0.1:58098: read: connection reset by peer
+2026/11/02 09:21:42 [stream 243] read error: read tcp 127.0.0.1:58270->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 245] read error: read tcp 127.0.0.1:33929->127.0.0.1:55456: read: connection reset by peer
+2026/11/02 09:21:42 [stream 245] read error: read tcp 127.0.0.1:58284->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 247] read error: read tcp 127.0.0.1:39177->127.0.0.1:47260: read: connection reset by peer
+2026/11/02 09:21:42 [stream 247] read error: read tcp 127.0.0.1:58288->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 249] read error: read tcp 127.0.0.1:40989->127.0.0.1:57570: read: connection reset by peer
+2026/11/02 09:21:42 [stream 249] read error: read tcp 127.0.0.1:58302->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 251] read error: read tcp 127.0.0.1:44283->127.0.0.1:45982: read: connection reset by peer
+2026/11/02 09:21:42 [stream 251] read error: read tcp 127.0.0.1:58314->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 253] read error: read tcp 127.0.0.1:36165->127.0.0.1:38334: read: connection reset by peer
+2026/11/02 09:21:42 [stream 253] read error: read tcp 127.0.0.1:58324->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 255] read error: read tcp 127.0.0.1:38805->127.0.0.1:32928: read: connection reset by peer
+2026/11/02 09:21:42 [stream 255] read error: read tcp 127.0.0.1:58340->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 257] read error: read tcp 127.0.0.1:39377->127.0.0.1:48678: read: connection reset by peer
+2026/11/02 09:21:42 [stream 257] read error: read tcp 127.0.0.1:58348->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 259] read error: read tcp 127.0.0.1:42767->127.0.0.1:58240: read: connection reset by peer
+2026/11/02 09:21:42 [stream 259] read error: read tcp 127.0.0.1:58356->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 261] read error: read tcp 127.0.0.1:36035->127.0.0.1:43672: read: connection reset by peer
+2026/11/02 09:21:42 [stream 261] read error: read tcp 127.0.0.1:58360->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [stream 263] read error: read tcp 127.0.0.1:45497->127.0.0.1:58364: read: connection reset by peer
+2026/11/02 09:21:42 [stream 263] read error: read tcp 127.0.0.1:58374->127.0.0.1:36493: use of closed network connection
+2026/11/02 09:21:42 [origin] tunnel session to 127.0.0.1:33911 closed
+2026/11/02 09:21:42 [egress] session read header failed: read tcp 127.0.0.1:33911->127.0.0.1:42172: use of closed network connection
+2026/11/02 09:21:44 [origin] [drop-detector] window 2048KB -> 1024KB after 3 bad sample(s) (TCP backoff)
+2026/11/02 09:21:44 [origin] [drop-detector] window 1024KB -> 2048KB after 3 healthy check(s) (RTT=40ms TCP-retransmit=0.0% RAM=10.0%)
+2026/11/02 09:21:44 [origin] stream 46 sent data before open completed; resetting stream
+2026/11/02 09:21:44 [tls] generating new certificate at /tmp/TestUTLSWSSHandshakeAndDatachrome878143634/001/server.crt
+2026/11/02 09:21:44 [tls] generating new certificate at /tmp/TestUTLSWSSHandshakeAndDatafirefox2341272424/001/server.crt
+2026/11/02 09:21:44 [tls] generating new certificate at /tmp/TestUTLSWSSHandshakeAndDataios336853026/001/server.crt
+2026/11/02 09:21:45 [origin] adaptive session pool increased to 3/4 (new connection pressure)
+2026/11/02 09:21:45 [origin] adaptive session pool reduced to 2/4 after sustained low load
+2026/11/02 09:21:45 [origin] adaptive session pool reduced to 7/8 after sustained low load
+2026/11/02 09:21:45 [origin] adaptive session pool increased to 3/3 (degraded path)
+2026/11/02 09:21:45 [origin] adaptive session pool reduced to 2/3 after sustained low load
+2026/11/02 09:21:45 [origin] adaptive session pool reduced to 2/3 after sustained low load; retired carrier is draining
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRunOriginMuxModesUseExpectedCarriersoff751938982/001/server.crt
+2026/11/02 09:21:52 [origin] listening on 127.0.0.1:45475 -> 127.0.0.1:36179 (target 127.0.0.1:32775), sessions=1-3, transport=wss, mux=off
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:38938
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:36179 via wss
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:38952
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:36179 via wss
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:38966
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:36179 via wss
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:36179 closed
+2026/11/02 09:21:52 [egress] session read header failed: EOF
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:36179 closed
+2026/11/02 09:21:52 [egress] session read header failed: EOF
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:36179 closed
+2026/11/02 09:21:52 [egress] session read header failed: EOF
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRunOriginMuxModesUseExpectedCarrierson893251786/001/server.crt
+2026/11/02 09:21:52 [origin] listening on 127.0.0.1:36185 -> 127.0.0.1:35173 (target 127.0.0.1:39417), sessions=1-1, transport=wss, mux=on
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:41662
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:35173 via wss
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRunOriginMuxModesUseExpectedCarrierslegacy-default-on3465156782/001/server.crt
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:35173 closed
+2026/11/02 09:21:52 [origin] listening on 127.0.0.1:41649 -> 127.0.0.1:42601 (target 127.0.0.1:44327), sessions=1-1, transport=wss, mux=on
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:47664
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:42601 via wss
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:42601 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverwss1824355450/001/test.crt
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:41270
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:38481 via wss
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:39425->127.0.0.1:45700: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:38481 closed
+2026/11/02 09:21:52 [egress] session read header failed: EOF
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:58086->127.0.0.1:41055: use of closed network connection
+2026/11/02 09:21:52 [egress] tunnel established from 127.0.0.1:41274
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:38481 via wss
+2026/11/02 09:21:52 [egress] session read header failed: EOF
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:58088->127.0.0.1:41055: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:38481 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpauto2074593850/001/test.crt
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:40229 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:44933->127.0.0.1:60986: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:35708->127.0.0.1:45785: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:40229 closed
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:40229 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:42239->127.0.0.1:35952: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:35722->127.0.0.1:45785: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:40229 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttppacket-up1962302802/001/test.crt
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:34575 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:39441->127.0.0.1:58106: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:36196->127.0.0.1:40577: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:34575 closed
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:34575 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:41331->127.0.0.1:53192: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:36206->127.0.0.1:40577: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:34575 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpstream-up913868877/001/test.crt
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:37197 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:45319->127.0.0.1:58074: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:37197 closed
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:51824->127.0.0.1:46159: use of closed network connection
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:37197 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:40549->127.0.0.1:33862: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:51832->127.0.0.1:46159: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:37197 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpstream-one738973789/001/test.crt
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:36363 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:45439->127.0.0.1:57744: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:36363 closed
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:36630->127.0.0.1:40179: use of closed network connection
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:36363 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:36795->127.0.0.1:52486: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:36636->127.0.0.1:40179: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:36363 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpautouploa623392357/001/test.crt
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:44985 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:38453->127.0.0.1:37548: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:44985 closed
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:47162->127.0.0.1:40789: use of closed network connection
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:44985 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:38739->127.0.0.1:54584: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:47178->127.0.0.1:40789: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:44985 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttppacket-up3641169653/001/test.crt
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:37273 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:46165->127.0.0.1:56520: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:40178->127.0.0.1:44571: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:37273 closed
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:37273 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:39619->127.0.0.1:44356: use of closed network connection
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:40186->127.0.0.1:44571: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:37273 closed
+2026/11/02 09:21:52 [tls] generating new certificate at /tmp/TestRotatingPathTLSAuthenticatedPayloadFailoverxhttpstream-up3665249603/001/test.crt
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:37347 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:32941->127.0.0.1:40300: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:37347 closed
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:54126->127.0.0.1:44213: use of closed network connection
+2026/11/02 09:21:52 [egress] tunnel established from pipe
+2026/11/02 09:21:52 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:52 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:52 [origin] tunnel session established to 127.0.0.1:37347 via xhttp
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:39853->127.0.0.1:45426: use of closed network connection
+2026/11/02 09:21:52 [origin] tunnel session to 127.0.0.1:37347 closed
+2026/11/02 09:21:52 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:52 [stream 1] read error: read tcp 127.0.0.1:54136->127.0.0.1:44213: use of closed network connection
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestRotatingAuthenticationCancellationAfterUpgrade3066010531/001/local.crt
+2026/11/02 09:21:53 [origin] adaptive session pool reduced to 1/2 after sustained low load
+2026/11/02 09:21:53 [origin] adaptive session pool reduced to 2/3 after sustained low load; retired carrier is draining
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] [drop-detector] peer receive window is now 1024KB
+2026/11/02 09:21:53 [origin] peer uses legacy initial-stream credit; upgrade both endpoints for resize-race protection
+2026/11/02 09:21:53 [origin] [carrier-health] fixture payload blackhole; closing failed carrier for reconnect
+2026/11/02 09:21:53 [config/deprecated] transport "h2" now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:53 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:53 [config/deprecated] transport "auto" now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:53 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:53 [config/deprecated] transport " H2 " now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:53 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/2; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier drain grace expired after 2m0s; previous carrier closed so renewal may continue
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] carrier renewal deferred: selection lease wait exceeded 30s; existing carrier retained and other slots may renew
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/2; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] carrier renewal deferred: candidate route epoch expired before installation; existing carrier retained
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/3 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] carrier renewal deferred: selection lease wait exceeded 30s; existing carrier retained and other slots may renew
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 2/3 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] carrier renewal deferred: selection lease wait exceeded 30s; existing carrier retained and other slots may renew
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 3/3 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 3/3; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/2 (route epoch advanced)
+2026/11/02 09:21:53 [origin] carrier renewal deferred: candidate route epoch expired before installation; existing carrier retained
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 2/2 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] carrier renewal deferred: candidate route epoch expired before installation; existing carrier retained
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (route epoch advanced)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] adaptive session pool reduced to 1/2 after sustained low load
+2026/11/02 09:21:53 [origin] adaptive session pool increased to 2/2 (stress reactivation)
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] adaptive session pool reduced to 1/2 after sustained low load; retired carrier is draining
+2026/11/02 09:21:53 [origin] adaptive session pool increased to 2/2 (stress reactivation)
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 2/2 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 2/2; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] carrier renewal deferred: replacement was not authenticated and ready; existing carrier retained
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestCarrierRenewalWSSPayloadContinuity3902058346/001/test.crt
+2026/11/02 09:21:53 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:53 [egress] tunnel established from 127.0.0.1:48848
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:53 [origin] tunnel session established to 127.0.0.1:45559 via wss
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestCarrierRenewalWSSPayloadContinuity3902058346/002/test.crt
+2026/11/02 09:21:53 [config/deprecated] legacy -pad ratio is ignored; use -padding-bytes for explicit WSS/XHTTP padding
+2026/11/02 09:21:53 [egress] tunnel established from 127.0.0.1:49538
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:53 [origin] tunnel session established to 127.0.0.1:35277 via wss
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:21:53 [origin] tunnel session to 127.0.0.1:45559 closed
+2026/11/02 09:21:53 [egress] session read header failed: EOF
+2026/11/02 09:21:53 [egress] session read header failed: read tcp 127.0.0.1:35277->127.0.0.1:49538: use of closed network connection
+2026/11/02 09:21:53 [origin] tunnel session to 127.0.0.1:35277 closed
+2026/11/02 09:21:53 [origin] authenticated replacement ready for carrier 1/1 (scheduled lifetime)
+2026/11/02 09:21:53 [origin] new streams now use renewed carrier 1/1; existing streams drain on the previous carrier
+2026/11/02 09:21:53 [origin] renewed carrier finished draining; next renewal may proceed
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestTunnelProbeUsesRealTransportAndAuthWithoutOpeningStreamswss2474086224/001/test.crt
+2026/11/02 09:21:53 [egress] tunnel established from 127.0.0.1:60064
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:53 [origin] tunnel session established to 127.0.0.1:46341 via wss
+2026/11/02 09:21:53 [origin] tunnel session to 127.0.0.1:46341 closed
+2026/11/02 09:21:53 [egress] session read header failed: EOF
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestTunnelProbeUsesRealTransportAndAuthWithoutOpeningStreamsxht3714308289/001/test.crt
+2026/11/02 09:21:53 [egress] tunnel established from pipe
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:53 [origin] tunnel session established to 127.0.0.1:34889 via xhttp
+2026/11/02 09:21:53 [origin] tunnel session to 127.0.0.1:34889 closed
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestTunnelProbeUsesRealTransportAndAuthWithoutOpeningStreamsaut1094116262/001/test.crt
+2026/11/02 09:21:53 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:53 [config/deprecated] transport "auto" now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:53 [egress] tunnel established from 127.0.0.1:57840
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:53 [origin] tunnel session established to 127.0.0.1:41197 via wss
+2026/11/02 09:21:53 [origin] tunnel session to 127.0.0.1:41197 closed
+2026/11/02 09:21:53 [egress] session read header failed: EOF
+2026/11/02 09:21:53 [tls] generating new certificate at /tmp/TestTunnelProbeUsesRealTransportAndAuthWithoutOpeningStreamsh23500577050/001/test.crt
+2026/11/02 09:21:53 [config/deprecated] transport "h2" now selects WSS; H2/gRPC was removed. H2-only setups require both peers and reverse-proxy routes to be upgraded
+2026/11/02 09:21:53 [egress] tunnel established from 127.0.0.1:54944
+2026/11/02 09:21:53 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:53 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:53 [origin] tunnel session established to 127.0.0.1:45903 via wss
+2026/11/02 09:21:53 [origin] tunnel session to 127.0.0.1:45903 closed
+2026/11/02 09:21:53 [egress] session read header failed: EOF
+2026/11/02 09:21:54 [tls] generating new certificate at /tmp/TestXHTTPStreamingH2TLSAndGDTAuthentication2851342834/001/test.crt
+2026/11/02 09:21:54 [egress] tunnel established from pipe
+2026/11/02 09:21:54 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:54 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:54 [origin] tunnel session established to memory-pipe via xhttp
+2026/11/02 09:21:54 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:54 [origin] tunnel session to memory-pipe closed
+2026/11/02 09:21:54 [egress] tunnel established from pipe
+2026/11/02 09:21:54 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:54 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:54 [origin] tunnel session established to memory-pipe via xhttp
+2026/11/02 09:21:54 [origin] tunnel session to memory-pipe closed
+2026/11/02 09:21:54 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:54 [egress] tunnel established from pipe
+2026/11/02 09:21:54 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:54 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:54 [origin] tunnel session established to memory-http via xhttp
+2026/11/02 09:21:54 [origin] tunnel session to memory-http closed
+2026/11/02 09:21:54 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:56 [egress] tunnel established from pipe
+2026/11/02 09:21:56 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:56 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:56 [origin] tunnel session established to memory-http via xhttp
+2026/11/02 09:21:56 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:56 [origin] tunnel session to memory-http closed
+2026/11/02 09:21:58 [tls] generating new certificate at /tmp/TestXHTTPLocalTLSAuthenticatedTunnel2359129804/001/test.crt
+2026/11/02 09:21:58 [egress] tunnel established from pipe
+2026/11/02 09:21:58 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:58 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:58 [origin] tunnel session established to 127.0.0.1:34175 via xhttp
+2026/11/02 09:21:58 [origin] tunnel session to 127.0.0.1:34175 closed
+2026/11/02 09:21:58 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:21:58 [egress] tunnel established from pipe
+2026/11/02 09:21:58 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:21:58 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:21:58 [origin] tunnel session established to memory-http via xhttp
+2026/11/02 09:21:58 [origin] tunnel session to memory-http closed
+2026/11/02 09:21:58 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:00 [tls] generating new certificate at /tmp/TestXHTTPPipeTLSAndGDTAuthentication1306780142/001/test.crt
+2026/11/02 09:22:00 [egress] tunnel established from pipe
+2026/11/02 09:22:00 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:00 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:00 [origin] tunnel session established to memory-pipe via xhttp
+2026/11/02 09:22:00 [egress] session read header failed: io: read/write on closed pipe
+2026/11/02 09:22:00 [origin] tunnel session to memory-pipe closed
+2026/11/02 09:22:00 [egress] tunnel established from pipe
+2026/11/02 09:22:00 [origin] negotiated fixed initial-stream credit
+2026/11/02 09:22:00 [origin] authenticated 1KiB carrier payload roundtrip confirmed
+2026/11/02 09:22:00 [origin] tunnel session established to memory-pipe via xhttp
+2026/11/02 09:22:00 [origin] tunnel session to memory-pipe closed
+2026/11/02 09:22:00 [egress] session read header failed: io: read/write on closed pipe
+FAIL
+FAIL	ununknowntun	34.815s
+FAIL

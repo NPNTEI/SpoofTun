@@ -1,0 +1,65 @@
+PASS: endpoint files and matching release hashes verified offline. No network test.
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+Selected: adaptive; repair cap 10%; block 20 ms
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+Selected: fixed; repair cap 50%; block 100 ms
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+Selected: off; repair cap 25%; block 20 ms
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+Direct ICMP L3 - create a matched configuration pair; no service or network changes
+
+IRAN
+
+OUTSIDE
+
+FEC: adaptive = automatic repair, fixed = fixed repair, off = no repair
+FEC uses extra traffic; it cannot reopen a fully blocked path.
+...........................................
+----------------------------------------------------------------------
+Ran 43 tests in 0.126s
+
+OK

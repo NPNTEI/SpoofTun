@@ -1,0 +1,27 @@
+test_export_contains_only_customer_endpoint (__main__.AccessManagerTests.test_export_contains_only_customer_endpoint) ... ok
+test_failed_reload_restores_configuration_and_keeps_accounting (__main__.AccessManagerTests.test_failed_reload_restores_configuration_and_keeps_accounting) ... Previous customer settings restored. Backup: /tmp/ununknowntun-customer-tests-t_81u12z/install/backups/customers-test-k7bp3bcq
+ok
+test_failed_rollback_ack_stops_tunnel_after_restoring_disk (__main__.AccessManagerTests.test_failed_rollback_ack_stops_tunnel_after_restoring_disk) ... ok
+test_invalid_status_is_reported_without_crashing_manager (__main__.AccessManagerTests.test_invalid_status_is_reported_without_crashing_manager) ... ok
+test_late_registry_failure_restores_registry_and_ownership (__main__.AccessManagerTests.test_late_registry_failure_restores_registry_and_ownership) ... Previous customer settings restored. Backup: /tmp/ununknowntun-customer-tests-1rns5yoz/install/backups/customers-test-ncnk2ypo
+ok
+test_malicious_nginx_path_or_public_proxy_backend_rejected (__main__.AccessManagerTests.test_malicious_nginx_path_or_public_proxy_backend_rejected) ... ok
+test_name_retries_utf8_overflow_at_name_field (__main__.AccessManagerTests.test_name_retries_utf8_overflow_at_name_field) ... ok
+test_old_running_snapshot_is_not_shown_as_live (__main__.AccessManagerTests.test_old_running_snapshot_is_not_shown_as_live) ... ok
+test_persistent_rollback_failure_stops_only_affected_tunnel_and_reports_backup (__main__.AccessManagerTests.test_persistent_rollback_failure_stops_only_affected_tunnel_and_reports_backup) ... ok
+test_port_edit_releases_old_customer_port_but_keeps_infrastructure_and_metadata (__main__.AccessManagerTests.test_port_edit_releases_old_customer_port_but_keeps_infrastructure_and_metadata) ... ok
+test_prompt_retries_only_invalid_value (__main__.AccessManagerTests.test_prompt_retries_only_invalid_value) ... ok
+test_proxy_routes_exact_paths_rewrite_to_xray_private_listener (__main__.AccessManagerTests.test_proxy_routes_exact_paths_rewrite_to_xray_private_listener) ... ok
+test_quota_update_does_not_reset_other_customer_or_state (__main__.AccessManagerTests.test_quota_update_does_not_reset_other_customer_or_state) ... ok
+test_quota_uses_decimal_gb_and_rejects_invalid_overflow (__main__.AccessManagerTests.test_quota_uses_decimal_gb_and_rejects_invalid_overflow) ... ok
+test_released_owned_firewall_port_is_removed_before_reuse (__main__.AccessManagerTests.test_released_owned_firewall_port_is_removed_before_reuse) ... ok
+test_reload_rejects_non_acknowledged_or_failed_status (__main__.AccessManagerTests.test_reload_rejects_non_acknowledged_or_failed_status) ... ok
+test_reload_requires_fresh_matching_successful_ack (__main__.AccessManagerTests.test_reload_requires_fresh_matching_successful_ack) ... ok
+test_removed_firewall_rule_is_restored_after_later_failure (__main__.AccessManagerTests.test_removed_firewall_rule_is_restored_after_later_failure) ... ok
+test_reserved_port_rejected_without_touching_files (__main__.AccessManagerTests.test_reserved_port_rejected_without_touching_files) ... ok
+test_stopped_tunnel_does_not_receive_hup (__main__.AccessManagerTests.test_stopped_tunnel_does_not_receive_hup) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.116s
+
+OK

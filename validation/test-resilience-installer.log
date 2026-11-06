@@ -1,0 +1,27 @@
+test_atomic_profile_updates_all_flags_and_signed_metadata (__main__.EditTests.test_atomic_profile_updates_all_flags_and_signed_metadata) ... ok
+test_invalid_profile_never_edits_files (__main__.EditTests.test_invalid_profile_never_edits_files) ... ok
+test_nginx_editor_exact_rotation_routes_and_legacy_prefix_removal (__main__.EditTests.test_nginx_editor_exact_rotation_routes_and_legacy_prefix_removal) ... ok
+test_nginx_editor_rotation_route_uses_active_transport (__main__.EditTests.test_nginx_editor_rotation_route_uses_active_transport) ... ok
+test_renewal_only_on_origin_and_mux_on (__main__.EditTests.test_renewal_only_on_origin_and_mux_on) ... ok
+test_rotating_ws_seed_edits_require_clean_paths (__main__.EditTests.test_rotating_ws_seed_edits_require_clean_paths) ... ok
+test_rotation_checks_mux_switch_and_permits_max_exclusive_pool (__main__.EditTests.test_rotation_checks_mux_switch_and_permits_max_exclusive_pool) ... ok
+test_rotation_failed_nginx_check_restores_peer_and_preserves_other_sites (__main__.EditTests.test_rotation_failed_nginx_check_restores_peer_and_preserves_other_sites) ... ok
+test_rotation_rejects_duplicate_profile_fields (__main__.EditTests.test_rotation_rejects_duplicate_profile_fields) ... ok
+test_rotation_rejects_unsupported_transport_and_noncanonical_seed (__main__.EditTests.test_rotation_rejects_unsupported_transport_and_noncanonical_seed) ... ok
+test_signed_rotation_applies_matching_profile_to_peer_and_replay_fails (__main__.EditTests.test_signed_rotation_applies_matching_profile_to_peer_and_replay_fails) ... ok
+test_transport_reversed_markers_fail_before_any_edit (__main__.EditTests.test_transport_reversed_markers_fail_before_any_edit) ... ok
+test_upgrade_bounds_old_prefix_and_is_idempotent (__main__.UpgradeRoutingTests.test_upgrade_bounds_old_prefix_and_is_idempotent) ... ok
+test_both_launchers_share_paths_origin_has_renewal_and_private_entry (__main__.WizardTests.test_both_launchers_share_paths_origin_has_renewal_and_private_entry) ... ok
+test_nginx_prepared_prefix_preserves_backend_and_headers (__main__.WizardTests.test_nginx_prepared_prefix_preserves_backend_and_headers) ... ok
+test_peer_roundtrip_and_invalid_rotation_profile_fail_closed (__main__.WizardTests.test_peer_roundtrip_and_invalid_rotation_profile_fail_closed) ... ok
+test_real_nginx_parses_rotation_prefix_for_ws_and_every_xhttp_mode (__main__.WizardTests.test_real_nginx_parses_rotation_prefix_for_ws_and_every_xhttp_mode) ... ok
+test_rotation_default_off_and_independent_renewal (__main__.WizardTests.test_rotation_default_off_and_independent_renewal) ... ok
+test_rotation_pair_decoder_and_manual_seed_share_canonical_validation (__main__.WizardTests.test_rotation_pair_decoder_and_manual_seed_share_canonical_validation) ... ok
+test_rotation_probe_uses_real_core_and_reserved_seed_is_rejected (__main__.WizardTests.test_rotation_probe_uses_real_core_and_reserved_seed_is_rejected) ... ok
+test_rotation_reprompts_and_sets_matching_profile (__main__.WizardTests.test_rotation_reprompts_and_sets_matching_profile) ... ok
+test_standalone_nginx_is_iran_only_and_direct_dns (__main__.WizardTests.test_standalone_nginx_is_iran_only_and_direct_dns) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.592s
+
+OK

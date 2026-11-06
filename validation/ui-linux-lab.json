@@ -1,0 +1,64 @@
+{
+  "version": "3.7.0-preview.11",
+  "status": "PASS",
+  "time_utc": "2026-11-02T09:34:21.786207+00:00",
+  "installer_sha256": "de3466721e3039f53bd88a9a7b16c0608ce171c0d43ce9054a1363c1b00e44f5",
+  "ui_sha256": "b96e16518f85abda71579b8ddb322464fdb7b6cd88cedbaf021caf49e3906580",
+  "checks": [
+    {
+      "name": "embedded-installer-preview-tunnels",
+      "status": "PASS"
+    },
+    {
+      "name": "embedded-installer-preview-tuning",
+      "status": "PASS"
+    },
+    {
+      "name": "embedded-installer-preview-doctor",
+      "status": "PASS"
+    },
+    {
+      "name": "embedded-installer-live-pty-quit",
+      "status": "PASS",
+      "exit_code": 0,
+      "control_room": true,
+      "live_local_view": true,
+      "terminal_input_q": true,
+      "output_bytes": 4193
+    },
+    {
+      "name": "installed-manager-fixture-preview-tunnels",
+      "status": "PASS"
+    },
+    {
+      "name": "installed-manager-fixture-preview-tuning",
+      "status": "PASS"
+    },
+    {
+      "name": "installed-manager-fixture-preview-doctor",
+      "status": "PASS"
+    },
+    {
+      "name": "installed-manager-fixture-live-pty-quit",
+      "status": "PASS",
+      "exit_code": 0,
+      "control_room": true,
+      "live_local_view": true,
+      "terminal_input_q": true,
+      "output_bytes": 4193
+    },
+    {
+      "name": "installer-main-menu-9-live-pty-quit",
+      "status": "PASS",
+      "exit_code": 0,
+      "control_room": true,
+      "live_local_view": true,
+      "terminal_input_q": true,
+      "output_bytes": 5409
+    }
+  ],
+  "protected_entries_unchanged": 5,
+  "ununknowntun_services_unchanged": 0,
+  "stages_cleaned": true,
+  "scope": "Actual local Linux embedded/manager-fixture launch and PTY input. No installation, remote connectivity, or UI mutation actions tested."
+}

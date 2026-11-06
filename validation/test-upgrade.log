@@ -1,0 +1,24 @@
+test_31_upgrade_initializes_accounting_once_and_keeps_stopped (__main__.UpgradeTests.test_31_upgrade_initializes_accounting_once_and_keeps_stopped) ... ok
+test_active_egress_upgrade_restarts_only_selected_service (__main__.UpgradeTests.test_active_egress_upgrade_restarts_only_selected_service) ... ok
+test_active_origin_rejects_stale_matching_accounting_status (__main__.UpgradeTests.test_active_origin_rejects_stale_matching_accounting_status) ... ok
+test_active_origin_waits_for_fresh_accounting_acknowledgment (__main__.UpgradeTests.test_active_origin_waits_for_fresh_accounting_acknowledgment) ... ok
+test_active_upgrade_rejects_service_restart_during_validation (__main__.UpgradeTests.test_active_upgrade_rejects_service_restart_during_validation) ... ok
+test_direct_origin_migrates_auto_transport_preserves_tls13_minimum (__main__.UpgradeTests.test_direct_origin_migrates_auto_transport_preserves_tls13_minimum) ... ok
+test_duplicate_launch_flags_fail_before_rewriting_launch (__main__.UpgradeTests.test_duplicate_launch_flags_fail_before_rewriting_launch) ... ok
+test_egress_patch_migrates_only_retired_launch_fields_without_customer_marker (__main__.UpgradeTests.test_egress_patch_migrates_only_retired_launch_fields_without_customer_marker) ... ok
+test_existing_accounts_with_missing_state_stop_before_changes (__main__.UpgradeTests.test_existing_accounts_with_missing_state_stop_before_changes) ... ok
+test_external_nginx_path_is_rejected_before_mutation (__main__.UpgradeTests.test_external_nginx_path_is_rejected_before_mutation) ... ok
+test_invalid_nginx_rolls_back_files_but_does_not_refund_ledger (__main__.UpgradeTests.test_invalid_nginx_rolls_back_files_but_does_not_refund_ledger) ... ok
+test_invalid_site_restores_new_accounting_to_preupgrade_state (__main__.UpgradeTests.test_invalid_site_restores_new_accounting_to_preupgrade_state) ... ok
+test_legacy_h2_only_upgrade_creates_wss_route_without_touching_custom_routes (__main__.UpgradeTests.test_legacy_h2_only_upgrade_creates_wss_route_without_touching_custom_routes) ... ok
+test_origin_patch_is_idempotent_and_preserves_metadata_routes_and_ledger (__main__.UpgradeTests.test_origin_patch_is_idempotent_and_preserves_metadata_routes_and_ledger) ... ok
+test_orphan_state_stops_before_changes (__main__.UpgradeTests.test_orphan_state_stops_before_changes) ... ok
+test_stopped_upgrade_keeps_existing_accounts_and_consumption (__main__.UpgradeTests.test_stopped_upgrade_keeps_existing_accounts_and_consumption) ... ok
+test_unrecognized_launch_is_rejected_without_overwrite (__main__.UpgradeTests.test_unrecognized_launch_is_rejected_without_overwrite) ... ok
+test_upgrade_adds_websocket_cache_and_auth_headers_idempotently (__main__.UpgradeTests.test_upgrade_adds_websocket_cache_and_auth_headers_idempotently) ... ok
+test_xhttp_upgrade_keeps_carrier_mux_ech_and_refreshes_v5_pairing (__main__.UpgradeTests.test_xhttp_upgrade_keeps_carrier_mux_ech_and_refreshes_v5_pairing) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 6.179s
+
+OK

@@ -1,0 +1,89 @@
+test_actual_browser_default_alias_handshake (__main__.ActualCurlLoopbackTests.test_actual_browser_default_alias_handshake) ... skipped 'opt-in actual curl_cffi loopback tests'
+test_actual_cancel_aborts_download (__main__.ActualCurlLoopbackTests.test_actual_cancel_aborts_download) ... skipped 'opt-in actual curl_cffi loopback tests'
+test_actual_download_upload_forces_socks_and_counts_bytes (__main__.ActualCurlLoopbackTests.test_actual_download_upload_forces_socks_and_counts_bytes) ... skipped 'opt-in actual curl_cffi loopback tests'
+test_actual_excess_download_body_aborts (__main__.ActualCurlLoopbackTests.test_actual_excess_download_body_aborts) ... skipped 'opt-in actual curl_cffi loopback tests'
+test_actual_reality_probe_forces_socks_with_no_proxy_star (__main__.ActualCurlLoopbackTests.test_actual_reality_probe_forces_socks_with_no_proxy_star) ... skipped 'opt-in actual curl_cffi loopback tests'
+test_actual_unsupported_fingerprint_fails_before_handshake (__main__.ActualCurlLoopbackTests.test_actual_unsupported_fingerprint_fails_before_handshake) ... skipped 'opt-in actual curl_cffi loopback tests'
+test_cancel_before_network (__main__.CancellationAndSocketTests.test_cancel_before_network) ... ok
+test_cancel_between_attempts (__main__.CancellationAndSocketTests.test_cancel_between_attempts) ... ok
+test_dns_cancellation (__main__.CancellationAndSocketTests.test_dns_cancellation) ... ok
+test_dns_capacity_wait_is_cancellable (__main__.CancellationAndSocketTests.test_dns_capacity_wait_is_cancellable) ... ok
+test_dns_thread_start_failure_releases_capacity (__main__.CancellationAndSocketTests.test_dns_thread_start_failure_releases_capacity) ... ok
+test_dns_wait_is_bounded (__main__.CancellationAndSocketTests.test_dns_wait_is_bounded) ... ok
+test_failure_is_redacted_per_attempt (__main__.CancellationAndSocketTests.test_failure_is_redacted_per_attempt) ... ok
+test_ipv4_loopback (__main__.CancellationAndSocketTests.test_ipv4_loopback) ... ok
+test_ipv6_loopback (__main__.CancellationAndSocketTests.test_ipv6_loopback) ... ok
+test_reject_invalid_parameters_before_network (__main__.CancellationAndSocketTests.test_reject_invalid_parameters_before_network) ... ok
+test_resolve_ipv6 (__main__.CancellationAndSocketTests.test_resolve_ipv6) ... ok
+test_timed_out_dns_workers_do_not_accumulate (__main__.CancellationAndSocketTests.test_timed_out_dns_workers_do_not_accumulate) ... ok
+test_tls_cancel_closes_socket (__main__.CancellationAndSocketTests.test_tls_cancel_closes_socket) ... ok
+test_tls_wait_honors_timeout_and_closes_socket (__main__.CancellationAndSocketTests.test_tls_wait_honors_timeout_and_closes_socket) ... ok
+test_browser_errors_redacted (__main__.CurlTests.test_browser_errors_redacted) ... ok
+test_browser_ipv6_pin_and_no_environment_proxy (__main__.CurlTests.test_browser_ipv6_pin_and_no_environment_proxy) ... ok
+test_curl_cancel_callback (__main__.CurlTests.test_curl_cancel_callback) ... ok
+test_generic_browser_alias_is_normalized_before_impersonation (__main__.CurlTests.test_generic_browser_alias_is_normalized_before_impersonation) ... ok
+test_older_curl_large_upload_has_clear_dependency_error (__main__.CurlTests.test_older_curl_large_upload_has_clear_dependency_error) ... ok
+test_older_curl_upload_uses_bounded_postfields_fallback (__main__.CurlTests.test_older_curl_upload_uses_bounded_postfields_fallback) ... ok
+test_older_curl_without_progress_callback_is_supported (__main__.CurlTests.test_older_curl_without_progress_callback_is_supported) ... ok
+test_probe_requires_exact_204_and_verifies_tls (__main__.CurlTests.test_probe_requires_exact_204_and_verifies_tls) ... ok
+test_reality_cannot_bypass_socks_via_no_proxy_environment (__main__.CurlTests.test_reality_cannot_bypass_socks_via_no_proxy_environment) ... ok
+test_speed_cancel_write_callback_uses_curl_sentinel (__main__.CurlTests.test_speed_cancel_write_callback_uses_curl_sentinel) ... ok
+test_speed_cancellation_propagates_and_closes_tunnel (__main__.CurlTests.test_speed_cancellation_propagates_and_closes_tunnel) ... ok
+test_speed_cannot_bypass_socks_via_no_proxy_environment (__main__.CurlTests.test_speed_cannot_bypass_socks_via_no_proxy_environment) ... ok
+test_speed_counts_exact_bytes_and_post (__main__.CurlTests.test_speed_counts_exact_bytes_and_post) ... ok
+test_speed_does_not_use_read_callback_as_bytes_sent (__main__.CurlTests.test_speed_does_not_use_read_callback_as_bytes_sent) ... ok
+test_speed_error_redaction (__main__.CurlTests.test_speed_error_redaction) ... ok
+test_speed_overlong_payload_aborts_with_curl_sentinel (__main__.CurlTests.test_speed_overlong_payload_aborts_with_curl_sentinel) ... ok
+test_speed_rejects_http_errors (__main__.CurlTests.test_speed_rejects_http_errors) ... ok
+test_speed_rejects_short_payloads (__main__.CurlTests.test_speed_rejects_short_payloads) ... ok
+test_speed_zero_both_directions_rejected (__main__.CurlTests.test_speed_zero_both_directions_rejected) ... ok
+test_speed_zero_disables_one_direction (__main__.CurlTests.test_speed_zero_disables_one_direction) ... ok
+test_unsupported_browser_fingerprint_never_performs_tls (__main__.CurlTests.test_unsupported_browser_fingerprint_never_performs_tls) ... ok
+test_bad_discovery_shape (__main__.DiscoveryTests.test_bad_discovery_shape) ... ok
+test_bounded_response (__main__.DiscoveryTests.test_bounded_response) ... ok
+test_discovery_filters_foreign_names (__main__.DiscoveryTests.test_discovery_filters_foreign_names) ... ok
+test_discovery_merge (__main__.DiscoveryTests.test_discovery_merge) ... ok
+test_untrusted_download_url (__main__.DiscoveryTests.test_untrusted_download_url) ... ok
+test_cidr_31_and_32 (__main__.ParsingTests.test_cidr_31_and_32) ... ok
+test_combined_cidrs_share_bound (__main__.ParsingTests.test_combined_cidrs_share_bound) ... ok
+test_config_builder_rejects_unsupported_transport_directly (__main__.ParsingTests.test_config_builder_rejects_unsupported_transport_directly) ... ok
+test_domain_credentials_ports_and_schemes_rejected (__main__.ParsingTests.test_domain_credentials_ports_and_schemes_rejected) ... ok
+test_domain_urls_normalization (__main__.ParsingTests.test_domain_urls_normalization) ... ok
+test_huge_ipv6_range_is_bounded (__main__.ParsingTests.test_huge_ipv6_range_is_bounded) ... ok
+test_input_size_cap (__main__.ParsingTests.test_input_size_cap) ... ok
+test_invalid_and_scoped_ip (__main__.ParsingTests.test_invalid_and_scoped_ip) ... ok
+test_invalid_targets (__main__.ParsingTests.test_invalid_targets) ... ok
+test_ipv4_ipv6_and_dedup (__main__.ParsingTests.test_ipv4_ipv6_and_dedup) ... ok
+test_link_modification_ipv6 (__main__.ParsingTests.test_link_modification_ipv6) ... ok
+test_reality_invalid_keys_credentials_and_duplicates (__main__.ParsingTests.test_reality_invalid_keys_credentials_and_duplicates) ... ok
+test_reality_ipv6_and_alias (__main__.ParsingTests.test_reality_ipv6_and_alias) ... ok
+test_reality_tcp_and_raw_transport_preserved (__main__.ParsingTests.test_reality_tcp_and_raw_transport_preserved) ... ok
+test_stats (__main__.ParsingTests.test_stats) ... ok
+test_target_ipv6 (__main__.ParsingTests.test_target_ipv6) ... ok
+test_target_list_whitespace (__main__.ParsingTests.test_target_list_whitespace) ... ok
+test_trojan_secret_decoding (__main__.ParsingTests.test_trojan_secret_decoding) ... ok
+test_unsupported_reality_transport_links_rejected (__main__.ParsingTests.test_unsupported_reality_transport_links_rejected) ... ok
+test_vmess_link_modification (__main__.ParsingTests.test_vmess_link_modification) ... ok
+test_flaky (__main__.RealityTests.test_flaky) ... ok
+test_invalid_ranks_below_network_failures (__main__.RealityTests.test_invalid_ranks_below_network_failures) ... ok
+test_probe_timeout (__main__.RealityTests.test_probe_timeout) ... ok
+test_reset_is_inconclusive_network_failure (__main__.RealityTests.test_reset_is_inconclusive_network_failure) ... ok
+test_row_shape (__main__.RealityTests.test_row_shape) ... ok
+test_unexpected_response (__main__.RealityTests.test_unexpected_response) ... ok
+test_valid (__main__.RealityTests.test_valid) ... ok
+test_binary_selection_is_explicit (__main__.XrayTests.test_binary_selection_is_explicit) ... ok
+test_early_exit_removes_secret_file (__main__.XrayTests.test_early_exit_removes_secret_file) ... ok
+test_environment_drops_injection_and_proxy_variables (__main__.XrayTests.test_environment_drops_injection_and_proxy_variables) ... ok
+test_existing_listener_is_not_treated_as_child (__main__.XrayTests.test_existing_listener_is_not_treated_as_child) ... ok
+test_missing_release_digest_never_executes_download (__main__.XrayTests.test_missing_release_digest_never_executes_download) ... ok
+test_no_implicit_path_or_env_discovery (__main__.XrayTests.test_no_implicit_path_or_env_discovery) ... ok
+test_noisy_subprocess_readiness_and_secret_cleanup (__main__.XrayTests.test_noisy_subprocess_readiness_and_secret_cleanup) ... ok
+test_popen_failure_removes_secret_file (__main__.XrayTests.test_popen_failure_removes_secret_file) ... ok
+test_relative_binary_rejected (__main__.XrayTests.test_relative_binary_rejected) ... ok
+test_root_rejects_writable_ancestor (__main__.XrayTests.test_root_rejects_writable_ancestor) ... ok
+test_startup_cancel_kills_child_and_removes_config (__main__.XrayTests.test_startup_cancel_kills_child_and_removes_config) ... ok
+
+----------------------------------------------------------------------
+Ran 84 tests in 0.701s
+
+OK (skipped=6)

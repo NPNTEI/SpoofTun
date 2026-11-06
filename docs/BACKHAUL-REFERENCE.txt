@@ -1,0 +1,98 @@
+Backhaul Premium IPX spoof fields: sanitized static findings
+Date: 2026-10-20
+
+Conclusion
+----------
+For the supplied artifact's IPX packet path:
+  Outgoing IPv4 source = spoof_src_ip when nonempty; otherwise listen_ip.
+  Outgoing IPv4 destination = dst_ip, not spoof_dst_ip.
+  Receive source filter = spoof_dst_ip when nonempty; otherwise dst_ip.
+
+Thus spoof_dst_ip is the expected SOURCE address of the remote peer's incoming
+packets. It is not a replacement destination in the outgoing IPv4 header.
+The UNUNKNOWNTUN field name expected_peer_source_ip correctly describes this part
+of the reference's behavior. This does not imply Backhaul wire compatibility.
+
+Artifact and scope
+------------------
+Both supplied files backhaul_premium-iran and backhaul_premium-germany have:
+  SHA256 6eec5c5624bdafd47ee4f92a0b2e4c6e89719a2cc471d48c97f47d47997c081f
+  ELF64 little-endian x86-64 Linux, dynamically linked, stripped.
+  BuildID 8220f3d9d4de904997c423a55776ea849d9b1237.
+The Go function metadata survives with obfuscated names and a modified magic.
+Addresses below are ELF virtual addresses, not runtime observations.
+
+Only read-only file/ELF metadata inspection and disassembly were performed.
+Neither supplied executable nor installer was run. No network, server, VM,
+license-check bypass, binary patch, release-source edit, or secret extraction
+was performed. No private IP/configuration values appear in this report.
+
+Evidence chain
+--------------
+1. TOML fields to internal fields, not merely a guess from names:
+   Runtime type 0xa37b20 has TOML-tagged IPX fields at relative offsets:
+     listen_ip +40, dst_ip +56, spoof_src_ip +72, spoof_dst_ip +88.
+   Root config type 0xa3b8a0 embeds IPX at +656 (0x290).
+   main.ax4SLqQqIqS (0x92e900..0x92ef00), especially 0x92ea5a..0x92eaca,
+   copies those fields into the internal config in this order:
+     +0x00 listen_ip, +0x10 spoof_src_ip, +0x20 spoof_dst_ip, +0x30 dst_ip.
+   The copy into the internal object occurs at 0x92ece6..0x92ed4a.
+   Validation function 0x588b00..0x588f80 independently corroborates the
+   offsets with invalid-listen/dst/spoof-src/spoof-dst error literals.
+
+2. Outgoing header construction:
+   Svv91xtC.(*BASZobDl1GCj).uvB3scTs (0x7f4dc0..0x7f5280) initially loads
+   listen_ip (+0x00); when spoof_src_ip length (+0x18) is nonzero, it selects
+   spoof_src_ip (+0x10). It independently loads destination from +0x30 at
+   0x7f4f60..0x7f4f73, with no spoof_dst_ip substitution.
+   These parsed addresses become encoder config fields +8 and +32.
+   Uuw5bq.(*VvlIJV5s6).EncapsulatePacketFast (0x62cd00..0x62dc40):
+     0x62cdf0..0x62ce20 copies encoder +8 to IPv4 bytes 12..15 (source).
+     0x62ce55..0x62ce80 copies encoder +32 to IPv4 bytes 16..19 (destination).
+   This is an outer IPv4 header: byte 0 is set to 0x45 at 0x62cd29 and
+   protocol/TTL are written at header bytes 9/8 before encapsulated payload.
+   Packet transmission uses this encoder at 0x7f8e6b.
+   The batch sender also derives its socket destination from encoder +32
+   (0x7f8982..0x7f89a5); SendBatch writes that address into sockaddr_in at
+   0x62b3ba..0x62b3c0. The outgoing socket uses IP_HDRINCL at 0x62b130..0x62b14e.
+
+3. Receive filter meaning of spoof_dst_ip:
+   Svv91xtC.(*BASZobDl1GCj).pMcsJRJL (0x7f5560..0x7f57e0) starts with dst_ip
+   (+0x30), substitutes spoof_dst_ip (+0x20) if its length is nonzero
+   (0x7f55fe..0x7f5622), and passes it as the receiver's second net.IP.
+   Receiver construction passes that address to UBDAQcmrf8Xi.nLscw9 at
+   0x62affa..0x62b012. nLscw9 (0x62a7a0..0x62aa60) builds an 8-instruction
+   BPF filter and attaches it via SetBPF at 0x62a9a4.
+   Its absolute-load constants, from data at 0xb4bae0/0xb4baf0/0xb4bb00, are:
+     Ethernet byte 12, size 2: require IPv4 EtherType 0x0800.
+     Ethernet byte 23, size 1: require configured IPv4 protocol.
+     Ethernet byte 26, size 4: require the selected remote SOURCE IPv4 address.
+   Byte 26 is Ethernet header 14 + IPv4 source offset 12, not destination.
+   The source comparison is constructed at 0x62a8b7..0x62a8c8, then accept/drop.
+
+Sanitized configuration corroboration
+-------------------------------------
+Both supplied configs select transport=tun, tun.encapsulation=ipx, profile=gre.
+Iran is IPX server and Germany is IPX client. The profile-to-protocol switch
+maps gre to 47 at 0x92e967..0x92e976.
+Without displaying values, comparison also establishes:
+  Each dst_ip equals the other side's listen_ip.
+  Each spoof_dst_ip equals the other side's spoof_src_ip.
+  The spoof addresses differ from the corresponding real addresses.
+The supplied installer has IPX profiles but does not emit either spoof key;
+these keys are present in the supplied configurations and supported by binary.
+
+Limits
+------
+This is static evidence for this exact binary hash. It does not demonstrate
+successful execution, a valid license, Internet delivery, provider permission,
+return-path success, or behavior of every Backhaul release/profile. Runtime
+confirmation would require the separately authorized isolated lab. No claim is
+made about private control, encryption, heartbeat, or application compatibility.
+
+Reproduction helpers (read-only inspectors, not the target executable)
+-------------------------------------------------------------------
+work/backhaul-static-audit/inspect_elf.py supports structs, address and
+disassemble modes and annotates call targets from the observed Go function table.
+work/spoof-reference-2026-10-20/static_inspect.py independently locates selected
+literals and function bounds without invoking the target.

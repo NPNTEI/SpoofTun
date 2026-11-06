@@ -1,0 +1,24 @@
+Third-party notices retained from the exact linked module source versions.
+These licenses cover their respective components, not the UNUNKNOWNTUN project itself.
+
+Go runtime and standard library: GO-LICENSE
+github.com__andybalholm__brotli@v1.0.6/LICENSE
+github.com__flynn__noise@v1.1.0/LICENSE
+github.com__klauspost__compress@v1.18.7/LICENSE
+github.com__klauspost__compress@v1.18.7/gzhttp/LICENSE
+github.com__klauspost__compress@v1.18.7/internal/lz4ref/LICENSE
+github.com__klauspost__compress@v1.18.7/internal/snapref/LICENSE
+github.com__klauspost__compress@v1.18.7/s2/LICENSE
+github.com__klauspost__compress@v1.18.7/s2/cmd/internal/filepathx/LICENSE
+github.com__klauspost__compress@v1.18.7/s2/cmd/internal/readahead/LICENSE
+github.com__klauspost__compress@v1.18.7/snappy/LICENSE
+github.com__klauspost__compress@v1.18.7/snappy/xerial/LICENSE
+github.com__klauspost__compress@v1.18.7/zstd/internal/xxhash/LICENSE.txt
+github.com__klauspost__cpuid__v2@v2.3.0/LICENSE
+github.com__klauspost__reedsolomon@v1.14.2/LICENSE
+github.com__refraction-networking__utls@v1.8.2/LICENSE
+github.com__refraction-networking__utls@v1.8.2/dicttls/LICENSE
+golang.org__x__crypto@v0.57.0/LICENSE
+golang.org__x__net@v0.60.0/LICENSE
+golang.org__x__sys@v0.48.0/LICENSE
+golang.org__x__text@v0.42.0/LICENSE

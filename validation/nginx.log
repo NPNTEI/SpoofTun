@@ -1,0 +1,915 @@
+{
+  "scope": "loopback-only, real Nginx, TLS1.3; not a WAN benchmark",
+  "binary": "/home/gdtlab/gdt3711-forward.STjfKSVH/build/bin/ununknowntun-linux-arm64",
+  "binary_sha256": "911ed249cce0a1481ab7968001802b527f715c3f0c1513574b281653f7c688c7",
+  "binary_version": "ununknowntun 3.7.0-preview.11",
+  "frontend_kind": "nginx",
+  "profile_set": "all",
+  "modes": [
+    {
+      "mode": "wss",
+      "selected_transport": "wss",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "wss-mux-on-fragment-off",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.006
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.673
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.005
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "wss",
+      "selected_transport": "wss",
+      "mux": "on",
+      "fragment": "hello",
+      "workers": 16,
+      "profile": "wss-mux-on-fragment-hello",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.002
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.658
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.003
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "wss",
+      "selected_transport": "wss",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "wss-mux-off-fragment-off",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.016
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.646
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.018
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "wss",
+      "selected_transport": "wss",
+      "mux": "off",
+      "fragment": "hello",
+      "workers": 16,
+      "profile": "wss-mux-off-fragment-hello",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.039
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.674
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.048
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-mux-on-fragment-off",
+      "xhttp_mode": "packet-up",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.003
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.663
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.008
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "on",
+      "fragment": "hello",
+      "workers": 16,
+      "profile": "xhttp-mux-on-fragment-hello",
+      "xhttp_mode": "packet-up",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.007
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.672
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.014
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-mux-off-fragment-off",
+      "xhttp_mode": "packet-up",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.018
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.671
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.018
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "off",
+      "fragment": "hello",
+      "workers": 16,
+      "profile": "xhttp-mux-off-fragment-hello",
+      "xhttp_mode": "packet-up",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.045
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.666
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.054
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "auto",
+      "selected_transport": "wss",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "auto-mux-on-fragment-off",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.011
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.705
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.01
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "h2",
+      "selected_transport": "wss",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "h2-mux-on-fragment-off",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "0",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.008
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.67
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.008
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "wss",
+      "selected_transport": "wss",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "wss-padded-mux-on",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.012
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.662
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.008
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-auto-padded-mux-on",
+      "xhttp_mode": "auto",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.004
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.684
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.01
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-packet-up-padded-mux-on",
+      "xhttp_mode": "packet-up",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.004
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.683
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.01
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-stream-up-padded-mux-on",
+      "xhttp_mode": "stream-up",
+      "xhttp_selected_mode": "stream-up",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.005
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.673
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.004
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "on",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-stream-one-padded-mux-on",
+      "xhttp_mode": "stream-one",
+      "xhttp_selected_mode": "stream-one",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 0,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.004
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.674
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.008
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "wss",
+      "selected_transport": "wss",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "wss-padded-mux-off",
+      "xhttp_mode": null,
+      "xhttp_selected_mode": null,
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "0",
+      "frontend_protocol": "HTTP/1.1 WebSocket",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.008
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.66
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.006
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-auto-padded-mux-off",
+      "xhttp_mode": "auto",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.014
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.667
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.017
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-packet-up-padded-mux-off",
+      "xhttp_mode": "packet-up",
+      "xhttp_selected_mode": "packet-up",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.009
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.677
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.021
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-stream-up-padded-mux-off",
+      "xhttp_mode": "stream-up",
+      "xhttp_selected_mode": "stream-up",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.011
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.67
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.018
+      },
+      "stream_and_queue_cleanup_verified": true
+    },
+    {
+      "mode": "xhttp",
+      "selected_transport": "xhttp",
+      "mux": "off",
+      "fragment": "off",
+      "workers": 16,
+      "profile": "xhttp-stream-one-padded-mux-off",
+      "xhttp_mode": "stream-one",
+      "xhttp_selected_mode": "stream-one",
+      "padding_bytes": "32-128",
+      "xhttp_padding_bytes": "100-200",
+      "frontend_protocol": "HTTP/2",
+      "backend_protocol": "HTTP/1.1",
+      "authenticated_probe_passed": true,
+      "doctor": {
+        "actual_subprocess": true,
+        "authenticated": true,
+        "wrong_route_rejected": true,
+        "configuration_unchanged": true,
+        "secrets_redacted": true,
+        "does_not_claim_target_payload": true
+      },
+      "concurrent_bytes_each_direction": 8388608,
+      "new_carrier_dial_stagger_ms": 150,
+      "all_sha256_and_fin_verified": true,
+      "fast_stream_during_slow_consumer": {
+        "bytes_each_direction": 65536,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.017
+      },
+      "slow_consumer": {
+        "bytes_each_direction": 2097152,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 1.676
+      },
+      "new_stream_after_egress_restart": {
+        "bytes_each_direction": 524288,
+        "sha256_verified": true,
+        "fin_eof_verified": true,
+        "seconds": 0.017
+      },
+      "stream_and_queue_cleanup_verified": true
+    }
+  ],
+  "nginx_version": "nginx version: nginx/1.24.0 (Ubuntu)",
+  "frontend_tls": "TLSv1.3",
+  "frontend_alpn": "h2",
+  "website_fallback_verified": true,
+  "status": "PASS"
+}

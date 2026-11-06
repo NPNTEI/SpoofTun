@@ -1,0 +1,25 @@
+test_candidate_limit_and_ranges_cannot_trigger_broad_scan (__main__.DoctorTests.test_candidate_limit_and_ranges_cannot_trigger_broad_scan) ... ok
+test_cli_offline_report_has_honest_scope (__main__.DoctorTests.test_cli_offline_report_has_honest_scope) ... ok
+test_core_timeout_is_reported_without_guessing_filter_root_cause (__main__.DoctorTests.test_core_timeout_is_reported_without_guessing_filter_root_cause) ... ok
+test_dns_is_bounded_and_literal_ips_need_no_resolver (__main__.DoctorTests.test_dns_is_bounded_and_literal_ips_need_no_resolver) ... ok
+test_duplicate_and_dynamic_flags_rejected_without_execution (__main__.DoctorTests.test_duplicate_and_dynamic_flags_rejected_without_execution) ... ok
+test_ech_skips_plain_tls_but_uses_actual_core (__main__.DoctorTests.test_ech_skips_plain_tls_but_uses_actual_core) ... ok
+test_egress_separates_local_origin_ca_from_public_edge_ca (__main__.DoctorTests.test_egress_separates_local_origin_ca_from_public_edge_ca) ... ok
+test_endpoint_validation_and_ipv6 (__main__.DoctorTests.test_endpoint_validation_and_ipv6) ... ok
+test_env_never_runs_shell (__main__.DoctorTests.test_env_never_runs_shell) ... ok
+test_explicit_system_ca_overrides_stale_metadata (__main__.DoctorTests.test_explicit_system_ca_overrides_stale_metadata) ... ok
+test_failed_certificate_is_never_suppressed (__main__.DoctorTests.test_failed_certificate_is_never_suppressed) ... ok
+test_offline_has_no_network_or_subprocess_and_no_secrets (__main__.DoctorTests.test_offline_has_no_network_or_subprocess_and_no_secrets) ... ok
+test_offline_rejects_inconsistent_ech_and_fragment (__main__.DoctorTests.test_offline_rejects_inconsistent_ech_and_fragment) ... ok
+test_partial_results_recommend_only_authenticated_endpoint (__main__.DoctorTests.test_partial_results_recommend_only_authenticated_endpoint) ... ok
+test_pinned_profile_uses_actual_pin_check_not_unrelated_ca_policy (__main__.DoctorTests.test_pinned_profile_uses_actual_pin_check_not_unrelated_ca_policy) ... ok
+test_private_doh_url_and_ca_paths_are_redacted_in_actual_error (__main__.DoctorTests.test_private_doh_url_and_ca_paths_are_redacted_in_actual_error) ... ok
+test_real_core_command_is_allowlisted_and_never_exposes_token_in_argv (__main__.DoctorTests.test_real_core_command_is_allowlisted_and_never_exposes_token_in_argv) ... ok
+test_redaction_covers_tokens_headers_private_keys_and_paths (__main__.DoctorTests.test_redaction_covers_tokens_headers_private_keys_and_paths) ... ok
+test_report_permissions_and_no_overwrite_or_symlink (__main__.DoctorTests.test_report_permissions_and_no_overwrite_or_symlink) ... ok
+test_token_file_prevents_unrelated_inherited_token (__main__.DoctorTests.test_token_file_prevents_unrelated_inherited_token) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.013s
+
+OK
