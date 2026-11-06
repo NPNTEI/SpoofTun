@@ -14695,7 +14695,9 @@ generate_direct_icmp_pair() (
     command -v python3 >/dev/null || die "Python 3 is required."
     local destination="${1:-}"
     if [[ -z "$destination" ]]; then
-        read -r -p 'New absolute private pair directory (must not exist): ' destination || die "Cancelled."
+        local default_dir="/root/ununknowntun-icmp-$(date +%Y%m%d-%H%M%S)"
+        read -r -p "Folder for the generated files [$default_dir]: " destination || die "Cancelled."
+        destination="${destination:-$default_dir}"
     fi
     [[ "$destination" == /* ]] || die "Use a new absolute output directory."
     umask 077
@@ -15223,13 +15225,14 @@ def test_parallel(label, host, port, token, ctx, timeout, streams=4, size=4 << 2
             except Exception:
                 pass
 
-        threads = [threading.Thread(target=worker) for _ in range(streams)]
+        threads = [threading.Thread(target=worker, daemon=True) for _ in range(streams)]
         began = time.monotonic()
         for t in threads:
             t.start()
+        deadline = began + 45
         for t in threads:
-            t.join()
-        rates.append(sum(done) * 8 / (time.monotonic() - began) / 1e6)
+            t.join(max(0.1, deadline - time.monotonic()))
+        rates.append(sum(done) * 8 / max(0.001, time.monotonic() - began) / 1e6)
     if rates[0] or rates[1]:
         SPEEDS.append((f"{label} x{streams}", *rates))
 
@@ -15851,6 +15854,70 @@ quick_manage() {
             *) ;;
         esac
     done
+}
+
+run_test_menu() {
+    printf '\n%sTest%s\n' "$BOLD$CYAN" "$RESET"
+    printf '  %s1)%s %sConnection test%s   protocols (TCP/UDP/ICMP/TLS/WebSocket) and speed between Iran and Foreign\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sSpoof test%s        only checks whether forged source IPs pass between the two servers\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    local choice
+    ask_valid choice "Select" "1" valid_two_choices "Select 1 or 2."
+    case "$choice" in 1) run_connection_test ;; 2) run_spoof_test ;; esac
+}
+
+run_spoof_test() {
+    command -v python3 >/dev/null 2>&1 || die "python3 is required for the spoof test."
+    [[ ${EUID:-$(id -u)} -eq 0 ]] || die "The spoof test needs root (raw sockets). Run: sudo ununknowntun spoof-test"
+    local role port token host link ip spoof
+    printf '\nSpoof test (sends forged-source packets; nothing is installed or changed):\n'
+    printf '  1) RECEIVER - run this on the server that should receive the forged packets\n'
+    printf '  2) SENDER   - run this on the server that sends them (paste the receiver link)\n'
+    ask_valid role "Select this server" "1" valid_two_choices "Select 1 or 2."
+    if [[ "$role" == 1 ]]; then
+        ip="$(curl --noproxy '*' -4fsS --connect-timeout 5 --max-time 8 https://api.ipify.org 2>/dev/null || true)"
+        ask_valid host "This server's public IP" "$ip" valid_name "Enter the server IP."
+        ask_valid port "UDP port" "4510" valid_port "Invalid port."
+        token="$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+        printf '\n'
+        info "On the SENDER choose Test > Spoof test > 2 and paste this link:"
+        printf '\n    %suuts://%s:%s/%s%s\n\n' "$GREEN" "$host" "$port" "$token" "$RESET"
+        info "Allow UDP $port in the firewall if blocked. Press Ctrl+C when finished."
+        run_connection_test_py spoof-server --port "$port" --token "$token"
+    else
+        while true; do
+            ask link "Paste the link from the receiver (uuts://IP:PORT/TOKEN)" ""
+            if [[ "$link" =~ ^uuts://([^:/[:space:]]+):([0-9]{4,5})/([0-9a-f]{24})$ ]]; then
+                host="${BASH_REMATCH[1]}"; port="${BASH_REMATCH[2]}"; token="${BASH_REMATCH[3]}"
+                valid_port "$port" && break
+            fi
+            warn "Invalid link. Copy it exactly from the receiver."
+        done
+        printf 'Forged source IP: an address that is NOT this server (e.g. the other server'"'"'s IP, or the IP your spoof tunnel will use).\n'
+        while true; do
+            ask spoof "IP address to forge as the source" ""
+            [[ "$spoof" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && break
+            warn "Enter an IPv4 address."
+        done
+        run_connection_test_py spoof-client --host "$host" --port "$port" --token "$token" --spoof-ip "$spoof"
+    fi
+}
+
+install_launcher() {
+    [[ ${EUID:-$(id -u)} -eq 0 && -f "$SCRIPT_PATH" ]] || return 0
+    local target="$INSTALL_DIR/installer.sh"
+    [[ "$SCRIPT_PATH" == "$target" ]] && return 0
+    install -d -m 0755 "$INSTALL_DIR" 2>/dev/null || return 0
+    if ! cmp -s "$SCRIPT_PATH" "$target" 2>/dev/null; then
+        cp -f -- "$SCRIPT_PATH" "$target.new" 2>/dev/null && chmod 0755 "$target.new" && mv -f -- "$target.new" "$target" || return 0
+    fi
+    cat > /usr/local/bin/ununknowntun <<'LAUNCHER'
+#!/bin/sh
+# UnUnknownTun launcher: opens the installer menu (or runs a command, e.g. quick-manage).
+if [ "$(id -u)" -ne 0 ]; then exec sudo /usr/local/bin/ununknowntun "$@"; fi
+exec bash /opt/ununknowntun/installer.sh "$@"
+LAUNCHER
+    chmod 0755 /usr/local/bin/ununknowntun
+    ln -sf ununknowntun /usr/local/bin/uut 2>/dev/null || true
 }
 
 run_test_menu() {

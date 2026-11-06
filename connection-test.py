@@ -290,13 +290,14 @@ def test_parallel(label, host, port, token, ctx, timeout, streams=4, size=4 << 2
             except Exception:
                 pass
 
-        threads = [threading.Thread(target=worker) for _ in range(streams)]
+        threads = [threading.Thread(target=worker, daemon=True) for _ in range(streams)]
         began = time.monotonic()
         for t in threads:
             t.start()
+        deadline = began + 45
         for t in threads:
-            t.join()
-        rates.append(sum(done) * 8 / (time.monotonic() - began) / 1e6)
+            t.join(max(0.1, deadline - time.monotonic()))
+        rates.append(sum(done) * 8 / max(0.001, time.monotonic() - began) / 1e6)
     if rates[0] or rates[1]:
         SPEEDS.append((f"{label} x{streams}", *rates))
 
