@@ -23,6 +23,13 @@ curl -fsSLO https://raw.githubusercontent.com/NPNTEI/SpoofTun/main/UNUNKNOWNTUN-
 - دستورهای مستقیم: `quick-foreign`، `quick-iran`، `quick-manage`.
 - حالت پیشرفته (WSS / XHTTP / CDN / ICMP / GRE) هنوز از گزینه `2) Advanced` در همان منوها در دسترس است.
 
+## دستور باز کردن منو + تست Spoof
+
+- بعد از اولین اجرا، منو با یک دستور باز می‌شود: `ununknowntun` (کوتاه: `uut`). دستورهای مستقیم: `ununknowntun quick-manage`، `ununknowntun spoof-test`، `ununknowntun connection-test`.
+- منوی `Setup Iran` و `Setup Foreign` حالا مستقیم می‌پرسد چه تونلی می‌خواهید: Quick tunnel، CDN (WSS/XHTTP)، ICMP L3، IP spoof/GRE یا سایر.
+- منوی `0) Test` دو بخش دارد: Connection test و **Spoof test** (فقط بررسی می‌کند بسته با IP مبدأ جعلی بین دو سرور عبور می‌کند یا نه؛ UDP و ICMP). گیرنده لینک `uuts://...` می‌دهد، فرستنده لینک و IP جعلی را وارد می‌کند. نیاز به root دارد.
+- پیش‌فرض پوشه فایل‌های spoof/ICMP خودکار `/root/ununknowntun-...` است.
+
 ## سایر نکات
 
 - بعد از نصب حالت پیشرفته: `sudo ununknowntunctl list` و `sudo ununknowntunctl ui`

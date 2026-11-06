@@ -443,6 +443,136 @@ def run_client(args):
     return 0 if passed else 1
 
 
+# ---------------------------------------------------------------- spoof test
+def ip_checksum(data):
+    if len(data) % 2:
+        data += b"\0"
+    total = sum(struct.unpack(f"!{len(data) // 2}H", data))
+    total = (total >> 16) + (total & 0xFFFF)
+    total += total >> 16
+    return (~total) & 0xFFFF
+
+
+def build_ip(src, dst, proto, payload):
+    header = struct.pack("!BBHHHBBH4s4s", 0x45, 0, 20 + len(payload), os.getpid() & 0xFFFF, 0, 64, proto, 0,
+                         socket.inet_aton(src), socket.inet_aton(dst))
+    header = header[:10] + struct.pack("!H", ip_checksum(header)) + header[12:]
+    return header + payload
+
+
+def build_udp(sport, dport, data):
+    return struct.pack("!HHHH", sport, dport, 8 + len(data), 0) + data  # checksum 0 is valid for IPv4 UDP
+
+
+def build_icmp(ident, seq, data):
+    body = struct.pack("!BBHHH", 8, 0, 0, ident, seq) + data
+    return body[:2] + struct.pack("!H", ip_checksum(body)) + body[4:]
+
+
+def run_spoof_server(args):
+    seen = {}
+    lock = threading.Lock()
+    prefix = f"UUTSPOOF {args.token} ".encode()
+    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp.bind(("0.0.0.0", args.port))
+
+    def note(kind, nonce, src):
+        with lock:
+            seen.setdefault(nonce, {})[kind] = src
+        print(f"  received spoof-test {kind} packet, source address seen: {src}", flush=True)
+
+    def icmp_listener():
+        try:
+            raw = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+        except OSError as exc:
+            print(f"  ICMP spoof listening unavailable ({exc}); UDP only.")
+            return
+        while True:
+            data, _ = raw.recvfrom(2048)
+            ihl = (data[0] & 0x0F) * 4
+            if len(data) > ihl + 8 and data[ihl] == 8 and data[ihl + 8:].startswith(prefix):
+                nonce = data[ihl + 8 + len(prefix):].split(b" ")[0].decode("latin-1")
+                note("ICMP", nonce, socket.inet_ntoa(data[12:16]))
+
+    threading.Thread(target=icmp_listener, daemon=True).start()
+    print(f"Spoof listener ready on UDP {args.port} (and raw ICMP). Press Ctrl+C to stop.")
+    try:
+        while True:
+            data, addr = udp.recvfrom(2048)
+            if data.startswith(prefix):
+                nonce = data[len(prefix):].split(b" ")[0].decode("latin-1")
+                note("UDP", nonce, addr[0])
+            elif data.startswith(f"UUTREPORT {args.token} ".encode()):
+                run = data.split(b" ")[2].decode("latin-1")
+                with lock:
+                    lines = [f"{n}|{k}|{v}" for n, kinds in seen.items() if n.startswith(run) for k, v in kinds.items()]
+                udp.sendto(("\n".join(lines) or "NONE").encode(), addr)
+    except KeyboardInterrupt:
+        print("\nStopped.")
+
+
+def run_spoof_client(args):
+    print(c(BOLD, f"\n  UnUnknownTun spoof test  →  {args.host}:{args.port}   spoofed source: {args.spoof_ip}"))
+    section("This server")
+    try:
+        raw = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+        raw.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+        report("raw", "Raw socket (root)", True, "can craft IP packets")
+    except OSError as exc:
+        report("raw", "Raw socket (root)", False, f"{exc} (run as root)")
+        print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+        return 1
+    try:
+        with open("/proc/sys/net/ipv4/conf/all/rp_filter") as handle:
+            rp = handle.read().strip()
+        report("rp", "rp_filter (this server)", True, {"0": "off", "1": "strict (affects replies only)", "2": "loose"}.get(rp, rp), warn=False)
+    except OSError:
+        pass
+    run = os.urandom(4).hex()
+    section("Sending spoofed packets")
+    for i in range(args.count):
+        nonce = f"{run}{i:02d}"
+        payload = f"UUTSPOOF {args.token} {nonce} ".encode() + b"x" * 40
+        raw.sendto(build_ip(args.spoof_ip, args.host, socket.IPPROTO_UDP, build_udp(40000 + i, args.port, payload)), (args.host, 0))
+        raw.sendto(build_ip(args.spoof_ip, args.host, socket.IPPROTO_ICMP, build_icmp(os.getpid() & 0xFFFF, i, payload)), (args.host, 0))
+        time.sleep(0.05)
+    print(f"  {c(CYAN, '│')} sent {args.count} UDP + {args.count} ICMP packets with source {args.spoof_ip}")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(2)
+    reply = ""
+    for _ in range(3):
+        sock.sendto(f"UUTREPORT {args.token} {run}".encode(), (args.host, args.port))
+        try:
+            reply = sock.recvfrom(4096)[0].decode("latin-1")
+            break
+        except socket.timeout:
+            continue
+    section("Result")
+    got = {"UDP": [], "ICMP": []}
+    if reply and reply != "NONE":
+        for line in reply.splitlines():
+            _, kind, src = line.split("|")
+            got[kind].append(src)
+    if not reply:
+        report("rep", "Listener report", False, "no answer: check the link/port and that UDP is open on the listener")
+        print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+        return 1
+    for kind in ("UDP", "ICMP"):
+        sources = got[kind]
+        if not sources:
+            report(kind, f"Spoofed {kind}", False, f"0/{args.count} arrived: provider filters forged sources (or ICMP not listened)")
+        elif all(s == args.spoof_ip for s in sources):
+            report(kind, f"Spoofed {kind}", True, f"{len(sources)}/{args.count} arrived with source {args.spoof_ip}  → spoofing WORKS")
+        else:
+            report(kind, f"Spoofed {kind}", False, f"arrived but source was rewritten to {sorted(set(sources))[0]} (NAT)")
+    ok = any(got[k] and all(s == args.spoof_ip for s in got[k]) for k in got)
+    verdict = c(GREEN, "IP source spoofing works on this path: spoof/GRE tunnels can be used.") if ok else \
+        c(RED, "Spoofing is blocked on this path. Do not use spoof/GRE; use Quick tunnel (TLS) or CDN.")
+    print(f"  {c(CYAN, '│')} {verdict}")
+    print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="role", required=True)
@@ -454,7 +584,21 @@ def main():
     cl.add_argument("--port", type=int, default=4500)
     cl.add_argument("--token", required=True)
     cl.add_argument("--timeout", type=float, default=8.0)
+    ss = sub.add_parser("spoof-server")
+    ss.add_argument("--port", type=int, default=4510)
+    ss.add_argument("--token", required=True)
+    sc = sub.add_parser("spoof-client")
+    sc.add_argument("--host", required=True)
+    sc.add_argument("--port", type=int, default=4510)
+    sc.add_argument("--token", required=True)
+    sc.add_argument("--spoof-ip", required=True)
+    sc.add_argument("--count", type=int, default=5)
     args = ap.parse_args()
+    if args.role == "spoof-server":
+        run_spoof_server(args)
+        return 0
+    if args.role == "spoof-client":
+        return run_spoof_client(args)
     if not 1024 <= args.port <= 65533:
         sys.exit("Port must be 1024..65533.")
     if args.role == "server":

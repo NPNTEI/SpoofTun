@@ -12926,9 +12926,11 @@ generate_spoof_pair() (
     if [[ -z "$destination" ]]; then
         printf 'Native IP source spoof / GRE pair (Linux, direct TLS; NOT browser fingerprint).\n'
         printf 'Both real peer addresses and both permitted source addresses are required.\n'
-        read -r -p 'New absolute output directory (must not exist): ' destination
+        local default_dir="/root/ununknowntun-spoof-$(date +%Y%m%d-%H%M%S)"
+        read -r -p "Folder for the generated files [$default_dir]: " destination
+        destination="${destination:-$default_dir}"
     fi
-    [[ "$destination" == /* ]] || die "Use a new absolute output directory."
+    [[ "$destination" == /* ]] || die "Use an absolute folder path, e.g. /root/spoof-pair."
     gdt_spoof_stage="$(mktemp -d)"
     chmod 0700 "$gdt_spoof_stage"
     trap 'rm -f -- "$gdt_spoof_stage/spoof-pair.py"; rmdir -- "$gdt_spoof_stage"' EXIT
@@ -12942,7 +12944,9 @@ generate_icmp_pair() (
     local destination="${1:-}" selected_mode="${2:-}"
     [[ -z "$selected_mode" || "$selected_mode" == native-icmp || "$selected_mode" == icmp-wss ]] || die "Invalid ICMP mode."
     if [[ -z "$destination" ]]; then
-        read -r -p 'New absolute private pair directory (must not exist): ' destination || die "Cancelled."
+        local default_dir="/root/ununknowntun-icmp-$(date +%Y%m%d-%H%M%S)"
+        read -r -p "Folder for the generated files [$default_dir]: " destination || die "Cancelled."
+        destination="${destination:-$default_dir}"
     fi
     [[ "$destination" == /* ]] || die "Use a new absolute output directory."
     gdt_spoof_stage="$(mktemp -d)"
@@ -15372,6 +15376,136 @@ def run_client(args):
     return 0 if passed else 1
 
 
+# ---------------------------------------------------------------- spoof test
+def ip_checksum(data):
+    if len(data) % 2:
+        data += b"\0"
+    total = sum(struct.unpack(f"!{len(data) // 2}H", data))
+    total = (total >> 16) + (total & 0xFFFF)
+    total += total >> 16
+    return (~total) & 0xFFFF
+
+
+def build_ip(src, dst, proto, payload):
+    header = struct.pack("!BBHHHBBH4s4s", 0x45, 0, 20 + len(payload), os.getpid() & 0xFFFF, 0, 64, proto, 0,
+                         socket.inet_aton(src), socket.inet_aton(dst))
+    header = header[:10] + struct.pack("!H", ip_checksum(header)) + header[12:]
+    return header + payload
+
+
+def build_udp(sport, dport, data):
+    return struct.pack("!HHHH", sport, dport, 8 + len(data), 0) + data  # checksum 0 is valid for IPv4 UDP
+
+
+def build_icmp(ident, seq, data):
+    body = struct.pack("!BBHHH", 8, 0, 0, ident, seq) + data
+    return body[:2] + struct.pack("!H", ip_checksum(body)) + body[4:]
+
+
+def run_spoof_server(args):
+    seen = {}
+    lock = threading.Lock()
+    prefix = f"UUTSPOOF {args.token} ".encode()
+    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp.bind(("0.0.0.0", args.port))
+
+    def note(kind, nonce, src):
+        with lock:
+            seen.setdefault(nonce, {})[kind] = src
+        print(f"  received spoof-test {kind} packet, source address seen: {src}", flush=True)
+
+    def icmp_listener():
+        try:
+            raw = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+        except OSError as exc:
+            print(f"  ICMP spoof listening unavailable ({exc}); UDP only.")
+            return
+        while True:
+            data, _ = raw.recvfrom(2048)
+            ihl = (data[0] & 0x0F) * 4
+            if len(data) > ihl + 8 and data[ihl] == 8 and data[ihl + 8:].startswith(prefix):
+                nonce = data[ihl + 8 + len(prefix):].split(b" ")[0].decode("latin-1")
+                note("ICMP", nonce, socket.inet_ntoa(data[12:16]))
+
+    threading.Thread(target=icmp_listener, daemon=True).start()
+    print(f"Spoof listener ready on UDP {args.port} (and raw ICMP). Press Ctrl+C to stop.")
+    try:
+        while True:
+            data, addr = udp.recvfrom(2048)
+            if data.startswith(prefix):
+                nonce = data[len(prefix):].split(b" ")[0].decode("latin-1")
+                note("UDP", nonce, addr[0])
+            elif data.startswith(f"UUTREPORT {args.token} ".encode()):
+                run = data.split(b" ")[2].decode("latin-1")
+                with lock:
+                    lines = [f"{n}|{k}|{v}" for n, kinds in seen.items() if n.startswith(run) for k, v in kinds.items()]
+                udp.sendto(("\n".join(lines) or "NONE").encode(), addr)
+    except KeyboardInterrupt:
+        print("\nStopped.")
+
+
+def run_spoof_client(args):
+    print(c(BOLD, f"\n  UnUnknownTun spoof test  →  {args.host}:{args.port}   spoofed source: {args.spoof_ip}"))
+    section("This server")
+    try:
+        raw = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+        raw.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+        report("raw", "Raw socket (root)", True, "can craft IP packets")
+    except OSError as exc:
+        report("raw", "Raw socket (root)", False, f"{exc} (run as root)")
+        print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+        return 1
+    try:
+        with open("/proc/sys/net/ipv4/conf/all/rp_filter") as handle:
+            rp = handle.read().strip()
+        report("rp", "rp_filter (this server)", True, {"0": "off", "1": "strict (affects replies only)", "2": "loose"}.get(rp, rp), warn=False)
+    except OSError:
+        pass
+    run = os.urandom(4).hex()
+    section("Sending spoofed packets")
+    for i in range(args.count):
+        nonce = f"{run}{i:02d}"
+        payload = f"UUTSPOOF {args.token} {nonce} ".encode() + b"x" * 40
+        raw.sendto(build_ip(args.spoof_ip, args.host, socket.IPPROTO_UDP, build_udp(40000 + i, args.port, payload)), (args.host, 0))
+        raw.sendto(build_ip(args.spoof_ip, args.host, socket.IPPROTO_ICMP, build_icmp(os.getpid() & 0xFFFF, i, payload)), (args.host, 0))
+        time.sleep(0.05)
+    print(f"  {c(CYAN, '│')} sent {args.count} UDP + {args.count} ICMP packets with source {args.spoof_ip}")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(2)
+    reply = ""
+    for _ in range(3):
+        sock.sendto(f"UUTREPORT {args.token} {run}".encode(), (args.host, args.port))
+        try:
+            reply = sock.recvfrom(4096)[0].decode("latin-1")
+            break
+        except socket.timeout:
+            continue
+    section("Result")
+    got = {"UDP": [], "ICMP": []}
+    if reply and reply != "NONE":
+        for line in reply.splitlines():
+            _, kind, src = line.split("|")
+            got[kind].append(src)
+    if not reply:
+        report("rep", "Listener report", False, "no answer: check the link/port and that UDP is open on the listener")
+        print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+        return 1
+    for kind in ("UDP", "ICMP"):
+        sources = got[kind]
+        if not sources:
+            report(kind, f"Spoofed {kind}", False, f"0/{args.count} arrived: provider filters forged sources (or ICMP not listened)")
+        elif all(s == args.spoof_ip for s in sources):
+            report(kind, f"Spoofed {kind}", True, f"{len(sources)}/{args.count} arrived with source {args.spoof_ip}  → spoofing WORKS")
+        else:
+            report(kind, f"Spoofed {kind}", False, f"arrived but source was rewritten to {sorted(set(sources))[0]} (NAT)")
+    ok = any(got[k] and all(s == args.spoof_ip for s in got[k]) for k in got)
+    verdict = c(GREEN, "IP source spoofing works on this path: spoof/GRE tunnels can be used.") if ok else \
+        c(RED, "Spoofing is blocked on this path. Do not use spoof/GRE; use Quick tunnel (TLS) or CDN.")
+    print(f"  {c(CYAN, '│')} {verdict}")
+    print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="role", required=True)
@@ -15383,7 +15517,21 @@ def main():
     cl.add_argument("--port", type=int, default=4500)
     cl.add_argument("--token", required=True)
     cl.add_argument("--timeout", type=float, default=8.0)
+    ss = sub.add_parser("spoof-server")
+    ss.add_argument("--port", type=int, default=4510)
+    ss.add_argument("--token", required=True)
+    sc = sub.add_parser("spoof-client")
+    sc.add_argument("--host", required=True)
+    sc.add_argument("--port", type=int, default=4510)
+    sc.add_argument("--token", required=True)
+    sc.add_argument("--spoof-ip", required=True)
+    sc.add_argument("--count", type=int, default=5)
     args = ap.parse_args()
+    if args.role == "spoof-server":
+        run_spoof_server(args)
+        return 0
+    if args.role == "spoof-client":
+        return run_spoof_client(args)
     if not 1024 <= args.port <= 65533:
         sys.exit("Port must be 1024..65533.")
     if args.role == "server":
@@ -15705,26 +15853,109 @@ quick_manage() {
     done
 }
 
-setup_iran_menu() {
-    printf '\n%sIRAN server setup%s\n' "$BOLD$CYAN" "$RESET"
-    printf '  %s1)%s %sQuick tunnel%s     paste the link from the foreign server (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s2)%s %sAdvanced%s         WSS / XHTTP / CDN, ICMP, GRE (classic pairing code)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+run_test_menu() {
+    printf '\n%sTest%s\n' "$BOLD$CYAN" "$RESET"
+    printf '  %s1)%s %sConnection test%s   protocols (TCP/UDP/ICMP/TLS/WebSocket) and speed between Iran and Foreign\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sSpoof test%s        only checks whether forged source IPs pass between the two servers\n' "$RED" "$RESET" "$BOLD" "$RESET"
     local choice
     ask_valid choice "Select" "1" valid_two_choices "Select 1 or 2."
-    case "$choice" in 1) quick_iran_setup ;; 2) create_tunnel origin ;; esac
+    case "$choice" in 1) run_connection_test ;; 2) run_spoof_test ;; esac
+}
+
+run_spoof_test() {
+    command -v python3 >/dev/null 2>&1 || die "python3 is required for the spoof test."
+    [[ ${EUID:-$(id -u)} -eq 0 ]] || die "The spoof test needs root (raw sockets). Run: sudo ununknowntun spoof-test"
+    local role port token host link ip spoof
+    printf '\nSpoof test (sends forged-source packets; nothing is installed or changed):\n'
+    printf '  1) RECEIVER - run this on the server that should receive the forged packets\n'
+    printf '  2) SENDER   - run this on the server that sends them (paste the receiver link)\n'
+    ask_valid role "Select this server" "1" valid_two_choices "Select 1 or 2."
+    if [[ "$role" == 1 ]]; then
+        ip="$(curl --noproxy '*' -4fsS --connect-timeout 5 --max-time 8 https://api.ipify.org 2>/dev/null || true)"
+        ask_valid host "This server's public IP" "$ip" valid_name "Enter the server IP."
+        ask_valid port "UDP port" "4510" valid_port "Invalid port."
+        token="$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+        printf '\n'
+        info "On the SENDER choose Test > Spoof test > 2 and paste this link:"
+        printf '\n    %suuts://%s:%s/%s%s\n\n' "$GREEN" "$host" "$port" "$token" "$RESET"
+        info "Allow UDP $port in the firewall if blocked. Press Ctrl+C when finished."
+        run_connection_test_py spoof-server --port "$port" --token "$token"
+    else
+        while true; do
+            ask link "Paste the link from the receiver (uuts://IP:PORT/TOKEN)" ""
+            if [[ "$link" =~ ^uuts://([^:/[:space:]]+):([0-9]{4,5})/([0-9a-f]{24})$ ]]; then
+                host="${BASH_REMATCH[1]}"; port="${BASH_REMATCH[2]}"; token="${BASH_REMATCH[3]}"
+                valid_port "$port" && break
+            fi
+            warn "Invalid link. Copy it exactly from the receiver."
+        done
+        printf 'Forged source IP: an address that is NOT this server (e.g. the other server'"'"'s IP, or the IP your spoof tunnel will use).\n'
+        while true; do
+            ask spoof "IP address to forge as the source" ""
+            [[ "$spoof" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && break
+            warn "Enter an IPv4 address."
+        done
+        run_connection_test_py spoof-client --host "$host" --port "$port" --token "$token" --spoof-ip "$spoof"
+    fi
+}
+
+install_launcher() {
+    [[ ${EUID:-$(id -u)} -eq 0 && -f "$SCRIPT_PATH" ]] || return 0
+    local target="$INSTALL_DIR/installer.sh"
+    [[ "$SCRIPT_PATH" == "$target" ]] && return 0
+    install -d -m 0755 "$INSTALL_DIR" 2>/dev/null || return 0
+    if ! cmp -s "$SCRIPT_PATH" "$target" 2>/dev/null; then
+        cp -f -- "$SCRIPT_PATH" "$target.new" 2>/dev/null && chmod 0755 "$target.new" && mv -f -- "$target.new" "$target" || return 0
+    fi
+    cat > /usr/local/bin/ununknowntun <<'LAUNCHER'
+#!/bin/sh
+# UnUnknownTun launcher: opens the installer menu (or runs a command, e.g. quick-manage).
+if [ "$(id -u)" -ne 0 ]; then exec sudo /usr/local/bin/ununknowntun "$@"; fi
+exec bash /opt/ununknowntun/installer.sh "$@"
+LAUNCHER
+    chmod 0755 /usr/local/bin/ununknowntun
+    ln -sf ununknowntun /usr/local/bin/uut 2>/dev/null || true
+}
+
+setup_iran_menu() {
+    printf '\n%sIRAN server: what do you want?%s\n' "$BOLD$CYAN" "$RESET"
+    printf '  %s1)%s %sQuick tunnel%s      direct TLS, no domain. Paste the link from the foreign server. (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sCDN tunnel%s        WSS/XHTTP through Cloudflare/Arvan/Nginx. Needs a domain. Paste the pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s3)%s %sICMP L3 tunnel%s    ping-based private IPv4 link. Paste the pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s4)%s %sIP spoof / GRE%s    creates matched config files (to deploy manually). Run the Spoof test first.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s5)%s %sOther types%s       native ICMP carrier, ICMP inside WSS (old menu)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    local choice
+    ask_valid choice "Select" "1" valid_five_choices "Select 1, 2, 3, 4 or 5."
+    case "$choice" in
+        1) quick_iran_setup ;;
+        2) install_origin ;;
+        3) run_direct_icmp_setup origin ;;
+        4) generate_spoof_pair ;;
+        5) create_tunnel origin ;;
+    esac
 }
 
 setup_foreign_menu() {
-    printf '\n%sFOREIGN server setup%s\n' "$BOLD$CYAN" "$RESET"
-    printf '  %s1)%s %sQuick tunnel%s     only creates a link for Iran (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
-    printf '  %s2)%s %sAdvanced%s         WSS / XHTTP / CDN, ICMP, GRE (classic pairing code)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '\n%sFOREIGN server: what do you want?%s\n' "$BOLD$CYAN" "$RESET"
+    printf '  %s1)%s %sQuick tunnel%s      direct TLS, no domain. Only creates a link for Iran. (recommended)\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s2)%s %sCDN tunnel%s        WSS/XHTTP through Cloudflare/Arvan/Nginx. Needs a domain. Creates a pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s3)%s %sICMP L3 tunnel%s    ping-based private IPv4 link. Creates a pairing code.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s4)%s %sIP spoof / GRE%s    creates matched config files (to deploy manually). Run the Spoof test first.\n' "$RED" "$RESET" "$BOLD" "$RESET"
+    printf '  %s5)%s %sOther types%s       native ICMP carrier, ICMP inside WSS (old menu)\n' "$RED" "$RESET" "$BOLD" "$RESET"
     local choice
-    ask_valid choice "Select" "1" valid_two_choices "Select 1 or 2."
-    case "$choice" in 1) quick_foreign_setup ;; 2) create_tunnel egress ;; esac
+    ask_valid choice "Select" "1" valid_five_choices "Select 1, 2, 3, 4 or 5."
+    case "$choice" in
+        1) quick_foreign_setup ;;
+        2) install_foreign ;;
+        3) run_direct_icmp_setup egress ;;
+        4) generate_spoof_pair ;;
+        5) create_tunnel egress ;;
+    esac
 }
 
 main_menu() {
     local B=$'\033[1m' D=$'\033[2m' R=$'\033[31m'
+    install_launcher
     printf '%s\n' "$RED"
     printf '%s\n' '█   █ █   █ █   █ █   █ █  █  █   █  ███  █   █ █   █ █████ █   █ █   █'
     printf '%s\n' '█   █ ██  █ █   █ ██  █ █ █   ██  █ █   █ █   █ ██  █   █   █   █ ██  █'
@@ -15744,11 +15975,11 @@ main_menu() {
         printf '  %s%2s)%s %s%-16s%s %s%s%s\n' "$R" "$n" "$RESET" "$B" "$title" "$RESET" "$D" "$desc" "$RESET"
     done <<'MENU'
 #|── TEST ─────────────────────────────────────────────|
- 0|Connection Test|Iran/Foreign: test all protocols and speed
+ 0|Test|connection + speed test, spoof test
 #|── IRAN SERVER  (all settings are chosen here) ──────|
- 1|Setup Iran|paste the foreign link, choose ports
+ 1|Setup Iran|choose the tunnel type here (quick, CDN, ICMP, spoof)
 #|── FOREIGN SERVER  (only gives a link) ──────────────|
- 2|Setup Foreign|create the link for Iran
+ 2|Setup Foreign|creates the link / code for Iran
 #|── TOOLS ────────────────────────────────────────────|
  3|Manage|quick + advanced tunnels: status, logs, remove
  4|Transfer Help|advanced pairing instructions
@@ -15761,9 +15992,10 @@ main_menu() {
 MENU
     printf '\n'
     local choice
+    printf '  %sReopen this menu any time with:%s  %sununknowntun%s   (short: uut)\n\n' "$D" "$RESET" "$B" "$RESET"
     ask_valid choice "Select an option" "1" valid_main_choice "Choose a number from 0 to 10."
     case "$choice" in
-        0) run_connection_test ;;
+        0) run_test_menu ;;
         1) setup_iran_menu ;;
         2) setup_foreign_menu ;;
         3) management_selector ;;
@@ -15794,6 +16026,7 @@ case "${1:-}" in
     scanner) shift; run_full_scanner "$@" ;;
     ui) shift; run_terminal_ui "$@" ;;
     connection-test|test) shift; run_connection_test "$@" ;;
+    spoof-test) shift; run_spoof_test "$@" ;;
     quick-foreign) quick_foreign_setup ;;
     quick-iran) quick_iran_setup ;;
     quick-manage) quick_manage ;;
@@ -15801,6 +16034,7 @@ case "${1:-}" in
     help|--help|-h)
         printf 'Usage: %s [foreign|iran|manage|upgrade|scanner|ui]\n' "$0"
         printf '  quick-foreign | quick-iran | quick-manage   Link-based quick tunnel\n'
+        printf '  spoof-test                     Check whether forged source IPs pass between two servers\n'
         printf '  connection-test                Test TCP/UDP/ICMP/TLS/WebSocket between two servers\n'
         printf '  ui [UI_OPTIONS]                Open the embedded Control Room without upgrading\n'
         printf '  direct-icmp-setup [foreign|iran]  Easy ICMP L3 setup; no manual pair-file transfer\n'
