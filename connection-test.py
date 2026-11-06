@@ -8,7 +8,7 @@ Ports used on the server: P (TCP+UDP), P+1 (TLS + WebSocket over TLS), P+2 (plai
 ICMP is tested with the system ping command and needs no listener.
 It does not touch any tunnel, service or firewall configuration.
 """
-import argparse, base64, hashlib, os, shutil, socket, ssl, struct, subprocess, sys, tempfile, threading, time
+import argparse, base64, hashlib, ipaddress, os, random, shutil, socket, ssl, struct, subprocess, sys, tempfile, threading, time
 
 GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 CHUNK = 64 * 1024
@@ -574,6 +574,109 @@ def run_spoof_client(args):
     return 0 if ok else 1
 
 
+def sample_range(cidr, count):
+    net = ipaddress.ip_network(cidr, strict=False)
+    size = net.num_addresses
+    if size <= 2:
+        return [str(net.network_address)]
+    picks, seen = [], set()
+    tries = 0
+    while len(picks) < min(count, size - 2) and tries < count * 20:
+        tries += 1
+        offset = random.randrange(1, size - 1) if size > 256 else random.randrange(1, size - 1)
+        ip = str(net.network_address + offset)
+        if ip not in seen:
+            seen.add(ip)
+            picks.append(ip)
+    return picks
+
+
+def local_ip_for(host):
+    probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        probe.connect((host, 9))
+        return probe.getsockname()[0]
+    finally:
+        probe.close()
+
+
+def run_spoof_scan(args):
+    try:
+        raw = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
+        raw.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+    except OSError as exc:
+        print(f"Raw socket unavailable ({exc}). Run as root.")
+        return 1
+    mine = args.my_ip or local_ip_for(args.host)
+    ranges = []
+    mine_net = ipaddress.ip_interface(f"{mine}/24")
+    for bits in (24, 20, 16, 12, 8):
+        ranges.append((f"{mine}/{bits}", str(ipaddress.ip_network(f"{mine}/{bits}", strict=False)), "this server's own range"))
+    target_net = str(ipaddress.ip_network(f"{args.host}/24", strict=False))
+    ranges.append((f"{args.host}/24", target_net, "receiver's /24"))
+    for extra in [x.strip() for x in (args.ranges or "").split(",") if x.strip()]:
+        try:
+            ranges.append((extra, str(ipaddress.ip_network(extra, strict=False)), "custom"))
+        except ValueError:
+            print(f"Ignoring invalid range: {extra}")
+    print(c(BOLD, f"\n  UnUnknownTun spoof RANGE scan  →  {args.host}:{args.port}   own IP: {mine}"))
+    plan, index = [], 0
+    for label, cidr, note in ranges:
+        ips = sample_range(cidr, args.samples)
+        plan.append((label, cidr, note, [(index + i, ip) for i, ip in enumerate(ips)]))
+        index += len(ips)
+    if index > 200:
+        print("Too many sample addresses (max 200). Reduce ranges.")
+        return 1
+    run = os.urandom(4).hex()
+    section("Sending")
+    for _, _, _, items in plan:
+        for idx, ip in items:
+            payload = f"UUTSPOOF {args.token} {run}{idx:03d} ".encode() + b"x" * 32
+            for _ in range(2):
+                raw.sendto(build_ip(ip, args.host, socket.IPPROTO_UDP, build_udp(41000 + idx, args.port, payload)), (args.host, 0))
+            time.sleep(0.01)
+    print(f"  {c(CYAN, '│')} sent {index} forged source addresses from {len(plan)} ranges")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(2)
+    reply = ""
+    for _ in range(3):
+        sock.sendto(f"UUTREPORT {args.token} {run}".encode(), (args.host, args.port))
+        try:
+            reply = sock.recvfrom(65000)[0].decode("latin-1")
+            break
+        except socket.timeout:
+            continue
+    if not reply:
+        print(c(RED, "  No answer from the receiver: check the link, port and UDP firewall."))
+        return 1
+    arrived = {}
+    if reply != "NONE":
+        for line in reply.splitlines():
+            nonce, kind, src = line.split("|")
+            if kind == "UDP":
+                arrived[int(nonce[8:])] = src
+    section("Which source ranges are allowed")
+    passing = []
+    for label, cidr, note, items in plan:
+        ok = sum(1 for idx, ip in items if arrived.get(idx) == ip)
+        total = len(items)
+        status = "✔ PASS" if ok == total else ("▲ PART" if ok else "✘ FAIL")
+        col = GREEN if ok == total else (YELLOW if ok else RED)
+        if ok:
+            passing.append((label, cidr))
+        print(f"  {c(CYAN, '│')} {c(col, status)}  {c(BOLD, f'{label:<20}')} {ok}/{total} passed  {c(DIM, note)}")
+    print(f"  {c(CYAN, '│')}")
+    if not passing:
+        print(f"  {c(CYAN, '│')} {c(RED, 'No forged source passed: this path filters ALL spoofed sources, even from your own range.')}")
+    else:
+        names = ", ".join(str(ipaddress.ip_network(cidr)) for _, cidr in passing)
+        print(f"  {c(CYAN, '│')} {c(GREEN, 'Forged sources are accepted from: ' + names)}")
+        print(f"  {c(CYAN, '│')} {c(DIM, 'Use a source IP inside a passing range for spoof/GRE tunnels. FAIL ranges are filtered.')}")
+    print(f"  {c(CYAN, '└' + '─' * 61)}\n")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="role", required=True)
@@ -592,13 +695,21 @@ def main():
     sc.add_argument("--host", required=True)
     sc.add_argument("--port", type=int, default=4510)
     sc.add_argument("--token", required=True)
-    sc.add_argument("--spoof-ip", required=True)
+    sc.add_argument("--spoof-ip", default="")
     sc.add_argument("--count", type=int, default=5)
+    sc.add_argument("--scan", action="store_true")
+    sc.add_argument("--ranges", default="")
+    sc.add_argument("--samples", type=int, default=4)
+    sc.add_argument("--my-ip", default="")
     args = ap.parse_args()
     if args.role == "spoof-server":
         run_spoof_server(args)
         return 0
     if args.role == "spoof-client":
+        if args.scan:
+            return run_spoof_scan(args)
+        if not args.spoof_ip:
+            sys.exit("--spoof-ip is required unless --scan is used.")
         return run_spoof_client(args)
     if not 1024 <= args.port <= 65533:
         sys.exit("Port must be 1024..65533.")
