@@ -5,7 +5,7 @@ Runs as root behind HTTPS (self-signed) with a random password, login rate limit
 CSRF protection and strict input validation. All actions use fixed argument lists;
 no shell is ever invoked. Tunnel creation reuses the installer non-interactively.
 """
-import argparse, hashlib, hmac, http.server, json, os, re, secrets, shutil, signal, socket, ssl, subprocess, sys, tempfile, threading, time
+import argparse, collections, hashlib, hmac, http.server, json, os, re, secrets, shutil, signal, socket, ssl, subprocess, sys, tempfile, threading, time
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -31,6 +31,11 @@ ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
 STATE_DIR = Path("/etc/ununknowntun/panel")
 SESSIONS = {}
+HISTORY = 22
+METRICS = {"cpu": collections.deque(maxlen=HISTORY), "rx": collections.deque(maxlen=HISTORY), "tx": collections.deque(maxlen=HISTORY),
+           "cpu_now": 0.0, "rx_total": 0, "tx_total": 0}
+PING = {}
+PANEL_VERSION = "3.7.0-preview.11"
 SESSION_LOCK = threading.Lock()
 FAILS = {}
 TEST_PROC = {"proc": None, "kind": "", "link": "", "started": 0.0, "log": None}
@@ -60,15 +65,19 @@ def hash_password(password, salt):
     return hashlib.scrypt(password.encode(), salt=salt, n=2 ** 14, r=8, p=1, dklen=32)
 
 
-def set_password():
+def set_password_value(password):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     os.chmod(STATE_DIR, 0o700)
-    password = secrets.token_urlsafe(15)
     salt = secrets.token_bytes(16)
     data = {"salt": salt.hex(), "hash": hash_password(password, salt).hex()}
     fd = os.open(auth_path(), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as handle:
         json.dump(data, handle)
+
+
+def set_password():
+    password = secrets.token_urlsafe(15)
+    set_password_value(password)
     return password
 
 
@@ -94,6 +103,29 @@ def parse_env(path):
     return values
 
 
+def uptime_seconds():
+    try:
+        return float(Path("/proc/uptime").read_text().split()[0])
+    except (OSError, ValueError):
+        return 0.0
+
+
+def unit_stats(unit):
+    code, out = run(["systemctl", "show", unit, "-p", "ActiveEnterTimestampMonotonic", "-p", "IPIngressBytes", "-p", "IPEgressBytes", "-p", "ActiveState"], 10)
+    values = dict(line.split("=", 1) for line in out.splitlines() if "=" in line)
+    active = values.get("ActiveState") == "active"
+    up = 0
+    try:
+        up = max(0, int(uptime_seconds() - int(values.get("ActiveEnterTimestampMonotonic", "0")) / 1e6)) if active else 0
+    except ValueError:
+        pass
+
+    def num(key):
+        v = values.get(key, "")
+        return int(v) if v.isdigit() and int(v) < 2 ** 63 else None
+    return {"active": active, "up": up, "rx": num("IPIngressBytes"), "tx": num("IPEgressBytes")}
+
+
 def list_tunnels():
     items = []
     if QUICK_DIR.is_dir():
@@ -102,15 +134,118 @@ def list_tunnels():
             if not info or not NAME.fullmatch(directory.name):
                 continue
             prefix = info.get("PREFIX") or "ununknowntun-quick-"
-            states = []
-            for unit in info.get("UNITS", "").split():
-                _, out = run(["systemctl", "is-active", f"{prefix}{unit}.service"], 10)
-                states.append(out.strip() == "active")
+            stats = [unit_stats(f"{prefix}{unit}.service") for unit in info.get("UNITS", "").split()]
+            rx = [x["rx"] for x in stats if x["rx"] is not None]
+            tx = [x["tx"] for x in stats if x["tx"] is not None]
+            hist = list(PING.get(directory.name, []))
             items.append({"name": directory.name, "role": info.get("ROLE", "?"),
                           "type": "spoof" if info.get("TYPE") == "spoof" else "tls",
                           "detail": (info.get("MAP") or info.get("PORT") or "").replace("=", " → "),
-                          "running": bool(states) and all(states), "has_link": (directory / "link.txt").is_file()})
+                          "remote": info.get("FOREIGN", ""), "running": bool(stats) and all(x["active"] for x in stats),
+                          "up": min((x["up"] for x in stats), default=0), "rx": sum(rx) if rx else None, "tx": sum(tx) if tx else None,
+                          "ping": hist, "has_link": (directory / "link.txt").is_file()})
     return items
+
+
+def read_cpu():
+    try:
+        fields = [int(x) for x in Path("/proc/stat").read_text().splitlines()[0].split()[1:]]
+        return fields[3] + fields[4], sum(fields)
+    except (OSError, ValueError, IndexError):
+        return 0, 0
+
+
+def read_net():
+    rx = tx = 0
+    try:
+        for line in Path("/proc/net/dev").read_text().splitlines()[2:]:
+            name, data = line.split(":", 1)
+            if name.strip() == "lo":
+                continue
+            parts = data.split()
+            rx += int(parts[0])
+            tx += int(parts[8])
+    except (OSError, ValueError, IndexError):
+        pass
+    return rx, tx
+
+
+def tcp_ping(host, port):
+    began = time.monotonic()
+    try:
+        with socket.create_connection((host, port), timeout=2):
+            return round((time.monotonic() - began) * 1000)
+    except OSError:
+        return None
+
+
+def sampler():
+    last_idle, last_total = read_cpu()
+    last_rx, last_tx = read_net()
+    last_time = time.monotonic()
+    tick = 0
+    while True:
+        time.sleep(3)
+        tick += 1
+        idle, total = read_cpu()
+        if total > last_total:
+            METRICS["cpu_now"] = 100.0 * (1 - (idle - last_idle) / (total - last_total))
+        last_idle, last_total = idle, total
+        METRICS["cpu"].append(round(METRICS["cpu_now"], 1))
+        rx, tx = read_net()
+        now = time.monotonic()
+        dt = max(0.1, now - last_time)
+        METRICS["rx"].append(round(max(0, rx - last_rx) * 8 / dt / 1e6, 2))
+        METRICS["tx"].append(round(max(0, tx - last_tx) * 8 / dt / 1e6, 2))
+        METRICS["rx_total"], METRICS["tx_total"] = rx, tx
+        last_rx, last_tx, last_time = rx, tx, now
+        if tick % 2 == 0:
+            try:
+                for item in list_tunnel_targets():
+                    name, host, port = item
+                    ms = tcp_ping(host, port)
+                    PING.setdefault(name, collections.deque(maxlen=HISTORY)).append(ms)
+            except Exception:
+                pass
+
+
+def list_tunnel_targets():
+    targets = []
+    if QUICK_DIR.is_dir():
+        for directory in QUICK_DIR.iterdir():
+            info = parse_env(directory / "info.env")
+            remote = info.get("FOREIGN", "")
+            m = re.fullmatch(r"([0-9.]+):(\d{1,5})", remote)
+            if m and NAME.fullmatch(directory.name):
+                targets.append((directory.name, m.group(1), int(m.group(2))))
+    return targets
+
+
+def system_info():
+    mem = {}
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            key, value = line.split(":", 1)
+            mem[key] = int(value.split()[0]) * 1024
+    except (OSError, ValueError):
+        pass
+    total = mem.get("MemTotal", 0)
+    used = total - mem.get("MemAvailable", 0)
+    swap_total = mem.get("SwapTotal", 0)
+    swap_used = swap_total - mem.get("SwapFree", 0)
+    disk = shutil.disk_usage("/")
+    os_name = parse_env(Path("/etc/os-release")).get("PRETTY_NAME", "Linux").strip('"')
+    try:
+        load = os.getloadavg()
+    except OSError:
+        load = (0, 0, 0)
+    return {"host": socket.gethostname(), "os": os_name, "version": PANEL_VERSION, "cores": os.cpu_count() or 1,
+            "load": [round(x, 2) for x in load], "uptime": int(uptime_seconds()),
+            "cpu": {"now": round(METRICS["cpu_now"], 1), "hist": list(METRICS["cpu"])},
+            "mem": {"used": used, "total": total, "pct": round(100 * used / total, 1) if total else 0},
+            "swap": {"used": swap_used, "total": swap_total, "pct": round(100 * swap_used / swap_total, 1) if swap_total else 0},
+            "disk": {"used": disk.used, "total": disk.total, "pct": round(100 * disk.used / disk.total, 1)},
+            "net": {"rx": list(METRICS["rx"]), "tx": list(METRICS["tx"]), "rx_total": METRICS["rx_total"], "tx_total": METRICS["tx_total"]}}
 
 
 def tunnel_units(name):
@@ -379,6 +514,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self.send_json({"tunnels": list_tunnels()})
             if path == "/api/defaults":
                 return self.send_json(defaults())
+            if path == "/api/system":
+                return self.send_json(system_info())
             if path == "/api/test/status":
                 return self.send_json(listener_status())
             m = re.fullmatch(r"/api/tunnel/([a-z0-9-]{1,24})/(logs|link)", path)
@@ -426,6 +563,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 with SESSION_LOCK:
                     SESSIONS.pop(m.group(1), None) if m else None
                 return self.send_json({"ok": True}, cookie="uut_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0")
+            if path == "/api/restart-all":
+                names = [t["name"] for t in list_tunnels()]
+                for name in names:
+                    tunnel_action(name, "restart")
+                return self.send_json({"text": f"Restarted {len(names)} tunnel(s)."})
+            if path == "/api/password":
+                current, new = str(body.get("current", "")), str(body.get("new", ""))
+                if not check_password(current):
+                    raise ValueError("Current password is wrong.")
+                if not 10 <= len(new) <= 128:
+                    raise ValueError("New password must be 10 to 128 characters.")
+                set_password_value(new)
+                with SESSION_LOCK:
+                    SESSIONS.clear()
+                return self.send_json({"text": "Password changed. Please sign in again."})
             m = re.fullmatch(r"/api/tunnel/([a-z0-9-]{1,24})/(start|stop|restart|remove)", path)
             if m:
                 return self.send_json({"text": tunnel_action(m.group(1), m.group(2))})
@@ -461,6 +613,7 @@ def serve(args):
     server.daemon_threads = True
     server.socket = context.wrap_socket(server.socket, server_side=True)
     signal.signal(signal.SIGTERM, lambda *_: (stop_listener(), os._exit(0)))
+    threading.Thread(target=sampler, daemon=True).start()
     print(f"panel listening on https://{args.bind}:{args.port}", flush=True)
     server.serve_forever()
 

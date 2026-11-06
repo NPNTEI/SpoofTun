@@ -15730,6 +15730,7 @@ Wants=network-online.target
 
 [Service]
 ExecStart=${command}
+IPAccounting=yes
 Restart=always
 RestartSec=3
 LimitNOFILE=1048576
@@ -16130,6 +16131,7 @@ qspoof_rp_filter() {
 qspoof_install_unit() {
     local name="$1" role="$2" unit_file="${QSPOOF_PREFIX}${1}.service"
     install -m 0644 "$QSPOOF_ROOT/$name/$role/$unit_file" "/etc/systemd/system/$unit_file"
+    sed -i '/^\[Service\]/a IPAccounting=yes' "/etc/systemd/system/$unit_file"
     systemctl daemon-reload
     systemctl enable --now "$unit_file" >/dev/null 2>&1 || true
     sleep 3
@@ -16351,7 +16353,7 @@ Runs as root behind HTTPS (self-signed) with a random password, login rate limit
 CSRF protection and strict input validation. All actions use fixed argument lists;
 no shell is ever invoked. Tunnel creation reuses the installer non-interactively.
 """
-import argparse, hashlib, hmac, http.server, json, os, re, secrets, shutil, signal, socket, ssl, subprocess, sys, tempfile, threading, time
+import argparse, collections, hashlib, hmac, http.server, json, os, re, secrets, shutil, signal, socket, ssl, subprocess, sys, tempfile, threading, time
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -16377,6 +16379,11 @@ ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 
 STATE_DIR = Path("/etc/ununknowntun/panel")
 SESSIONS = {}
+HISTORY = 22
+METRICS = {"cpu": collections.deque(maxlen=HISTORY), "rx": collections.deque(maxlen=HISTORY), "tx": collections.deque(maxlen=HISTORY),
+           "cpu_now": 0.0, "rx_total": 0, "tx_total": 0}
+PING = {}
+PANEL_VERSION = "3.7.0-preview.11"
 SESSION_LOCK = threading.Lock()
 FAILS = {}
 TEST_PROC = {"proc": None, "kind": "", "link": "", "started": 0.0, "log": None}
@@ -16406,15 +16413,19 @@ def hash_password(password, salt):
     return hashlib.scrypt(password.encode(), salt=salt, n=2 ** 14, r=8, p=1, dklen=32)
 
 
-def set_password():
+def set_password_value(password):
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     os.chmod(STATE_DIR, 0o700)
-    password = secrets.token_urlsafe(15)
     salt = secrets.token_bytes(16)
     data = {"salt": salt.hex(), "hash": hash_password(password, salt).hex()}
     fd = os.open(auth_path(), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as handle:
         json.dump(data, handle)
+
+
+def set_password():
+    password = secrets.token_urlsafe(15)
+    set_password_value(password)
     return password
 
 
@@ -16440,6 +16451,29 @@ def parse_env(path):
     return values
 
 
+def uptime_seconds():
+    try:
+        return float(Path("/proc/uptime").read_text().split()[0])
+    except (OSError, ValueError):
+        return 0.0
+
+
+def unit_stats(unit):
+    code, out = run(["systemctl", "show", unit, "-p", "ActiveEnterTimestampMonotonic", "-p", "IPIngressBytes", "-p", "IPEgressBytes", "-p", "ActiveState"], 10)
+    values = dict(line.split("=", 1) for line in out.splitlines() if "=" in line)
+    active = values.get("ActiveState") == "active"
+    up = 0
+    try:
+        up = max(0, int(uptime_seconds() - int(values.get("ActiveEnterTimestampMonotonic", "0")) / 1e6)) if active else 0
+    except ValueError:
+        pass
+
+    def num(key):
+        v = values.get(key, "")
+        return int(v) if v.isdigit() and int(v) < 2 ** 63 else None
+    return {"active": active, "up": up, "rx": num("IPIngressBytes"), "tx": num("IPEgressBytes")}
+
+
 def list_tunnels():
     items = []
     if QUICK_DIR.is_dir():
@@ -16448,15 +16482,118 @@ def list_tunnels():
             if not info or not NAME.fullmatch(directory.name):
                 continue
             prefix = info.get("PREFIX") or "ununknowntun-quick-"
-            states = []
-            for unit in info.get("UNITS", "").split():
-                _, out = run(["systemctl", "is-active", f"{prefix}{unit}.service"], 10)
-                states.append(out.strip() == "active")
+            stats = [unit_stats(f"{prefix}{unit}.service") for unit in info.get("UNITS", "").split()]
+            rx = [x["rx"] for x in stats if x["rx"] is not None]
+            tx = [x["tx"] for x in stats if x["tx"] is not None]
+            hist = list(PING.get(directory.name, []))
             items.append({"name": directory.name, "role": info.get("ROLE", "?"),
                           "type": "spoof" if info.get("TYPE") == "spoof" else "tls",
                           "detail": (info.get("MAP") or info.get("PORT") or "").replace("=", " → "),
-                          "running": bool(states) and all(states), "has_link": (directory / "link.txt").is_file()})
+                          "remote": info.get("FOREIGN", ""), "running": bool(stats) and all(x["active"] for x in stats),
+                          "up": min((x["up"] for x in stats), default=0), "rx": sum(rx) if rx else None, "tx": sum(tx) if tx else None,
+                          "ping": hist, "has_link": (directory / "link.txt").is_file()})
     return items
+
+
+def read_cpu():
+    try:
+        fields = [int(x) for x in Path("/proc/stat").read_text().splitlines()[0].split()[1:]]
+        return fields[3] + fields[4], sum(fields)
+    except (OSError, ValueError, IndexError):
+        return 0, 0
+
+
+def read_net():
+    rx = tx = 0
+    try:
+        for line in Path("/proc/net/dev").read_text().splitlines()[2:]:
+            name, data = line.split(":", 1)
+            if name.strip() == "lo":
+                continue
+            parts = data.split()
+            rx += int(parts[0])
+            tx += int(parts[8])
+    except (OSError, ValueError, IndexError):
+        pass
+    return rx, tx
+
+
+def tcp_ping(host, port):
+    began = time.monotonic()
+    try:
+        with socket.create_connection((host, port), timeout=2):
+            return round((time.monotonic() - began) * 1000)
+    except OSError:
+        return None
+
+
+def sampler():
+    last_idle, last_total = read_cpu()
+    last_rx, last_tx = read_net()
+    last_time = time.monotonic()
+    tick = 0
+    while True:
+        time.sleep(3)
+        tick += 1
+        idle, total = read_cpu()
+        if total > last_total:
+            METRICS["cpu_now"] = 100.0 * (1 - (idle - last_idle) / (total - last_total))
+        last_idle, last_total = idle, total
+        METRICS["cpu"].append(round(METRICS["cpu_now"], 1))
+        rx, tx = read_net()
+        now = time.monotonic()
+        dt = max(0.1, now - last_time)
+        METRICS["rx"].append(round(max(0, rx - last_rx) * 8 / dt / 1e6, 2))
+        METRICS["tx"].append(round(max(0, tx - last_tx) * 8 / dt / 1e6, 2))
+        METRICS["rx_total"], METRICS["tx_total"] = rx, tx
+        last_rx, last_tx, last_time = rx, tx, now
+        if tick % 2 == 0:
+            try:
+                for item in list_tunnel_targets():
+                    name, host, port = item
+                    ms = tcp_ping(host, port)
+                    PING.setdefault(name, collections.deque(maxlen=HISTORY)).append(ms)
+            except Exception:
+                pass
+
+
+def list_tunnel_targets():
+    targets = []
+    if QUICK_DIR.is_dir():
+        for directory in QUICK_DIR.iterdir():
+            info = parse_env(directory / "info.env")
+            remote = info.get("FOREIGN", "")
+            m = re.fullmatch(r"([0-9.]+):(\d{1,5})", remote)
+            if m and NAME.fullmatch(directory.name):
+                targets.append((directory.name, m.group(1), int(m.group(2))))
+    return targets
+
+
+def system_info():
+    mem = {}
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            key, value = line.split(":", 1)
+            mem[key] = int(value.split()[0]) * 1024
+    except (OSError, ValueError):
+        pass
+    total = mem.get("MemTotal", 0)
+    used = total - mem.get("MemAvailable", 0)
+    swap_total = mem.get("SwapTotal", 0)
+    swap_used = swap_total - mem.get("SwapFree", 0)
+    disk = shutil.disk_usage("/")
+    os_name = parse_env(Path("/etc/os-release")).get("PRETTY_NAME", "Linux").strip('"')
+    try:
+        load = os.getloadavg()
+    except OSError:
+        load = (0, 0, 0)
+    return {"host": socket.gethostname(), "os": os_name, "version": PANEL_VERSION, "cores": os.cpu_count() or 1,
+            "load": [round(x, 2) for x in load], "uptime": int(uptime_seconds()),
+            "cpu": {"now": round(METRICS["cpu_now"], 1), "hist": list(METRICS["cpu"])},
+            "mem": {"used": used, "total": total, "pct": round(100 * used / total, 1) if total else 0},
+            "swap": {"used": swap_used, "total": swap_total, "pct": round(100 * swap_used / swap_total, 1) if swap_total else 0},
+            "disk": {"used": disk.used, "total": disk.total, "pct": round(100 * disk.used / disk.total, 1)},
+            "net": {"rx": list(METRICS["rx"]), "tx": list(METRICS["tx"]), "rx_total": METRICS["rx_total"], "tx_total": METRICS["tx_total"]}}
 
 
 def tunnel_units(name):
@@ -16725,6 +16862,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self.send_json({"tunnels": list_tunnels()})
             if path == "/api/defaults":
                 return self.send_json(defaults())
+            if path == "/api/system":
+                return self.send_json(system_info())
             if path == "/api/test/status":
                 return self.send_json(listener_status())
             m = re.fullmatch(r"/api/tunnel/([a-z0-9-]{1,24})/(logs|link)", path)
@@ -16772,6 +16911,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 with SESSION_LOCK:
                     SESSIONS.pop(m.group(1), None) if m else None
                 return self.send_json({"ok": True}, cookie="uut_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0")
+            if path == "/api/restart-all":
+                names = [t["name"] for t in list_tunnels()]
+                for name in names:
+                    tunnel_action(name, "restart")
+                return self.send_json({"text": f"Restarted {len(names)} tunnel(s)."})
+            if path == "/api/password":
+                current, new = str(body.get("current", "")), str(body.get("new", ""))
+                if not check_password(current):
+                    raise ValueError("Current password is wrong.")
+                if not 10 <= len(new) <= 128:
+                    raise ValueError("New password must be 10 to 128 characters.")
+                set_password_value(new)
+                with SESSION_LOCK:
+                    SESSIONS.clear()
+                return self.send_json({"text": "Password changed. Please sign in again."})
             m = re.fullmatch(r"/api/tunnel/([a-z0-9-]{1,24})/(start|stop|restart|remove)", path)
             if m:
                 return self.send_json({"text": tunnel_action(m.group(1), m.group(2))})
@@ -16807,6 +16961,7 @@ def serve(args):
     server.daemon_threads = True
     server.socket = context.wrap_socket(server.socket, server_side=True)
     signal.signal(signal.SIGTERM, lambda *_: (stop_listener(), os._exit(0)))
+    threading.Thread(target=sampler, daemon=True).start()
     print(f"panel listening on https://{args.bind}:{args.port}", flush=True)
     server.serve_forever()
 
@@ -16851,7 +17006,11 @@ UUT_PANEL_HTML_EOF
     cat > "$PANEL_DIR/web/app.js" <<'UUT_PANEL_JS_EOF'
 "use strict";
 let csrf = "";
+let tab = "overview";
+let timer = null;
 const app = document.getElementById("app");
+const theme = localStorage.getItem("uut-theme") || "dark";
+document.documentElement.setAttribute("data-theme", theme);
 
 function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
@@ -16860,7 +17019,7 @@ function h(tag, attrs, ...kids) {
     else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
     else if (v !== false && v != null) el.setAttribute(k, v === true ? "" : v);
   }
-  for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
   return el;
 }
 
@@ -16870,71 +17029,159 @@ async function api(path, method = "GET", body) {
   const res = await fetch(path, opts);
   let data = {};
   try { data = await res.json(); } catch (e) { /* ignore */ }
-  if (res.status === 401 && path !== "/api/login") { csrf = ""; render(); }
+  if (res.status === 401 && path !== "/api/login") { csrf = ""; stopTimer(); render(); }
   if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
   return data;
 }
 
-function field(label, name, value = "", extra = {}) {
-  return h("label", {}, label, h("input", { name, value, autocomplete: "off", spellcheck: "false", ...extra }));
-}
-function select(label, name, options) {
-  return h("label", {}, label, h("select", { name }, options.map(([v, t]) => h("option", { value: v }, t))));
-}
+const fmtBytes = (n) => { if (n == null) return "—"; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < 4) { n /= 1024; i++; } return n.toFixed(i > 1 ? 2 : 0) + " " + u[i]; };
+const fmtGiB = (n) => (n / 1073741824).toFixed(1);
+const fmtUp = (s) => { if (!s) return "—"; const d = Math.floor(s / 86400), hr = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return d ? d + "d " + hr + "h" : hr ? hr + "h " + m + "m" : m + "m"; };
+const last = (a) => (a && a.length ? a[a.length - 1] : 0);
+
+function note(box, text, ok) { box.replaceChildren(h("div", { class: "msg " + (ok ? "ok" : "err") }, text)); }
+function field(label, name, value = "", extra = {}) { return h("label", {}, label, h("input", { name, value, autocomplete: "off", spellcheck: "false", ...extra })); }
+function select(label, name, options) { return h("label", {}, label, h("select", { name }, options.map(([v, t]) => h("option", { value: v }, t)))); }
 function val(form, name) { const el = form.elements[name]; return el ? el.value.trim() : ""; }
 
-function note(box, text, ok) {
-  box.replaceChildren(h("div", { class: "msg " + (ok ? "ok" : "err") }, text));
+function meter(pct) {
+  const total = 20, on = Math.round(pct / 100 * total);
+  return h("div", { class: "meter" }, Array.from({ length: total }, (_, i) => h("i", { class: i < on ? "on" : "" })));
+}
+function bars(values, count = 22) {
+  const data = values.slice(-count);
+  while (data.length < count) data.unshift(0);
+  const top = Math.max(1, ...data);
+  const box = h("div", { class: "bars" });
+  for (const v of data) { const i = h("i"); i.style.height = Math.max(6, Math.round(v / top * 100)) + "%"; box.append(i); }
+  return box;
+}
+function spark(values) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "spark"); svg.setAttribute("viewBox", "0 0 220 56"); svg.setAttribute("preserveAspectRatio", "none");
+  const pts = values.filter((v) => v != null);
+  if (pts.length > 1) {
+    const top = Math.max(...pts, 1);
+    const path = document.createElementNS(NS, "path");
+    let d = "";
+    values.forEach((v, i) => { const x = i * (220 / Math.max(1, values.length - 1)); const y = v == null ? 54 : 52 - (v / top) * 46; d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); });
+    path.setAttribute("d", d); svg.append(path);
+  }
+  return svg;
 }
 
 async function login() {
   const pw = document.getElementById("pw").value;
-  const box = document.getElementById("lmsg");
   try { const r = await api("/api/login", "POST", { password: pw }); csrf = r.csrf; render(); }
-  catch (e) { note(box, e.message, false); }
+  catch (e) { note(document.getElementById("lmsg"), e.message, false); }
 }
-
 function renderLogin() {
-  app.replaceChildren(h("div", { class: "login" },
-    h("div", { class: "card" },
-      h("h3", {}, "UnUnknownTun Panel"),
-      h("div", { id: "lmsg" }),
-      h("label", {}, "Password", h("input", { id: "pw", type: "password", autocomplete: "current-password", onkeydown: (e) => { if (e.key === "Enter") login(); } })),
-      h("div", { class: "row mt" }, h("button", { class: "btn red", onclick: login }, "Sign in")),
-      h("p", { class: "dim" }, "The password was shown once during installation. Reset: ununknowntun panel-password"))));
+  app.replaceChildren(h("div", { class: "login" }, h("div", { class: "card" },
+    h("h3", {}, "UnUnknownTun"), h("p", { class: "dim" }, "Sign in to the panel"), h("div", { id: "lmsg" }),
+    h("label", {}, "Password", h("input", { id: "pw", type: "password", autocomplete: "current-password", onkeydown: (e) => { if (e.key === "Enter") login(); } })),
+    h("div", { class: "row" }, h("button", { class: "btn w", onclick: login }, "Sign in")),
+    h("p", { class: "dim" }, "Forgot it? Run on the server: ununknowntun panel-password"))));
 }
 
-let tab = "tunnels";
-function renderShell() {
-  const tabs = [["tunnels", "Tunnels"], ["create", "Create"], ["tests", "Tests"]];
+function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
+function startTimer(fn, ms) { stopTimer(); timer = setInterval(fn, ms); }
+
+let tunnelCount = 0;
+function shell() {
+  const tabs = [["overview", "Overview"], ["tunnels", "Tunnels"], ["test", "Connection test"], ["manage", "Manage"]];
   app.replaceChildren(
-    h("header", {}, h("b", {}, "UNUNKNOWNTUN"), h("button", { class: "btn sm", onclick: async () => { await api("/api/logout", "POST"); csrf = ""; render(); } }, "Log out")),
-    h("nav", {}, tabs.map(([id, t]) => h("button", { class: tab === id ? "on" : "", onclick: () => { tab = id; renderShell(); } }, t))),
-    h("main", { id: "main" }));
-  ({ tunnels: viewTunnels, create: viewCreate, tests: viewTests })[tab]();
+    h("header", {}, h("div", { class: "brand" }, h("div", { class: "logo" }, "UUT"), h("div", {}, h("b", { id: "hhost" }, "UnUnknownTun"), h("span", { id: "hsub" }, ""))),
+      h("div", { class: "row", style: null }, h("button", { class: "hbtn", onclick: () => { const t = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", t); localStorage.setItem("uut-theme", t); } }, "Appearance"),
+        h("button", { class: "hbtn", onclick: async () => { await api("/api/logout", "POST"); csrf = ""; stopTimer(); render(); } }, "Log out"))),
+    h("div", { class: "wrap" }, h("div", { id: "view" }),
+      h("div", { class: "tabs" }, h("div", {}, tabs.map(([id, t]) => h("button", { class: tab === id ? "on" : "", onclick: () => { tab = id; shell(); } }, t, id === "tunnels" ? h("span", { class: "badge" }, tunnelCount) : null))))));
+  ({ overview: viewOverview, tunnels: viewTunnels, test: viewTest, manage: viewManage })[tab]();
+}
+
+function stat(big, unit, label, sub, pct) {
+  return h("div", { class: "cell" }, h("div", { class: "big" }, big, h("small", {}, unit + " " + label)), pct != null ? meter(pct) : null, h("div", { class: "sub" }, sub));
+}
+
+async function viewOverview() {
+  const view = document.getElementById("view");
+  const draw = async () => {
+    let s, t;
+    try { [s, t] = await Promise.all([api("/api/system"), api("/api/tunnels")]); } catch (e) { view.replaceChildren(h("div", { class: "msg err" }, e.message)); return; }
+    tunnelCount = t.tunnels.length;
+    document.getElementById("hhost").textContent = s.host;
+    document.getElementById("hsub").textContent = "v" + s.version + " · " + s.os;
+    const down = last(s.net.rx), up = last(s.net.tx);
+    const bad = t.tunnels.filter((x) => !x.running).length;
+    const pills = h("div", { class: "pills" },
+      bad ? h("div", { class: "pill bad" }, h("i"), bad + " tunnel" + (bad > 1 ? "s are" : " is") + " not running") : (t.tunnels.length ? h("div", { class: "pill" }, h("i"), "All tunnels running") : h("div", { class: "pill warn" }, h("i"), "No tunnels yet: open Manage")),
+      location.hostname !== "127.0.0.1" ? h("div", { class: "pill warn" }, h("i"), "Panel is reachable over the network: restrict its port in the firewall") : null);
+    view.replaceChildren(
+      h("div", { class: "sec" }, "SERVER"),
+      h("div", { class: "grid g4" },
+        stat(Math.round(s.cpu.now), "%", "Processor", s.cores + " cores · load " + s.load.join(", "), s.cpu.now),
+        stat(Math.round(s.mem.pct), "%", "Memory", fmtGiB(s.mem.used) + " / " + fmtGiB(s.mem.total) + " GiB", s.mem.pct),
+        stat(Math.round(s.disk.pct), "%", "Disk", fmtGiB(s.disk.used) + " / " + fmtGiB(s.disk.total) + " GiB", s.disk.pct),
+        stat(Math.round(s.swap.pct), "%", "Swap", s.swap.total ? fmtGiB(s.swap.used) + " / " + fmtGiB(s.swap.total) + " GiB" : "not configured", s.swap.pct)),
+      h("div", { class: "grid g2" },
+        h("div", { class: "cell" }, h("div", { class: "big" }, down.toFixed(1), h("small", {}, "Mb/s Download")), bars(s.net.rx), h("div", { class: "sub" }, "peak " + Math.max(0, ...s.net.rx).toFixed(1) + " Mb/s in the last " + s.net.rx.length + " readings")),
+        h("div", { class: "cell" }, h("div", { class: "big" }, up.toFixed(1), h("small", {}, "Mb/s Upload")), bars(s.net.tx), h("div", { class: "sub" }, "peak " + Math.max(0, ...s.net.tx).toFixed(1) + " Mb/s in the last " + s.net.tx.length + " readings"))),
+      pills,
+      h("div", { class: "sec" }, "THIS SERVER"),
+      h("div", { class: "total" },
+        h("div", { class: "row", style: null }, h("div", {}, h("div", { class: "big" }, fmtBytes(s.net.rx_total + s.net.tx_total)), h("div", { class: "sub" }, "carried since this server booted")),
+          h("div", { class: "chips" }, h("span", { class: "chip" }, "↑ " + fmtBytes(s.net.tx_total) + " sent"), h("span", { class: "chip" }, "↓ " + fmtBytes(s.net.rx_total) + " received"), h("span", { class: "chip" }, t.tunnels.filter((x) => x.running).length + "/" + t.tunnels.length + " tunnels"))),
+        h("div", { class: "bar" }, h("i"))),
+      h("div", { class: "sec" }, "INFO"),
+      h("div", { class: "info" },
+        h("div", {}, h("small", {}, "HOST"), s.host), h("div", {}, h("small", {}, "VERSION"), "v" + s.version),
+        h("div", {}, h("small", {}, "OS"), s.os), h("div", {}, h("small", {}, "UPTIME"), fmtUp(s.uptime))));
+    const tot = s.net.rx_total + s.net.tx_total; view.querySelector(".bar i").style.width = (tot ? Math.max(2, Math.round(s.net.tx_total / tot * 100)) : 2) + "%";
+  };
+  await draw();
+  startTimer(draw, 4000);
+}
+
+function tunnelCard(t, out, refresh) {
+  const act = (name, label, extra = "") => h("button", { class: "btn sm " + extra, onclick: async () => {
+    if (name === "remove" && !confirm("Remove tunnel " + t.name + " and its services?")) return;
+    try { const r = await api("/api/tunnel/" + t.name + "/" + name, "POST"); note(out, r.text, true); } catch (e) { note(out, e.message, false); }
+    setTimeout(refresh, 900);
+  } }, label);
+  const view = (kind, label) => h("button", { class: "btn sm", onclick: async () => {
+    try { const r = await api("/api/tunnel/" + t.name + "/" + kind); out.replaceChildren(h("pre", { class: kind === "link" ? "link" : "" }, r.text)); out.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { note(out, e.message, false); }
+  } }, label);
+  const ms = last(t.ping);
+  const pingBox = t.ping.length && t.ping.some((v) => v != null)
+    ? [h("div", { class: "ping" }, ms == null ? "timeout" : ms, ms == null ? null : h("small", {}, "ms")), spark(t.ping)]
+    : [h("div", { class: "ping none" }, "no ping"), spark([])];
+  return h("div", { class: "tc " + (t.running ? "on" : "") },
+    h("div", { class: "tt" }, h("div", {}, h("b", {}, t.name), h("small", {}, t.remote || (t.role === "foreign" ? "listens on this server" : ""))),
+      h("div", { class: "st" }, h("i"), t.running ? "Online" : "Offline")),
+    h("div", { class: "tags" }, h("span", { class: "tag hl" }, t.role), h("span", { class: "tag" }, t.type === "spoof" ? "spoof gre" : "tls 1.3"), h("span", { class: "tag" }, t.detail || "—")),
+    pingBox,
+    h("div", { class: "meta" }, "up " + fmtUp(t.up) + "   ·   ↓ " + fmtBytes(t.rx) + "   ↑ " + fmtBytes(t.tx)),
+    h("div", { class: "tfoot" }, h("div", { class: "acts" }, act("start", "Start"), act("stop", "Stop"), act("restart", "Restart"), view("logs", "Logs"), t.has_link ? view("link", "Link") : null), act("remove", "Remove", "r")));
 }
 
 async function viewTunnels() {
-  const main = document.getElementById("main");
-  const out = h("div", { id: "out" });
-  const list = h("div", { class: "card" }, h("h3", {}, "Quick tunnels"));
-  main.replaceChildren(list, out);
-  let data;
-  try { data = await api("/api/tunnels"); } catch (e) { list.append(h("div", { class: "msg err" }, e.message)); return; }
-  if (!data.tunnels.length) list.append(h("p", { class: "dim" }, "No tunnels yet. Use the Create tab: foreign first, then Iran."));
-  for (const t of data.tunnels) {
-    const act = (name, label, extra = "") => h("button", { class: "btn sm " + extra, onclick: async () => {
-      if (name === "remove" && !confirm("Remove tunnel " + t.name + " and its services?")) return;
-      try { const r = await api("/api/tunnel/" + t.name + "/" + name, "POST"); note(out, r.text, true); } catch (e) { note(out, e.message, false); }
-      if (["remove", "start", "stop", "restart"].includes(name)) setTimeout(viewTunnels, 800);
-    } }, label);
-    const view = (kind, label) => h("button", { class: "btn sm", onclick: async () => {
-      try { const r = await api("/api/tunnel/" + t.name + "/" + kind); out.replaceChildren(h("pre", { class: kind === "link" ? "link" : "" }, r.text)); } catch (e) { note(out, e.message, false); }
-    } }, label);
-    list.append(h("div", { class: "t" },
-      h("div", {}, h("span", { class: "dot " + (t.running ? "on" : "") }), h("b", {}, t.name), h("span", { class: "tag" }, t.role), h("span", { class: "tag" }, t.type), h("span", { class: "dim ml" }, t.detail)),
-      h("div", { class: "row flush" }, act("start", "Start"), act("stop", "Stop"), act("restart", "Restart"), view("logs", "Logs"), t.has_link ? view("link", "Link") : null, act("remove", "Remove", "red"))));
-  }
+  const view = document.getElementById("view");
+  const out = h("div", {});
+  const grid = h("div", { class: "tg" });
+  const draw = async () => {
+    let data;
+    try { data = await api("/api/tunnels"); } catch (e) { note(out, e.message, false); return; }
+    tunnelCount = data.tunnels.length;
+    grid.replaceChildren(...data.tunnels.map((t) => tunnelCard(t, out, draw)));
+    if (!data.tunnels.length) grid.replaceChildren(h("div", { class: "card" }, h("p", { class: "dim" }, "No tunnels yet. Open Manage: create on the foreign server first, then paste the link on Iran.")));
+  };
+  view.replaceChildren(
+    h("div", { class: "th" }, h("h2", {}, "Tunnels"),
+      h("div", { class: "row" }, h("button", { class: "btn", onclick: async () => { try { const r = await api("/api/restart-all", "POST"); note(out, r.text, true); } catch (e) { note(out, e.message, false); } setTimeout(draw, 1000); } }, "Restart all"),
+        h("button", { class: "btn w", onclick: () => { tab = "manage"; shell(); } }, "Add tunnel"))),
+    grid, out);
+  await draw();
+  startTimer(draw, 5000);
 }
 
 async function submitCreate(kind, form, out, button) {
@@ -16945,39 +17192,42 @@ async function submitCreate(kind, form, out, button) {
   try {
     const r = await api("/api/create/" + kind, "POST", body);
     const kids = [h("div", { class: "msg " + (r.ok ? "ok" : "err") }, r.ok ? "Done." : "Failed. Read the output below.")];
-    if (r.link) kids.push(h("p", {}, "Paste this link into the Iran server (Create tab):"), h("pre", { class: "link" }, r.link));
+    if (r.link) kids.push(h("p", {}, "Paste this link into the Iran server (Manage tab):"), h("pre", { class: "link" }, r.link));
     kids.push(h("pre", {}, r.text));
     out.replaceChildren(...kids);
   } catch (e) { note(out, e.message, false); }
   button.disabled = false;
 }
 
-async function viewCreate() {
-  const main = document.getElementById("main");
+async function viewManage() {
+  const view = document.getElementById("view");
   let d = { ip: "", iface: "" };
   try { d = await api("/api/defaults"); } catch (e) { /* ignore */ }
   const card = (title, kind, fields, help) => {
     const out = h("div", {});
     const form = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" }, fields));
-    const btn = h("button", { class: "btn red", onclick: () => submitCreate(kind, form, out, btn) }, "Create");
-    return h("div", { class: "card" }, h("h3", {}, title), help ? h("p", { class: "dim" }, help) : null, form, btn, out);
+    const btn = h("button", { class: "btn w", onclick: () => submitCreate(kind, form, out, btn) }, "Create");
+    return h("div", { class: "card" }, h("h3", {}, title), help ? h("div", { class: "dim" }, help) : null, form, btn, out);
   };
-  main.replaceChildren(
+  const pwOut = h("div", {});
+  const pwForm = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" }, h("label", {}, "Current password", h("input", { name: "current", type: "password", autocomplete: "current-password" })), h("label", {}, "New password (10+ characters)", h("input", { name: "new", type: "password", autocomplete: "new-password" }))));
+  view.replaceChildren(
+    h("div", { class: "th" }, h("h2", {}, "Add tunnel")),
     h("p", { class: "dim" }, "Order: 1) create on the FOREIGN server and copy the link, 2) paste it on the IRAN server."),
-    card("Quick TLS tunnel: FOREIGN (creates a link)", "quick-foreign", [field("Name", "name", "tun1"), field("This server public IP", "ip", d.ip), field("Tunnel port", "port", "8443"), field("TLS name (SNI, optional)", "sni", "")],
-      "Direct TLS 1.3, no domain. Iran connects to this port."),
-    card("Quick TLS tunnel: IRAN (paste the link)", "quick-iran", [field("Link (uutun://...)", "link"), field("Ports to forward", "ports", "443", { placeholder: "443 or 8080=2083, 8443" }),
+    card("Quick TLS tunnel · FOREIGN (creates a link)", "quick-foreign", [field("Name", "name", "tun1"), field("This server public IP", "ip", d.ip), field("Tunnel port", "port", "8443"), field("TLS name (SNI, optional)", "sni", "")], "Direct TLS 1.3, no domain. Iran connects to this port."),
+    card("Quick TLS tunnel · IRAN (paste the link)", "quick-iran", [field("Link (uutun://...)", "link"), field("Ports to forward", "ports", "443", { placeholder: "443 or 8080=2083, 8443" }),
       select("Fingerprint", "fingerprint", [["1", "Chrome"], ["2", "Firefox"], ["3", "iOS"]]), field("Sessions (2-32)", "sessions", "8"),
-      h("label", {}, "Options", h("span", {}, h("input", { type: "checkbox", name: "advanced" }), " use fingerprint/sessions above  ", h("input", { type: "checkbox", name: "fragment" }), " TLS fragment"))],
-      "Ports: 443 maps Iran 443 to foreign 443. 8080=2083 maps Iran 8080 to foreign 2083."),
-    card("Quick SPOOF tunnel: FOREIGN (creates a link)", "spoof-foreign", [field("Name", "name", "spoof1"), field("Iran server IP", "iran_ip"), field("This server real IP", "ip", d.ip), field("Interface", "iface", d.iface || "eth0"),
-      select("Who forges the source", "forger", [["iran", "Iran forges (recommended)"], ["foreign", "Foreign forges"]]), field("Forged source IP", "spoof_ip", "", { placeholder: "inside a range that passed the Spoof test" }), field("Service port on this server", "target", "8443")],
-      "Run the Spoof test first (Tests tab). Needs /dev/net/tun, GRE (protocol 47) open and a real IP on the interface."),
-    card("Quick SPOOF tunnel: IRAN (paste the link)", "spoof-iran", [field("Link (uutspoof://...)", "link"), field("Interface", "iface", d.iface || "eth0"), field("Port users connect to (1024-65535)", "port", "8443")]));
+      h("label", {}, "Options", h("span", {}, h("input", { type: "checkbox", name: "advanced" }), " use fingerprint/sessions   ", h("input", { type: "checkbox", name: "fragment" }), " TLS fragment"))], "443 maps Iran 443 to foreign 443. 8080=2083 maps Iran 8080 to foreign 2083."),
+    card("Quick SPOOF tunnel · FOREIGN (creates a link)", "spoof-foreign", [field("Name", "name", "spoof1"), field("Iran server IP", "iran_ip"), field("This server real IP", "ip", d.ip), field("Interface", "iface", d.iface || "eth0"),
+      select("Who forges the source", "forger", [["iran", "Iran forges (recommended)"], ["foreign", "Foreign forges"]]), field("Forged source IP", "spoof_ip", "", { placeholder: "inside a range that passed the Spoof test" }), field("Service port on this server", "target", "8443")], "Run the Spoof test first (Connection test tab). Needs /dev/net/tun, GRE (protocol 47) open and a real IP on the interface."),
+    card("Quick SPOOF tunnel · IRAN (paste the link)", "spoof-iran", [field("Link (uutspoof://...)", "link"), field("Interface", "iface", d.iface || "eth0"), field("Port users connect to (1024-65535)", "port", "8443")]),
+    h("div", { class: "card" }, h("h3", {}, "Panel password"), pwForm, h("button", { class: "btn", onclick: async () => {
+      try { const r = await api("/api/password", "POST", { current: val(pwForm, "current"), new: val(pwForm, "new") }); note(pwOut, r.text, true); setTimeout(() => { csrf = ""; render(); }, 1500); } catch (e) { note(pwOut, e.message, false); }
+    } }, "Change password"), pwOut));
 }
 
-async function viewTests() {
-  const main = document.getElementById("main");
+async function viewTest() {
+  const view = document.getElementById("view");
   const lout = h("div", {});
   const tout = h("div", {});
   const refresh = async () => {
@@ -16988,7 +17238,7 @@ async function viewTests() {
   };
   const listenForm = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" },
     select("Test type", "kind", [["conn", "Connection + speed test"], ["spoof", "Spoof test"]]), field("This server public IP", "host", ""), field("Port (1024-65533)", "port", "4500")));
-  const lbtn = h("button", { class: "btn red", onclick: async () => {
+  const lbtn = h("button", { class: "btn w", onclick: async () => {
     try { await api("/api/test/listen", "POST", { kind: val(listenForm, "kind"), host: val(listenForm, "host"), port: val(listenForm, "port") }); refresh(); } catch (e) { note(lout, e.message, false); }
   } }, "Start listener");
   const sbtn = h("button", { class: "btn", onclick: async () => { await api("/api/test/stop", "POST"); refresh(); } }, "Stop listener");
@@ -16996,7 +17246,7 @@ async function viewTests() {
   const runForm = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" },
     select("Test type", "kind", [["conn", "Connection + speed test"], ["spoof", "Spoof test"]]), field("Link from the listener", "link"),
     select("Spoof mode", "mode", [["scan", "Range scan"], ["one", "One forged IP"]]), field("Forged IP (one IP mode)", "spoof_ip"), field("This server public IP (range scan)", "my_ip"), field("Extra ranges (optional)", "ranges", "", { placeholder: "5.22.0.0/16,185.10.0.0/16" })));
-  const rbtn = h("button", { class: "btn red", onclick: async () => {
+  const rbtn = h("button", { class: "btn w", onclick: async () => {
     rbtn.disabled = true;
     tout.replaceChildren(h("div", { class: "msg" }, "Running... up to 4 minutes."));
     const body = {};
@@ -17004,50 +17254,117 @@ async function viewTests() {
     try { const r = await api("/api/test/run", "POST", body); tout.replaceChildren(h("pre", {}, r.text)); } catch (e) { note(tout, e.message, false); }
     rbtn.disabled = false;
   } }, "Run test");
-  main.replaceChildren(
-    h("div", { class: "card" }, h("h3", {}, "1) Listener (run on the first server)"), listenForm, h("div", { class: "row mt" }, lbtn, sbtn), lout),
+  view.replaceChildren(
+    h("div", { class: "th" }, h("h2", {}, "Connection test")),
+    h("div", { class: "card" }, h("h3", {}, "1) Listener (run on the first server)"), listenForm, h("div", { class: "row" }, lbtn, sbtn), lout),
     h("div", { class: "card" }, h("h3", {}, "2) Tester (run on the second server)"), runForm, rbtn, tout));
   refresh();
 }
 
 async function render() {
-  try { const s = await api("/api/session"); if (s.auth) { csrf = s.csrf; return renderShell(); } } catch (e) { /* login */ }
+  stopTimer();
+  try { const s = await api("/api/session"); if (s.auth) { csrf = s.csrf; return shell(); } } catch (e) { /* login */ }
   renderLogin();
 }
 render();
 UUT_PANEL_JS_EOF
     cat > "$PANEL_DIR/web/app.css" <<'UUT_PANEL_CSS_EOF'
-:root{--bg:#0b0f14;--card:#121923;--line:#223042;--fg:#d8e2ee;--dim:#7d8da1;--red:#e0494f;--green:#35c26b;--cyan:#38b6d8;--yellow:#e3b341}
+:root{--bg:#050506;--bg2:#0c0d10;--card:#0f1114;--card2:#14171b;--line:#1d2127;--fg:#e8ebef;--dim:#7c8590;--faint:#3a4048;--red:#e5484d;--green:#30c46a;--amber:#f0a030;--blk:#2a2e34;--blk-on:#e9ecef}
+html[data-theme=light]{--bg:#f3f4f6;--bg2:#fff;--card:#fff;--card2:#f6f7f9;--line:#dfe2e7;--fg:#14171b;--dim:#6b7480;--faint:#c4c9d0;--blk:#d5d9df;--blk-on:#14171b}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--card)}
-header b{color:var(--red);font-size:18px;letter-spacing:1px}
-nav{display:flex;gap:6px;padding:10px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-nav button,.btn{background:#1a2432;border:1px solid var(--line);color:var(--fg);padding:7px 14px;border-radius:6px;cursor:pointer;font:inherit}
-nav button.on{background:var(--red);border-color:var(--red);color:#fff}
-.btn:hover,nav button:hover{border-color:var(--cyan)}
-.btn.red{background:var(--red);border-color:var(--red);color:#fff}
-.btn.sm{padding:3px 10px;font-size:12px}
-main{max-width:980px;margin:0 auto;padding:20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
-.card h3{margin:0 0 10px;color:var(--cyan);font-size:15px}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-label{display:flex;flex-direction:column;gap:3px;color:var(--dim);font-size:12px;flex:1;min-width:180px}
-input,select{background:#0e141c;border:1px solid var(--line);color:var(--fg);padding:8px;border-radius:6px;font:inherit}
-input:focus,select:focus{outline:none;border-color:var(--cyan)}
-.t{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
-.t:last-child{border:none}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:var(--red)}
-.dot.on{background:var(--green)}
-.tag{font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--dim);margin-left:6px}
-pre{background:#080c11;border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:420px;white-space:pre-wrap;word-break:break-all;margin:10px 0 0;font:12px/1.45 ui-monospace,Consolas,monospace}
-.link{color:var(--green);word-break:break-all;user-select:all}
-.msg{padding:8px 12px;border-radius:6px;margin-bottom:10px;background:#1a2432}
-.msg.err{border:1px solid var(--red);color:#ff9a9e}
-.msg.ok{border:1px solid var(--green)}
-.login{max-width:360px;margin:12vh auto;padding:0 16px}
-.dim{color:var(--dim)}
-.mt{margin-top:12px}.ml{margin-left:8px}.row.flush{margin:0}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,"Segoe UI",Inter,Roboto,sans-serif;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:12px;background:#fff;color:#000;display:grid;place-items:center;font-weight:800;font-size:15px}
+html[data-theme=light] .logo{background:#14171b;color:#fff}
+.brand b{display:block;font-size:15px}
+.brand span{color:var(--dim);font-size:12px}
+.hbtn{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 14px;cursor:pointer}
+.hbtn:hover{border-color:var(--faint)}
+.wrap{max-width:1500px;margin:0 auto;padding:0 28px 60px}
+.sec{font-size:11px;letter-spacing:2px;color:var(--dim);margin:22px 0 10px;display:flex;align-items:center;gap:12px}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid{display:grid;gap:0;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px}
+.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.cell{padding:20px 22px;border-right:1px solid var(--line);min-width:0}
+.cell:last-child{border-right:none}
+.big{font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+.big small{font-size:14px;font-weight:500;color:var(--dim);margin-left:4px;letter-spacing:0}
+.sub{color:var(--dim);font-size:12px;margin-top:10px}
+.meter{display:flex;gap:4px;margin-top:18px;height:26px}
+.meter i{flex:1;background:var(--blk);border-radius:2px}
+.meter i.on{background:var(--blk-on)}
+.bars{display:flex;gap:6px;align-items:flex-end;height:58px;margin-top:14px}
+.bars i{flex:1;background:var(--blk);border-radius:3px;min-height:4px}
+.bars i:last-child{background:var(--blk-on)}
+.tabs{display:flex;justify-content:center;margin:18px 0}
+.tabs div{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px;flex-wrap:wrap;justify-content:center}
+.tabs button{background:none;border:none;padding:9px 18px;border-radius:12px;cursor:pointer;color:var(--dim)}
+.tabs button.on{background:var(--blk-on);color:var(--bg)}
+.badge{font-size:11px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:0 7px;margin-left:6px;color:var(--dim)}
+.tabs button.on .badge{background:rgba(0,0,0,.12);color:var(--bg);border-color:transparent}
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:9px 14px;border:1px solid var(--line);background:var(--card);font-size:13px}
+.pill.bad{border-color:#5a2226;background:#1a0d0e}
+.pill.warn{border-color:#5a4220;background:#1a140b}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+.pill.bad i{background:var(--red)}.pill.warn i{background:var(--amber)}
+.total{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px}
+.total .big{font-size:48px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:6px 12px;font-size:13px;color:var(--fg)}
+.bar{height:5px;background:var(--blk);border-radius:3px;margin:20px 0 14px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blk-on)}
+.info{display:grid;grid-template-columns:repeat(2,1fr);background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.info div{padding:16px 22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.info div:nth-child(2n){border-right:none}
+.info div:nth-last-child(-n+2){border-bottom:none}
+.info small{display:block;font-size:10px;letter-spacing:2px;color:var(--dim)}
+.th{display:flex;align-items:center;justify-content:space-between;margin:10px 0 16px;gap:10px;flex-wrap:wrap}
+.th h2{margin:0;font-size:22px;display:flex;align-items:center;gap:10px}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 18px;cursor:pointer}
+.btn:hover{border-color:var(--faint)}
+.btn.w{background:var(--blk-on);color:var(--bg);border-color:var(--blk-on);font-weight:600}
+.btn.r{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 11px;font-size:12px;border-radius:9px}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+.tc{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;overflow:hidden}
+.tc::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 100%,rgba(229,72,77,.16),transparent 62%);pointer-events:none}
+.tc.on::before{background:radial-gradient(circle at 80% 100%,rgba(48,196,106,.16),transparent 62%)}
+.tc>*{position:relative}
+.tt{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.tt b{font-size:17px}
+.tt small{display:block;color:var(--dim);font-size:12px}
+.st{display:flex;align-items:center;gap:7px;font-size:13px;white-space:nowrap}
+.st i{width:9px;height:9px;border-radius:50%;background:var(--amber)}
+.tc.on .st i{background:var(--green)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.tag{font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:3px 9px;color:var(--dim)}
+.tag.hl{color:var(--fg);border-color:var(--faint)}
+.ping{font-size:40px;font-weight:700;letter-spacing:-1px;margin:6px 0}
+.ping small{font-size:15px;color:var(--dim);font-weight:500;margin-left:4px}
+.ping.none{font-size:24px;color:var(--dim)}
+.spark{display:block;width:100%;height:56px;margin:6px 0}
+.spark path{fill:none;stroke:var(--red);stroke-width:2}
+.tc.on .spark path{stroke:var(--green)}
+.meta{color:var(--dim);font-size:13px;margin:4px 0}
+.tfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tfoot .acts{display:flex;gap:6px;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px}
+.card h3{margin:0 0 6px;font-size:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+label{display:flex;flex-direction:column;gap:5px;color:var(--dim);font-size:12px;flex:1;min-width:190px}
+input,select{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg)}
+input:focus,select:focus{outline:none;border-color:var(--dim)}
+pre{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;overflow:auto;max-height:440px;white-space:pre-wrap;word-break:break-all;margin:12px 0 0;font:12px/1.5 ui-monospace,Consolas,monospace}
+.link{color:var(--green);user-select:all}
+.msg{padding:10px 14px;border-radius:12px;margin:10px 0;border:1px solid var(--line);background:var(--card2)}
+.msg.err{border-color:#5a2226;color:#ff9a9e}.msg.ok{border-color:#1f5a38}
+.dim{color:var(--dim)}.mt{margin-top:12px}
+.login{max-width:380px;margin:14vh auto;padding:0 16px}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.cell{border-bottom:1px solid var(--line)}.tg{grid-template-columns:1fr}.info{grid-template-columns:1fr}.info div{border-right:none}}
+.chips{align-self:center}.total .row{align-items:center;justify-content:space-between}
 UUT_PANEL_CSS_EOF
     chmod 0644 "$PANEL_DIR/panel.py" "$PANEL_DIR/connection-test.py" "$PANEL_DIR/web/"*
 }
