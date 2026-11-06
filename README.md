@@ -23,6 +23,15 @@ curl -fsSLO https://raw.githubusercontent.com/NPNTEI/SpoofTun/main/UNUNKNOWNTUN-
 - دستورهای مستقیم: `quick-foreign`، `quick-iran`، `quick-manage`.
 - حالت پیشرفته (WSS / XHTTP / CDN / ICMP / GRE) هنوز از گزینه `2) Advanced` در همان منوها در دسترس است.
 
+## تونل Spoof سریع (Quick SPOOF tunnel) — یک پورت فوروارد روی GRE با IP مبدأ جعلی
+
+1. اول `Test` ← `Spoof test` را بین دو سرور بزن تا معلوم شود کدام سمت می‌تواند IP مبدأ جعلی بفرستد.
+2. **سرور خارج**: `Setup Foreign` ← `2) Quick SPOOF tunnel`. IP ایران، سمتی که جعل می‌کند (پیشنهاد: ایران)، IP جعلی (داخل بازه‌ای که تست پاس شد) و پورت سرویس روی خارج را می‌دهید. لینک `uutspoof://...` می‌گیرید.
+3. **سرور ایران**: `Setup Iran` ← `2) Quick SPOOF tunnel`. لینک را paste کنید و پورت کاربران (1024 تا 65535) را بدهید. قبل از نصب، یک تست زنده GRE+TLS انجام می‌شود.
+4. مدیریت: `Manage` ← `Quick tunnels` (وضعیت، لاگ، ری‌استارت، حذف). دستورهای مستقیم: `quick-spoof-foreign` و `quick-spoof-iran`.
+- نیازها: Linux، `/dev/net/tun` (روی بعضی VPSها بسته است)، iproute2، IP واقعی روی کارت شبکه (NAT/floating IP کار نمی‌کند)، پروتکل GRE (شماره 47) در فایروال باز، و `rp_filter` شل (نصاب پیشنهاد تغییر می‌دهد).
+- فقط یک پورت فوروارد می‌شود (TCP). ابتدا سرور خارج را بسازید.
+
 ## دستور باز کردن منو + تست Spoof
 
 - بعد از اولین اجرا، منو با یک دستور باز می‌شود: `ununknowntun` (کوتاه: `uut`). دستورهای مستقیم: `ununknowntun quick-manage`، `ununknowntun spoof-test`، `ununknowntun connection-test`.
