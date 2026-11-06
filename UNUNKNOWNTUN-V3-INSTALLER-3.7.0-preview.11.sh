@@ -212,8 +212,17 @@ detect_os() {
     esac
 }
 
+declare -gA UUT_ASKED=()
 ask() {
     local __name="$1" prompt="$2" default="${3:-}" _ask_reply
+    if [[ -n "${UUT_ANSWERS:-}" ]]; then
+        # Non-interactive mode (web panel): answers are looked up by prompt text.
+        UUT_ASKED["$prompt"]=$(( ${UUT_ASKED["$prompt"]:-0} + 1 ))
+        (( UUT_ASKED["$prompt"] <= 3 )) || die "Non-interactive input was rejected for: $prompt"
+        _ask_reply="$(awk -F'\t' -v p="$prompt" '$1==p{print $2; exit}' "$UUT_ANSWERS" 2>/dev/null || true)"
+        printf -v "$__name" '%s' "${_ask_reply:-$default}"
+        return 0
+    fi
     if [[ -n "$default" ]]; then
         read -r -p "$prompt [$default]: " _ask_reply || die "Input closed; installation cancelled."
         _ask_reply="${_ask_reply:-$default}"
@@ -480,7 +489,7 @@ validate_peer_path_profile() {
 valid_four_choices() { [[ "$1" =~ ^[1-4]$ ]]; }
 valid_fragment_size() { [[ "$1" =~ ^([1-9][0-9]{0,3})-([1-9][0-9]{0,3})$ ]] && (( 10#${BASH_REMATCH[1]} >= 16 && 10#${BASH_REMATCH[1]} <= 10#${BASH_REMATCH[2]} && 10#${BASH_REMATCH[2]} <= 4096 )); }
 valid_fragment_interval() { [[ "$1" =~ ^([0-9]{1,3})-([0-9]{1,3})ms$ ]] && (( 10#${BASH_REMATCH[1]} <= 10#${BASH_REMATCH[2]} && 10#${BASH_REMATCH[2]} <= 20 )); }
-valid_main_choice() { [[ "$1" =~ ^(10|[0-9])$ ]]; }
+valid_main_choice() { [[ "$1" =~ ^(1[01]|[0-9])$ ]]; }
 valid_five_choices() { [[ "$1" =~ ^[1-5]$ ]]; }
 valid_six_choices() { [[ "$1" =~ ^[1-6]$ ]]; }
 valid_manage_choice() { [[ "$1" =~ ^([1-9]|1[0-9]|2[0-4])$ ]]; }
@@ -14932,8 +14941,8 @@ run_connection_test() {
     fi
 }
 
-run_connection_test_py() {
-    python3 -I - "$@" <<'UUT_CONNTEST_PY_EOF'
+conntest_source() {
+    cat <<'UUT_CONNTEST_PY_EOF'
 #!/usr/bin/env python3
 """UnUnknownTun connection test between two servers (stdlib only).
 
@@ -15663,6 +15672,10 @@ if __name__ == "__main__":
 UUT_CONNTEST_PY_EOF
 }
 
+run_connection_test_py() {
+    python3 -I -c "$(conntest_source)" "$@"
+}
+
 # ---------------------------------------------------------------- Quick tunnel
 # Foreign only creates a link. Iran pastes the link and chooses every setting.
 # Direct TLS 1.3 with a pinned self-signed certificate; no domain, CDN or Nginx.
@@ -16323,6 +16336,848 @@ quick_manage() {
     done
 }
 
+# ---------------------------------------------------------------- Web panel
+PANEL_DIR="$INSTALL_DIR/panel"
+PANEL_STATE="$BASE_CONFIG_DIR/panel"
+PANEL_UNIT="ununknowntun-panel.service"
+
+panel_write_files() {
+    install -d -o root -g root -m 0755 "$PANEL_DIR" "$PANEL_DIR/web"
+    cat > "$PANEL_DIR/panel.py" <<'UUT_PANEL_PY_EOF'
+#!/usr/bin/env python3
+"""UnUnknownTun web panel (stdlib only). Manages quick tunnels and runs path tests.
+
+Runs as root behind HTTPS (self-signed) with a random password, login rate limiting,
+CSRF protection and strict input validation. All actions use fixed argument lists;
+no shell is ever invoked. Tunnel creation reuses the installer non-interactively.
+"""
+import argparse, hashlib, hmac, http.server, json, os, re, secrets, shutil, signal, socket, ssl, subprocess, sys, tempfile, threading, time
+from pathlib import Path
+from urllib.parse import urlparse
+
+QUICK_DIR = Path("/etc/ununknowntun/quick")
+SPOOF_ROOT = Path("/etc/ununknowntun-gre")
+INSTALLER = "/opt/ununknowntun/installer.sh"
+CONNTEST = "/opt/ununknowntun/panel/connection-test.py"
+WEB_DIR = Path("/opt/ununknowntun/panel/web")
+SESSION_SECONDS = 12 * 3600
+MAX_BODY = 65536
+
+NAME = re.compile(r"[a-z0-9][a-z0-9-]{0,23}\Z")
+IPV4 = re.compile(r"((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)\Z")
+IFACE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,14}\Z")
+LINK_TLS = re.compile(r"uutun://[0-9a-f]{64}@[0-9.]+:\d{1,5}\?fp=[0-9a-f]{64}&sni=[A-Za-z0-9.-]+#[a-z0-9-]{1,24}\Z")
+LINK_SPOOF = re.compile(r"uutspoof://[A-Za-z0-9_-]{100,900}\Z")
+LINK_TEST = re.compile(r"uut://[^:/\s]{1,253}:\d{4,5}/[0-9a-f]{24}\Z")
+LINK_SPOOF_TEST = re.compile(r"uuts://[^:/\s]{1,253}:\d{4,5}/[0-9a-f]{24}\Z")
+PORTS = re.compile(r"\d{1,5}(=\d{1,5})?(,\d{1,5}(=\d{1,5})?){0,15}\Z")
+SNI = re.compile(r"[A-Za-z0-9]([A-Za-z0-9-]{0,62}\.)+[A-Za-z]{2,63}\Z")
+CIDRS = re.compile(r"[0-9./,]{0,200}\Z")
+ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
+
+STATE_DIR = Path("/etc/ununknowntun/panel")
+SESSIONS = {}
+SESSION_LOCK = threading.Lock()
+FAILS = {}
+TEST_PROC = {"proc": None, "kind": "", "link": "", "started": 0.0, "log": None}
+TEST_LOCK = threading.Lock()
+
+
+def clean(text):
+    return ANSI.sub("", text).replace("\r", "")
+
+
+def run(argv, timeout=60, env=None, stdin=None):
+    try:
+        done = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, env=env, input=stdin)
+        return done.returncode, clean(done.stdout + done.stderr)
+    except subprocess.TimeoutExpired as exc:
+        return 124, clean((exc.stdout or b"").decode("utf-8", "replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")) + "\n[timed out]"
+    except OSError as exc:
+        return 127, str(exc)
+
+
+# ------------------------------------------------------------------ auth
+def auth_path():
+    return STATE_DIR / "auth.json"
+
+
+def hash_password(password, salt):
+    return hashlib.scrypt(password.encode(), salt=salt, n=2 ** 14, r=8, p=1, dklen=32)
+
+
+def set_password():
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    os.chmod(STATE_DIR, 0o700)
+    password = secrets.token_urlsafe(15)
+    salt = secrets.token_bytes(16)
+    data = {"salt": salt.hex(), "hash": hash_password(password, salt).hex()}
+    fd = os.open(auth_path(), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as handle:
+        json.dump(data, handle)
+    return password
+
+
+def check_password(password):
+    try:
+        data = json.loads(auth_path().read_text())
+        expected = bytes.fromhex(data["hash"])
+        return hmac.compare_digest(hash_password(password, bytes.fromhex(data["salt"])), expected)
+    except (OSError, ValueError, KeyError):
+        return False
+
+
+# ------------------------------------------------------------------ tunnels
+def parse_env(path):
+    values = {}
+    try:
+        for line in path.read_text().splitlines():
+            if "=" in line:
+                key, value = line.split("=", 1)
+                values[key.strip()] = value.strip()
+    except OSError:
+        pass
+    return values
+
+
+def list_tunnels():
+    items = []
+    if QUICK_DIR.is_dir():
+        for directory in sorted(QUICK_DIR.iterdir()):
+            info = parse_env(directory / "info.env")
+            if not info or not NAME.fullmatch(directory.name):
+                continue
+            prefix = info.get("PREFIX") or "ununknowntun-quick-"
+            states = []
+            for unit in info.get("UNITS", "").split():
+                _, out = run(["systemctl", "is-active", f"{prefix}{unit}.service"], 10)
+                states.append(out.strip() == "active")
+            items.append({"name": directory.name, "role": info.get("ROLE", "?"),
+                          "type": "spoof" if info.get("TYPE") == "spoof" else "tls",
+                          "detail": (info.get("MAP") or info.get("PORT") or "").replace("=", " → "),
+                          "running": bool(states) and all(states), "has_link": (directory / "link.txt").is_file()})
+    return items
+
+
+def tunnel_units(name):
+    if not NAME.fullmatch(name):
+        raise ValueError("bad name")
+    info = parse_env(QUICK_DIR / name / "info.env")
+    if not info:
+        raise ValueError("unknown tunnel")
+    prefix = info.get("PREFIX") or "ununknowntun-quick-"
+    return info, [f"{prefix}{unit}.service" for unit in info.get("UNITS", "").split() if NAME.fullmatch(unit) or re.fullmatch(r"[a-z0-9-]+", unit)]
+
+
+def tunnel_action(name, action):
+    info, units = tunnel_units(name)
+    out = []
+    if action in ("start", "stop", "restart"):
+        for unit in units:
+            out.append(run(["systemctl", action, unit], 30)[1])
+        return "OK: " + action
+    if action == "remove":
+        for unit in units:
+            run(["systemctl", "disable", "--now", unit], 30)
+            try:
+                os.unlink(f"/etc/systemd/system/{unit}")
+            except OSError:
+                pass
+        run(["systemctl", "daemon-reload"], 30)
+        extra = info.get("EXTRA_DIR", "")
+        if extra.startswith(str(SPOOF_ROOT) + "/") and ".." not in extra:
+            shutil.rmtree(extra, ignore_errors=True)
+        shutil.rmtree(QUICK_DIR / name, ignore_errors=True)
+        return "Removed " + name
+    raise ValueError("bad action")
+
+
+def defaults():
+    ip, iface = "", ""
+    code, out = run(["ip", "-4", "route", "get", "1.1.1.1"], 5)
+    if code == 0:
+        m = re.search(r" src (\d+\.\d+\.\d+\.\d+)", out)
+        d = re.search(r" dev (\S+)", out)
+        ip, iface = (m.group(1) if m else ""), (d.group(1) if d else "")
+    return {"ip": ip, "iface": iface}
+
+
+# ------------------------------------------------------------------ installer-driven creation
+def run_installer(command, answers, timeout=150):
+    handle = tempfile.NamedTemporaryFile("w", delete=False, prefix="uut-answers-", dir="/run" if os.path.isdir("/run") else None)
+    try:
+        os.chmod(handle.name, 0o600)
+        for key, value in answers.items():
+            if "\t" in key or "\n" in key or "\t" in value or "\n" in value:
+                raise ValueError("bad characters")
+            handle.write(f"{key}\t{value}\n")
+        handle.close()
+        env = {"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "UUT_ANSWERS": handle.name, "LC_ALL": "C.UTF-8", "TERM": "dumb"}
+        return run(["bash", INSTALLER, command], timeout, env, stdin="")
+    finally:
+        try:
+            os.unlink(handle.name)
+        except OSError:
+            pass
+
+
+def need(body, key, pattern, label):
+    value = str(body.get(key, "")).strip()
+    if not pattern.fullmatch(value):
+        raise ValueError(f"Invalid {label}")
+    return value
+
+
+def port_of(body, key, label, low=1):
+    value = str(body.get(key, "")).strip()
+    if not value.isdigit() or not low <= int(value) <= 65535:
+        raise ValueError(f"Invalid {label}")
+    return value
+
+
+def create(kind, body):
+    if kind == "quick-foreign":
+        a = {"Tunnel name": need(body, "name", NAME, "name"),
+             "This foreign server's public IPv4": need(body, "ip", IPV4, "IP"),
+             "Tunnel port (Iran connects to this port)": port_of(body, "port", "port")}
+        sni = str(body.get("sni", "")).strip()
+        if sni:
+            if not SNI.fullmatch(sni):
+                raise ValueError("Invalid TLS name")
+            a["Change the TLS name (SNI) shown to the network? Default: www.speedtest.net (y/n)"] = "y"
+            a["TLS name (SNI)"] = sni
+        else:
+            a["Change the TLS name (SNI) shown to the network? Default: www.speedtest.net (y/n)"] = "n"
+        return run_installer("quick-foreign", a)
+    if kind == "quick-iran":
+        ports = need(body, "ports", PORTS, "ports").replace(" ", "")
+        a = {"Paste the link from the foreign server (uutun://...)": need(body, "link", LINK_TLS, "link"), "Ports to forward": ports,
+             "Install anyway (it will keep retrying)? (y/n)": "n"}
+        if body.get("advanced"):
+            prof = str(body.get("fingerprint", "1"))
+            if prof not in ("1", "2", "3"):
+                raise ValueError("Invalid fingerprint")
+            a["Change advanced options (browser fingerprint, TLS fragment, sessions)? (y/n)"] = "y"
+            a["Fingerprint"] = prof
+            a["Enable TLS ClientHello fragmentation (helps against some DPI)? (y/n)"] = "y" if body.get("fragment") else "n"
+            sessions = str(body.get("sessions", "8"))
+            if not sessions.isdigit() or not 2 <= int(sessions) <= 32:
+                raise ValueError("Invalid sessions")
+            a["Parallel tunnel sessions (2-32)"] = sessions
+        return run_installer("quick-iran", a)
+    if kind == "spoof-foreign":
+        a = {"Tunnel name": need(body, "name", NAME, "name"),
+             "Iran server public IPv4": need(body, "iran_ip", IPV4, "Iran IP"),
+             "This foreign server's real IPv4 (assigned on the interface)": need(body, "ip", IPV4, "IP"),
+             "Network interface": need(body, "iface", IFACE, "interface"),
+             "Select": "1" if body.get("forger", "iran") == "iran" else "2",
+             "Forged source IP (an IP inside a range that PASSED the Spoof test)": need(body, "spoof_ip", IPV4, "forged IP"),
+             "Port of the service on THIS server to forward to (e.g. your Xray inbound)": port_of(body, "target", "target port")}
+        return run_installer("quick-spoof-foreign", a)
+    if kind == "spoof-iran":
+        a = {"Paste the link from the foreign server (uutspoof://...)": need(body, "link", LINK_SPOOF, "link"),
+             "Network interface": need(body, "iface", IFACE, "interface"),
+             "Port users connect to on THIS Iran server (1024-65535)": port_of(body, "port", "port", 1024),
+             "Install and start anyway (it keeps retrying)? (y/n)": "n"}
+        return run_installer("quick-spoof-iran", a)
+    raise ValueError("unknown kind")
+
+
+# ------------------------------------------------------------------ tests
+def stop_listener():
+    with TEST_LOCK:
+        proc = TEST_PROC["proc"]
+        if proc and proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+        TEST_PROC.update(proc=None, kind="", link="")
+
+
+def start_listener(kind, host, port):
+    stop_listener()
+    token = secrets.token_hex(12)
+    role = "server" if kind == "conn" else "spoof-server"
+    log = tempfile.TemporaryFile("w+")
+    proc = subprocess.Popen(["python3", "-I", CONNTEST, role, "--port", str(port), "--token", token],
+                            stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
+    scheme = "uut" if kind == "conn" else "uuts"
+    link = f"{scheme}://{host}:{port}/{token}"
+    with TEST_LOCK:
+        TEST_PROC.update(proc=proc, kind=kind, link=link, started=time.time(), log=log)
+    threading.Timer(1200, lambda: stop_listener() if TEST_PROC["proc"] is proc else None).start()
+    return link
+
+
+def listener_status():
+    with TEST_LOCK:
+        proc = TEST_PROC["proc"]
+        running = bool(proc and proc.poll() is None)
+        log = ""
+        if TEST_PROC["log"] is not None:
+            TEST_PROC["log"].flush()
+            TEST_PROC["log"].seek(0)
+            log = clean(TEST_PROC["log"].read())[-3000:]
+        return {"running": running, "kind": TEST_PROC["kind"], "link": TEST_PROC["link"] if running else "", "log": log}
+
+
+def run_test(body):
+    kind = body.get("kind")
+    link = str(body.get("link", "")).strip()
+    env = {"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "LC_ALL": "C.UTF-8"}
+    if kind == "conn":
+        if not LINK_TEST.fullmatch(link):
+            raise ValueError("Invalid link")
+        host, rest = link[len("uut://"):].split(":", 1)
+        port, token = rest.split("/", 1)
+        return run(["python3", "-I", CONNTEST, "client", "--host", host, "--port", port, "--token", token], 240, env)
+    if kind == "spoof":
+        if not LINK_SPOOF_TEST.fullmatch(link):
+            raise ValueError("Invalid link")
+        host, rest = link[len("uuts://"):].split(":", 1)
+        port, token = rest.split("/", 1)
+        argv = ["python3", "-I", CONNTEST, "spoof-client", "--host", host, "--port", port, "--token", token]
+        if body.get("mode") == "scan":
+            ranges = str(body.get("ranges", "")).strip()
+            if not CIDRS.fullmatch(ranges):
+                raise ValueError("Invalid ranges")
+            argv += ["--scan", "--my-ip", need(body, "my_ip", IPV4, "own IP")]
+            if ranges:
+                argv += ["--ranges", ranges]
+        else:
+            argv += ["--spoof-ip", need(body, "spoof_ip", IPV4, "forged IP")]
+        return run(argv, 240, env)
+    raise ValueError("unknown test")
+
+
+# ------------------------------------------------------------------ HTTP
+class Handler(http.server.BaseHTTPRequestHandler):
+    server_version = "UUTPanel"
+    sys_version = ""
+    timeout = 30
+
+    def log_message(self, *args):
+        pass
+
+    def send_json(self, data, code=200, cookie=None):
+        raw = json.dumps(data).encode()
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(raw)))
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
+        self.security_headers()
+        self.end_headers()
+        self.wfile.write(raw)
+
+    def security_headers(self):
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+
+    def session(self):
+        cookie = self.headers.get("Cookie", "")
+        m = re.search(r"uut_session=([A-Za-z0-9_-]{20,64})", cookie)
+        if not m:
+            return None
+        with SESSION_LOCK:
+            item = SESSIONS.get(m.group(1))
+            if item and item["expires"] > time.time():
+                return item
+            SESSIONS.pop(m.group(1), None)
+        return None
+
+    def body(self):
+        length = int(self.headers.get("Content-Length") or 0)
+        if length > MAX_BODY:
+            raise ValueError("too large")
+        if length == 0:
+            return {}
+        data = json.loads(self.rfile.read(length))
+        if not isinstance(data, dict):
+            raise ValueError("bad body")
+        return data
+
+    def do_GET(self):
+        path = urlparse(self.path).path
+        if path in ("/", "/index.html", "/app.js", "/app.css"):
+            name = {"/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/app.css": "app.css"}[path]
+            raw = (WEB_DIR / name).read_bytes()
+            ctype = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "app.css": "text/css; charset=utf-8"}[name]
+            self.send_response(200)
+            self.send_header("Content-Type", ctype)
+            self.send_header("Content-Length", str(len(raw)))
+            self.security_headers()
+            self.end_headers()
+            self.wfile.write(raw)
+            return
+        sess = self.session()
+        if path == "/api/session":
+            return self.send_json({"auth": bool(sess), "csrf": sess["csrf"] if sess else ""})
+        if not sess:
+            return self.send_json({"error": "login required"}, 401)
+        try:
+            if path == "/api/tunnels":
+                return self.send_json({"tunnels": list_tunnels()})
+            if path == "/api/defaults":
+                return self.send_json(defaults())
+            if path == "/api/test/status":
+                return self.send_json(listener_status())
+            m = re.fullmatch(r"/api/tunnel/([a-z0-9-]{1,24})/(logs|link)", path)
+            if m:
+                info, units = tunnel_units(m.group(1))
+                if m.group(2) == "link":
+                    link = QUICK_DIR / m.group(1) / "link.txt"
+                    return self.send_json({"text": link.read_text().strip() if link.is_file() else "No link on this server (links exist on the foreign side)."})
+                out = "\n".join(run(["journalctl", "-u", unit, "-n", "60", "--no-pager"], 20)[1] for unit in units)
+                return self.send_json({"text": out[-6000:]})
+        except (ValueError, OSError) as exc:
+            return self.send_json({"error": str(exc)}, 400)
+        self.send_json({"error": "not found"}, 404)
+
+    def do_POST(self):
+        path = urlparse(self.path).path
+        ip = self.client_address[0]
+        try:
+            body = self.body()
+        except (ValueError, json.JSONDecodeError):
+            return self.send_json({"error": "bad request"}, 400)
+        if path == "/api/login":
+            now = time.time()
+            fails = [t for t in FAILS.get(ip, []) if now - t < 300]
+            if len(fails) >= 5:
+                return self.send_json({"error": "Too many attempts. Wait 5 minutes."}, 429)
+            password = str(body.get("password", ""))
+            if len(password) <= 128 and check_password(password):
+                FAILS.pop(ip, None)
+                token = secrets.token_urlsafe(32)
+                csrf = secrets.token_urlsafe(24)
+                with SESSION_LOCK:
+                    SESSIONS[token] = {"expires": now + SESSION_SECONDS, "csrf": csrf}
+                return self.send_json({"ok": True, "csrf": csrf}, cookie=f"uut_session={token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age={SESSION_SECONDS}")
+            fails.append(now)
+            FAILS[ip] = fails
+            time.sleep(1)
+            return self.send_json({"error": "Wrong password."}, 401)
+        sess = self.session()
+        if not sess or not hmac.compare_digest(self.headers.get("X-CSRF", ""), sess["csrf"]):
+            return self.send_json({"error": "login required"}, 401)
+        try:
+            if path == "/api/logout":
+                m = re.search(r"uut_session=([A-Za-z0-9_-]+)", self.headers.get("Cookie", ""))
+                with SESSION_LOCK:
+                    SESSIONS.pop(m.group(1), None) if m else None
+                return self.send_json({"ok": True}, cookie="uut_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0")
+            m = re.fullmatch(r"/api/tunnel/([a-z0-9-]{1,24})/(start|stop|restart|remove)", path)
+            if m:
+                return self.send_json({"text": tunnel_action(m.group(1), m.group(2))})
+            m = re.fullmatch(r"/api/create/(quick-foreign|quick-iran|spoof-foreign|spoof-iran)", path)
+            if m:
+                code, out = create(m.group(1), body)
+                link = re.search(r"(uutun://\S+|uutspoof://\S+)", out)
+                return self.send_json({"ok": code == 0, "text": out[-5000:], "link": link.group(1) if (link and code == 0 and m.group(1).endswith("foreign")) else ""})
+            if path == "/api/test/listen":
+                kind = body.get("kind")
+                if kind not in ("conn", "spoof"):
+                    raise ValueError("bad kind")
+                host = need(body, "host", IPV4, "IP")
+                return self.send_json({"link": start_listener(kind, host, int(port_of(body, "port", "port", 1024)))})
+            if path == "/api/test/stop":
+                stop_listener()
+                return self.send_json({"ok": True})
+            if path == "/api/test/run":
+                code, out = run_test(body)
+                return self.send_json({"ok": code == 0, "text": out[-8000:]})
+        except ValueError as exc:
+            return self.send_json({"error": str(exc)}, 400)
+        self.send_json({"error": "not found"}, 404)
+
+
+def serve(args):
+    global STATE_DIR
+    STATE_DIR = Path(args.state)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    context.load_cert_chain(STATE_DIR / "cert.pem", STATE_DIR / "key.pem")
+    server = http.server.ThreadingHTTPServer((args.bind, args.port), Handler)
+    server.daemon_threads = True
+    server.socket = context.wrap_socket(server.socket, server_side=True)
+    signal.signal(signal.SIGTERM, lambda *_: (stop_listener(), os._exit(0)))
+    print(f"panel listening on https://{args.bind}:{args.port}", flush=True)
+    server.serve_forever()
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--state", default="/etc/ununknowntun/panel")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("serve")
+    s.add_argument("--port", type=int, required=True)
+    s.add_argument("--bind", default="0.0.0.0")
+    sub.add_parser("set-password")
+    args = ap.parse_args()
+    if args.cmd == "set-password":
+        global STATE_DIR
+        STATE_DIR = Path(args.state)
+        print(set_password())
+        return 0
+    serve(args)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+UUT_PANEL_PY_EOF
+    conntest_source > "$PANEL_DIR/connection-test.py"
+    cat > "$PANEL_DIR/web/index.html" <<'UUT_PANEL_HTML_EOF'
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UnUnknownTun Panel</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div id="app"></div>
+<script src="/app.js"></script>
+</body>
+</html>
+UUT_PANEL_HTML_EOF
+    cat > "$PANEL_DIR/web/app.js" <<'UUT_PANEL_JS_EOF'
+"use strict";
+let csrf = "";
+const app = document.getElementById("app");
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+
+async function api(path, method = "GET", body) {
+  const opts = { method, headers: {}, credentials: "same-origin" };
+  if (method !== "GET") { opts.headers["Content-Type"] = "application/json"; opts.headers["X-CSRF"] = csrf; opts.body = JSON.stringify(body || {}); }
+  const res = await fetch(path, opts);
+  let data = {};
+  try { data = await res.json(); } catch (e) { /* ignore */ }
+  if (res.status === 401 && path !== "/api/login") { csrf = ""; render(); }
+  if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+  return data;
+}
+
+function field(label, name, value = "", extra = {}) {
+  return h("label", {}, label, h("input", { name, value, autocomplete: "off", spellcheck: "false", ...extra }));
+}
+function select(label, name, options) {
+  return h("label", {}, label, h("select", { name }, options.map(([v, t]) => h("option", { value: v }, t))));
+}
+function val(form, name) { const el = form.elements[name]; return el ? el.value.trim() : ""; }
+
+function note(box, text, ok) {
+  box.replaceChildren(h("div", { class: "msg " + (ok ? "ok" : "err") }, text));
+}
+
+async function login() {
+  const pw = document.getElementById("pw").value;
+  const box = document.getElementById("lmsg");
+  try { const r = await api("/api/login", "POST", { password: pw }); csrf = r.csrf; render(); }
+  catch (e) { note(box, e.message, false); }
+}
+
+function renderLogin() {
+  app.replaceChildren(h("div", { class: "login" },
+    h("div", { class: "card" },
+      h("h3", {}, "UnUnknownTun Panel"),
+      h("div", { id: "lmsg" }),
+      h("label", {}, "Password", h("input", { id: "pw", type: "password", autocomplete: "current-password", onkeydown: (e) => { if (e.key === "Enter") login(); } })),
+      h("div", { class: "row mt" }, h("button", { class: "btn red", onclick: login }, "Sign in")),
+      h("p", { class: "dim" }, "The password was shown once during installation. Reset: ununknowntun panel-password"))));
+}
+
+let tab = "tunnels";
+function renderShell() {
+  const tabs = [["tunnels", "Tunnels"], ["create", "Create"], ["tests", "Tests"]];
+  app.replaceChildren(
+    h("header", {}, h("b", {}, "UNUNKNOWNTUN"), h("button", { class: "btn sm", onclick: async () => { await api("/api/logout", "POST"); csrf = ""; render(); } }, "Log out")),
+    h("nav", {}, tabs.map(([id, t]) => h("button", { class: tab === id ? "on" : "", onclick: () => { tab = id; renderShell(); } }, t))),
+    h("main", { id: "main" }));
+  ({ tunnels: viewTunnels, create: viewCreate, tests: viewTests })[tab]();
+}
+
+async function viewTunnels() {
+  const main = document.getElementById("main");
+  const out = h("div", { id: "out" });
+  const list = h("div", { class: "card" }, h("h3", {}, "Quick tunnels"));
+  main.replaceChildren(list, out);
+  let data;
+  try { data = await api("/api/tunnels"); } catch (e) { list.append(h("div", { class: "msg err" }, e.message)); return; }
+  if (!data.tunnels.length) list.append(h("p", { class: "dim" }, "No tunnels yet. Use the Create tab: foreign first, then Iran."));
+  for (const t of data.tunnels) {
+    const act = (name, label, extra = "") => h("button", { class: "btn sm " + extra, onclick: async () => {
+      if (name === "remove" && !confirm("Remove tunnel " + t.name + " and its services?")) return;
+      try { const r = await api("/api/tunnel/" + t.name + "/" + name, "POST"); note(out, r.text, true); } catch (e) { note(out, e.message, false); }
+      if (["remove", "start", "stop", "restart"].includes(name)) setTimeout(viewTunnels, 800);
+    } }, label);
+    const view = (kind, label) => h("button", { class: "btn sm", onclick: async () => {
+      try { const r = await api("/api/tunnel/" + t.name + "/" + kind); out.replaceChildren(h("pre", { class: kind === "link" ? "link" : "" }, r.text)); } catch (e) { note(out, e.message, false); }
+    } }, label);
+    list.append(h("div", { class: "t" },
+      h("div", {}, h("span", { class: "dot " + (t.running ? "on" : "") }), h("b", {}, t.name), h("span", { class: "tag" }, t.role), h("span", { class: "tag" }, t.type), h("span", { class: "dim ml" }, t.detail)),
+      h("div", { class: "row flush" }, act("start", "Start"), act("stop", "Stop"), act("restart", "Restart"), view("logs", "Logs"), t.has_link ? view("link", "Link") : null, act("remove", "Remove", "red"))));
+  }
+}
+
+async function submitCreate(kind, form, out, button) {
+  button.disabled = true;
+  out.replaceChildren(h("div", { class: "msg" }, "Working... this can take up to a minute."));
+  const body = {};
+  for (const el of form.elements) if (el.name) body[el.name] = el.type === "checkbox" ? el.checked : el.value.trim();
+  try {
+    const r = await api("/api/create/" + kind, "POST", body);
+    const kids = [h("div", { class: "msg " + (r.ok ? "ok" : "err") }, r.ok ? "Done." : "Failed. Read the output below.")];
+    if (r.link) kids.push(h("p", {}, "Paste this link into the Iran server (Create tab):"), h("pre", { class: "link" }, r.link));
+    kids.push(h("pre", {}, r.text));
+    out.replaceChildren(...kids);
+  } catch (e) { note(out, e.message, false); }
+  button.disabled = false;
+}
+
+async function viewCreate() {
+  const main = document.getElementById("main");
+  let d = { ip: "", iface: "" };
+  try { d = await api("/api/defaults"); } catch (e) { /* ignore */ }
+  const card = (title, kind, fields, help) => {
+    const out = h("div", {});
+    const form = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" }, fields));
+    const btn = h("button", { class: "btn red", onclick: () => submitCreate(kind, form, out, btn) }, "Create");
+    return h("div", { class: "card" }, h("h3", {}, title), help ? h("p", { class: "dim" }, help) : null, form, btn, out);
+  };
+  main.replaceChildren(
+    h("p", { class: "dim" }, "Order: 1) create on the FOREIGN server and copy the link, 2) paste it on the IRAN server."),
+    card("Quick TLS tunnel: FOREIGN (creates a link)", "quick-foreign", [field("Name", "name", "tun1"), field("This server public IP", "ip", d.ip), field("Tunnel port", "port", "8443"), field("TLS name (SNI, optional)", "sni", "")],
+      "Direct TLS 1.3, no domain. Iran connects to this port."),
+    card("Quick TLS tunnel: IRAN (paste the link)", "quick-iran", [field("Link (uutun://...)", "link"), field("Ports to forward", "ports", "443", { placeholder: "443 or 8080=2083, 8443" }),
+      select("Fingerprint", "fingerprint", [["1", "Chrome"], ["2", "Firefox"], ["3", "iOS"]]), field("Sessions (2-32)", "sessions", "8"),
+      h("label", {}, "Options", h("span", {}, h("input", { type: "checkbox", name: "advanced" }), " use fingerprint/sessions above  ", h("input", { type: "checkbox", name: "fragment" }), " TLS fragment"))],
+      "Ports: 443 maps Iran 443 to foreign 443. 8080=2083 maps Iran 8080 to foreign 2083."),
+    card("Quick SPOOF tunnel: FOREIGN (creates a link)", "spoof-foreign", [field("Name", "name", "spoof1"), field("Iran server IP", "iran_ip"), field("This server real IP", "ip", d.ip), field("Interface", "iface", d.iface || "eth0"),
+      select("Who forges the source", "forger", [["iran", "Iran forges (recommended)"], ["foreign", "Foreign forges"]]), field("Forged source IP", "spoof_ip", "", { placeholder: "inside a range that passed the Spoof test" }), field("Service port on this server", "target", "8443")],
+      "Run the Spoof test first (Tests tab). Needs /dev/net/tun, GRE (protocol 47) open and a real IP on the interface."),
+    card("Quick SPOOF tunnel: IRAN (paste the link)", "spoof-iran", [field("Link (uutspoof://...)", "link"), field("Interface", "iface", d.iface || "eth0"), field("Port users connect to (1024-65535)", "port", "8443")]));
+}
+
+async function viewTests() {
+  const main = document.getElementById("main");
+  const lout = h("div", {});
+  const tout = h("div", {});
+  const refresh = async () => {
+    try {
+      const s = await api("/api/test/status");
+      lout.replaceChildren(s.running ? h("div", {}, h("div", { class: "msg ok" }, "Listener running. Paste this link on the OTHER server (Tester):"), h("pre", { class: "link" }, s.link), h("pre", {}, s.log || "(waiting for packets)")) : h("p", { class: "dim" }, "No listener running."));
+    } catch (e) { note(lout, e.message, false); }
+  };
+  const listenForm = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" },
+    select("Test type", "kind", [["conn", "Connection + speed test"], ["spoof", "Spoof test"]]), field("This server public IP", "host", ""), field("Port (1024-65533)", "port", "4500")));
+  const lbtn = h("button", { class: "btn red", onclick: async () => {
+    try { await api("/api/test/listen", "POST", { kind: val(listenForm, "kind"), host: val(listenForm, "host"), port: val(listenForm, "port") }); refresh(); } catch (e) { note(lout, e.message, false); }
+  } }, "Start listener");
+  const sbtn = h("button", { class: "btn", onclick: async () => { await api("/api/test/stop", "POST"); refresh(); } }, "Stop listener");
+  try { listenForm.elements.host.value = (await api("/api/defaults")).ip; } catch (e) { /* ignore */ }
+  const runForm = h("form", { onsubmit: (e) => e.preventDefault() }, h("div", { class: "row" },
+    select("Test type", "kind", [["conn", "Connection + speed test"], ["spoof", "Spoof test"]]), field("Link from the listener", "link"),
+    select("Spoof mode", "mode", [["scan", "Range scan"], ["one", "One forged IP"]]), field("Forged IP (one IP mode)", "spoof_ip"), field("This server public IP (range scan)", "my_ip"), field("Extra ranges (optional)", "ranges", "", { placeholder: "5.22.0.0/16,185.10.0.0/16" })));
+  const rbtn = h("button", { class: "btn red", onclick: async () => {
+    rbtn.disabled = true;
+    tout.replaceChildren(h("div", { class: "msg" }, "Running... up to 4 minutes."));
+    const body = {};
+    for (const el of runForm.elements) if (el.name) body[el.name] = el.value.trim();
+    try { const r = await api("/api/test/run", "POST", body); tout.replaceChildren(h("pre", {}, r.text)); } catch (e) { note(tout, e.message, false); }
+    rbtn.disabled = false;
+  } }, "Run test");
+  main.replaceChildren(
+    h("div", { class: "card" }, h("h3", {}, "1) Listener (run on the first server)"), listenForm, h("div", { class: "row mt" }, lbtn, sbtn), lout),
+    h("div", { class: "card" }, h("h3", {}, "2) Tester (run on the second server)"), runForm, rbtn, tout));
+  refresh();
+}
+
+async function render() {
+  try { const s = await api("/api/session"); if (s.auth) { csrf = s.csrf; return renderShell(); } } catch (e) { /* login */ }
+  renderLogin();
+}
+render();
+UUT_PANEL_JS_EOF
+    cat > "$PANEL_DIR/web/app.css" <<'UUT_PANEL_CSS_EOF'
+:root{--bg:#0b0f14;--card:#121923;--line:#223042;--fg:#d8e2ee;--dim:#7d8da1;--red:#e0494f;--green:#35c26b;--cyan:#38b6d8;--yellow:#e3b341}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+header b{color:var(--red);font-size:18px;letter-spacing:1px}
+nav{display:flex;gap:6px;padding:10px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav button,.btn{background:#1a2432;border:1px solid var(--line);color:var(--fg);padding:7px 14px;border-radius:6px;cursor:pointer;font:inherit}
+nav button.on{background:var(--red);border-color:var(--red);color:#fff}
+.btn:hover,nav button:hover{border-color:var(--cyan)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:3px 10px;font-size:12px}
+main{max-width:980px;margin:0 auto;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.card h3{margin:0 0 10px;color:var(--cyan);font-size:15px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+label{display:flex;flex-direction:column;gap:3px;color:var(--dim);font-size:12px;flex:1;min-width:180px}
+input,select{background:#0e141c;border:1px solid var(--line);color:var(--fg);padding:8px;border-radius:6px;font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--cyan)}
+.t{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.t:last-child{border:none}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:var(--red)}
+.dot.on{background:var(--green)}
+.tag{font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--dim);margin-left:6px}
+pre{background:#080c11;border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:420px;white-space:pre-wrap;word-break:break-all;margin:10px 0 0;font:12px/1.45 ui-monospace,Consolas,monospace}
+.link{color:var(--green);word-break:break-all;user-select:all}
+.msg{padding:8px 12px;border-radius:6px;margin-bottom:10px;background:#1a2432}
+.msg.err{border:1px solid var(--red);color:#ff9a9e}
+.msg.ok{border:1px solid var(--green)}
+.login{max-width:360px;margin:12vh auto;padding:0 16px}
+.dim{color:var(--dim)}
+.mt{margin-top:12px}.ml{margin-left:8px}.row.flush{margin:0}
+UUT_PANEL_CSS_EOF
+    chmod 0644 "$PANEL_DIR/panel.py" "$PANEL_DIR/connection-test.py" "$PANEL_DIR/web/"*
+}
+
+panel_installed() { [[ -f "/etc/systemd/system/$PANEL_UNIT" ]]; }
+
+panel_host() {
+    local host
+    host="$(detect_public_ipv4 2>/dev/null || true)"
+    printf '%s' "${host:-SERVER_IP}"
+}
+
+panel_show() {
+    local port bind
+    port="$(sed -n 's/^PORT=//p' "$PANEL_STATE/panel.env" 2>/dev/null)"
+    bind="$(sed -n 's/^BIND=//p' "$PANEL_STATE/panel.env" 2>/dev/null)"
+    local state="$RED○stopped$RESET"
+    systemctl is-active --quiet "$PANEL_UNIT" && state="$GREEN●running$RESET"
+    if [[ "$bind" == 127.0.0.1 ]]; then
+        quick_box "Web panel $state" "Listens only on this server (127.0.0.1:$port)." \
+            "From your computer: ssh -L $port:127.0.0.1:$port root@$(panel_host)" \
+            "Then open: ${GREEN}https://127.0.0.1:$port/${RESET}"
+    else
+        quick_box "Web panel $state" "Open: ${GREEN}https://$(panel_host):$port/${RESET}" \
+            "The certificate is self-signed: accept the browser warning once." \
+            "Forgot the password? Run: ununknowntun panel-password"
+    fi
+}
+
+panel_install() {
+    quick_prepare
+    install_launcher
+    [[ -f "$INSTALL_DIR/installer.sh" ]] || cp -f -- "$SCRIPT_PATH" "$INSTALL_DIR/installer.sh" || die "Could not store the installer in $INSTALL_DIR."
+    chmod 0755 "$INSTALL_DIR/installer.sh"
+    command -v python3 >/dev/null 2>&1 || { apt-get install -y -qq python3; } || die "python3 is required."
+    printf '\n%s=== Web panel ===%s\n' "$CYAN" "$RESET"
+    printf 'Manage tunnels, create quick tunnels and run tests from a browser.\n'
+    printf 'It runs as root: use the strong random password, HTTPS, and ideally a firewall or the SSH-tunnel mode.\n\n'
+    local port bind choice default_port password attempt
+    default_port=$(( 20000 + RANDOM % 40000 ))
+    while ! quick_port_free "$default_port"; do default_port=$(( 20000 + RANDOM % 40000 )); done
+    while true; do
+        ask_valid port "Panel port" "$default_port" valid_port "Invalid port."
+        quick_port_free "$port" && break
+        warn "Port $port is already in use."
+    done
+    printf '\nWho can reach the panel?\n  1) Anyone with the URL and password (HTTPS)\n  2) Only this server (open it with an SSH tunnel) - safest\n'
+    ask_valid choice "Select" "1" valid_two_choices "Select 1 or 2."
+    [[ "$choice" == 2 ]] && bind=127.0.0.1 || bind=0.0.0.0
+    panel_write_files
+    install -d -o root -g root -m 0700 "$PANEL_STATE"
+    openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -days 3650 \
+        -subj "/CN=ununknowntun-panel" -keyout "$PANEL_STATE/key.pem" -out "$PANEL_STATE/cert.pem" >/dev/null 2>&1 || die "Certificate generation failed."
+    chmod 0600 "$PANEL_STATE/key.pem"
+    password="$(python3 -I "$PANEL_DIR/panel.py" --state "$PANEL_STATE" set-password)" || die "Could not set the panel password."
+    printf 'PORT=%s\nBIND=%s\n' "$port" "$bind" > "$PANEL_STATE/panel.env"
+    chmod 0600 "$PANEL_STATE/panel.env"
+    cat > "/etc/systemd/system/$PANEL_UNIT" <<EOF
+[Unit]
+Description=UnUnknownTun web panel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/env python3 -I $PANEL_DIR/panel.py --state $PANEL_STATE serve --port $port --bind $bind
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    chmod 0644 "/etc/systemd/system/$PANEL_UNIT"
+    systemctl daemon-reload
+    systemctl enable --now "$PANEL_UNIT" >/dev/null 2>&1 || true
+    sleep 2
+    if ! systemctl is-active --quiet "$PANEL_UNIT"; then
+        warn "The panel did not start:"
+        journalctl -u "$PANEL_UNIT" -n 15 --no-pager >&2 || true
+        die "Panel installation failed."
+    fi
+    [[ "$bind" == 0.0.0.0 ]] && quick_offer_ufw "$port" tcp
+    panel_show
+    printf '\n  %sPassword (shown only once):%s  %s%s%s\n\n' "$BOLD" "$RESET" "$GREEN" "$password" "$RESET"
+}
+
+panel_password() {
+    require_root
+    panel_installed || die "The web panel is not installed. Run: ununknowntun panel"
+    local password
+    password="$(python3 -I "$PANEL_DIR/panel.py" --state "$PANEL_STATE" set-password)" || die "Could not set the password."
+    systemctl restart "$PANEL_UNIT" >/dev/null 2>&1 || true
+    printf '\n  %sNew password (shown only once):%s  %s%s%s\n\n' "$BOLD" "$RESET" "$GREEN" "$password" "$RESET"
+}
+
+panel_remove() {
+    require_root
+    panel_installed || { info "The web panel is not installed."; return 0; }
+    systemctl disable --now "$PANEL_UNIT" >/dev/null 2>&1 || true
+    rm -f -- "/etc/systemd/system/$PANEL_UNIT"
+    systemctl daemon-reload
+    rm -rf -- "${PANEL_DIR:?}" "${PANEL_STATE:?}"
+    info "Web panel removed. Tunnels were not touched."
+}
+
+panel_menu() {
+    require_root
+    if ! panel_installed; then
+        panel_install
+        return
+    fi
+    local choice
+    while true; do
+        panel_show
+        printf '  1) Show again   2) New password   3) Restart   4) Stop   5) Start   6) Remove panel   0) Back\n'
+        read -r -p "Action: " choice || return 0
+        case "$choice" in
+            1) ;;
+            2) panel_password ;;
+            3) systemctl restart "$PANEL_UNIT"; info "Restarted." ;;
+            4) systemctl stop "$PANEL_UNIT"; info "Stopped." ;;
+            5) systemctl start "$PANEL_UNIT"; info "Started." ;;
+            6) if yes_no "Remove the web panel (tunnels stay)?" "n"; then panel_remove; return 0; fi ;;
+            0|"") return 0 ;;
+            *) warn "Invalid choice." ;;
+        esac
+    done
+}
+
 run_test_menu() {
     printf '\n%sTest%s\n' "$BOLD$CYAN" "$RESET"
     printf '  %s1)%s %sConnection test%s   protocols (TCP/UDP/ICMP/TLS/WebSocket) and speed between Iran and Foreign\n' "$RED" "$RESET" "$BOLD" "$RESET"
@@ -16474,12 +17329,13 @@ main_menu() {
  7|Scanner|full SIKDPI scanner, no tunnel needed
  8|ICMP L3|easy setup with a pairing code
  9|Control Room|Tunnels / Tuning / Doctor
-10|Exit|
+10|Web Panel|manage tunnels and run tests from a browser
+11|Exit|
 MENU
     printf '\n'
     local choice
     printf '  %sReopen this menu any time with:%s  %sununknowntun%s   (short: uut)\n\n' "$D" "$RESET" "$B" "$RESET"
-    ask_valid choice "Select an option" "1" valid_main_choice "Choose a number from 0 to 10."
+    ask_valid choice "Select an option" "1" valid_main_choice "Choose a number from 0 to 11."
     case "$choice" in
         0) run_test_menu ;;
         1) setup_iran_menu ;;
@@ -16491,7 +17347,8 @@ MENU
         7) run_full_scanner ;;
         8) run_direct_icmp_setup ;;
         9) run_terminal_ui ;;
-        10) exit 0 ;;
+        10) panel_menu ;;
+        11) exit 0 ;;
         *) die "Invalid selection." ;;
     esac
 }
@@ -16513,6 +17370,9 @@ case "${1:-}" in
     ui) shift; run_terminal_ui "$@" ;;
     connection-test|test) shift; run_connection_test "$@" ;;
     spoof-test) shift; run_spoof_test "$@" ;;
+    panel) panel_menu ;;
+    panel-password) panel_password ;;
+    panel-remove) panel_remove ;;
     quick-foreign) quick_foreign_setup ;;
     quick-spoof-foreign) qspoof_foreign_setup ;;
     quick-spoof-iran) qspoof_iran_setup ;;
@@ -16521,6 +17381,7 @@ case "${1:-}" in
     "") main_menu ;;
     help|--help|-h)
         printf 'Usage: %s [foreign|iran|manage|upgrade|scanner|ui]\n' "$0"
+        printf '  panel | panel-password | panel-remove      Web panel install/manage\n'
         printf '  quick-foreign | quick-iran | quick-manage   Link-based quick tunnel\n'
         printf '  quick-spoof-foreign | quick-spoof-iran       Link-based spoof (GRE) tunnel, one forwarded port\n'
         printf '  spoof-test                     Check whether forged source IPs pass between two servers\n'
